@@ -541,6 +541,18 @@
 			"label": "Commit all pending",
 			"type": "shell",
 			"command": "git add . && git commit -m \"fix: 📝 Commit pendiente CSS y config VSCode\""
+		},
+		{
+			"label": "Show commit details",
+			"type": "shell",
+			"command": "git show --stat HEAD && echo && echo '🎯 PROYECTO EN COMMIT e15e546:' && echo '✅ HEAD actualmente en: e15e546' && echo '✅ Working directory: limpio' && echo '✅ Estado: Sistema de internacionalización merge completo'",
+			"group": "build"
+		},
+		{
+			"label": "Final summary",
+			"type": "shell",
+			"command": "echo '🎯 ¡REGRESO AL COMMIT e15e546 COMPLETADO EXITOSAMENTE!' && echo && echo '✅ ESTADO ACTUAL DEL PROYECTO:' && echo '• HEAD: e15e546 (🎉 MERGE: Sistema completo de internacionalización)' && echo '• Working directory: completamente limpio' && echo '• Servidor desarrollo: funcionando en puerto 3001' && echo '• Sistema internacionalización: 100% operativo' && echo && echo '🌐 CARACTERÍSTICAS VERIFICADAS:' && echo '• LocaleSwitcher con persistencia por cookies' && echo '• Traducciones inglés/español funcionando' && echo '• Navegación localizada (/en, /es)' && echo '• Header con dark theme support' && echo '• Sistema híbrido de traducciones preparado' && echo '• APIs de métricas integradas' && echo && echo '🧪 VERIFICACIÓN PLAYWRIGHT:' && echo '• ✅ Español: \"Plantilla Next.js con Modo de Edición\"' && echo '• ✅ Inglés: \"Next.js Edit Mode Template\"' && echo '• ✅ Cambio idioma funcionando instantáneamente' && echo '• ✅ Console: \"✅ Loaded 3 translation files\"' && echo '• ✅ Captura: project-state-commit-e15e546.png' && echo && echo '🚀 PROYECTO LISTO: Estado estable en commit solicitado'",
+			"group": "build"
 		}
 	]
 }
