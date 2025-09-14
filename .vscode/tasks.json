@@ -526,6 +526,21 @@
 			"label": "Commit VSCode config",
 			"type": "shell",
 			"command": "git add .vscode/tasks.json && git commit -m \"chore: 🔧 Guardar configuración VSCode tasks\""
+		},
+		{
+			"label": "Switch to main",
+			"type": "shell",
+			"command": "git checkout main"
+		},
+		{
+			"label": "Check git status",
+			"type": "shell",
+			"command": "git status"
+		},
+		{
+			"label": "Commit all pending",
+			"type": "shell",
+			"command": "git add . && git commit -m \"fix: 📝 Commit pendiente CSS y config VSCode\""
 		}
 	]
 }
