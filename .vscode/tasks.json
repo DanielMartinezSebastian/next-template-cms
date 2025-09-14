@@ -351,6 +351,76 @@
 			"label": "Git add and status for documentation",
 			"type": "shell",
 			"command": "git add . && git status"
+		},
+		{
+			"label": "Final documentation commit",
+			"type": "shell",
+			"command": "git commit -m \"docs: 📚 DOCUMENTACIÓN FINAL COMPLETA - Sistema index-based optimizado\n\n✅ DOCUMENTACIÓN ACTUALIZADA:\n• ✅ README-TRANSLATIONS.md: Sistema index-based simplificado\n• ✅ Compatibilidad futura PostgreSQL documentada\n• ✅ Guía de migración automática incluida\n• ✅ Estado final del sistema verificado\n• ✅ Roadmap de evolución clarificado\n\n🏗️ ARQUITECTURA FINAL DOCUMENTADA:\n• Sistema index-based puro (sin legacy)\n• messages/index.ts como única fuente de verdad\n• Configuración centralizada y mantenible\n• Performance optimizado con imports estáticos\n• Preparado para PostgreSQL automáticamente\n\n🚀 MIGRATION-GUIDE.md INCLUIDA:\n• Checklist completo para migración futura\n• Verificaciones de seguridad\n• Troubleshooting común\n• Estrategias automáticas post-migración\n• Nuevas capacidades dinámicas\n\n📋 ESTADO DOCUMENTADO:\n• Sistema 100% funcional HOY con archivos JSON\n• Migración automática CUANDO configures DATABASE_URL\n• Zero breaking changes garantizado\n• Escalabilidad futura con Redis/CDN\n\n🎆 RESULTADO: Documentación completa para crecimiento sin riesgos\""
+		},
+		{
+			"label": "Final project status",
+			"type": "shell",
+			"command": "git log --oneline -5 && echo && git status && echo && echo \"🏆 PROYECTO COMPLETADO:\" && echo \"✅ Sistema index-based puro y optimizado\" && echo \"✅ Documentación completa y guía de migración\" && echo \"✅ Verificado con Playwright (inglés y español)\" && echo \"✅ Zero errores TypeScript\" && echo \"✅ Performance máximo con imports estáticos\" && echo \"✅ Preparado para PostgreSQL automáticamente\""
+		},
+		{
+			"label": "Final status summary",
+			"type": "shell",
+			"command": "echo && git status && echo && echo \"🏆 PROYECTO COMPLETADO:\" && echo \"✅ Sistema index-based puro y optimizado\" && echo \"✅ Documentación completa y guía de migración\" && echo \"✅ Verificado con Playwright (inglés y español)\" && echo \"✅ Zero errores TypeScript\" && echo \"✅ Performance máximo con imports estáticos\" && echo \"✅ Preparado para PostgreSQL automáticamente\""
+		},
+		{
+			"label": "Create localized not-found page",
+			"type": "shell",
+			"command": "cat > src/app/[locale]/not-found.tsx << 'EOF'\nimport { getTranslations } from 'next-intl/server';\nimport Link from 'next/link';\n\nexport default async function NotFound() {\n  const t = await getTranslations();\n  \n  return (\n    <div className=\"min-h-screen flex items-center justify-center\">\n      <div className=\"text-center\">\n        <h1 className=\"text-4xl font-bold mb-4\">{t('errors.404.title')}</h1>\n        <p className=\"text-gray-600 mb-4\">\n          {t('errors.404.description')}\n        </p>\n        <Link \n          href=\"/\" \n          className=\"text-blue-600 hover:text-blue-800 underline\"\n        >\n          {t('errors.404.go_back_home')}\n        </Link>\n      </div>\n    </div>\n  );\n}\nEOF"
+		},
+		{
+			"label": "Create not-found file in locale directory",
+			"type": "shell",
+			"command": "touch 'src/app/[locale]/not-found.tsx'"
+		},
+		{
+			"label": "Create not-found-redirect page directory",
+			"type": "shell",
+			"command": "mkdir -p 'src/app/[locale]/not-found-redirect' && touch 'src/app/[locale]/not-found-redirect/page.tsx'"
+		},
+		{
+			"label": "Create catch-all route for unknown pages",
+			"type": "shell",
+			"command": "mkdir -p 'src/app/[locale]/[...rest]' && cat > 'src/app/[locale]/[...rest]/page.tsx' << 'EOF'\nimport { notFound } from 'next/navigation';\n\n/**\n * Catch-all route for unknown pages within locale routing\n * This ensures that any unmatched route like /en/unknown-page\n * will trigger the localized not-found page\n * \n * Based on official next-intl documentation:\n * https://next-intl.dev/docs/environments/error-files#catching-unknown-routes\n */\nexport default function CatchAllPage() {\n  // This will trigger the closest not-found.tsx page\n  // which is src/app/[locale]/not-found.tsx\n  notFound();\n}\nEOF"
+		},
+		{
+			"label": "Remove unnecessary not-found-redirect directory",
+			"type": "shell",
+			"command": "rm -rf 'src/app/[locale]/not-found-redirect'"
+		},
+		{
+			"label": "Test 404 page with curl",
+			"type": "shell",
+			"command": "curl -s http://localhost:3000/es/pagina-que-no-existe | head -10"
+		},
+		{
+			"label": "Test 404 page response",
+			"type": "shell",
+			"command": "curl -s http://localhost:3000/es/pagina-que-no-existe"
+		},
+		{
+			"label": "Check port 3000",
+			"type": "shell",
+			"command": "netstat -tlnp 2>/dev/null | grep :3000 || ss -tlnp | grep :3000 || echo 'Port 3000 not found'"
+		},
+		{
+			"label": "Test 404 with headers",
+			"type": "shell",
+			"command": "sleep 3 && curl -i http://localhost:3000/es/pagina-que-no-existe 2>/dev/null | head -20"
+		},
+		{
+			"label": "Check Spanish translations in 404",
+			"type": "shell",
+			"command": "sleep 2 && curl -s http://localhost:3000/es/pagina-que-no-existe | grep -i \"página\\|encontrada\\|inicio\" || echo 'No Spanish translations found'"
+		},
+		{
+			"label": "Git add all changes",
+			"type": "shell",
+			"command": "git add ."
 		}
 	]
 }

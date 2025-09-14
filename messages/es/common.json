@@ -26,5 +26,22 @@
     "error": "Error",
     "warning": "Advertencia",
     "info": "Información"
+  },
+  "errors": {
+    "404": {
+      "title": "404 - Página No Encontrada",
+      "description": "La página que estás buscando no existe.",
+      "go_back_home": "Volver al inicio"
+    },
+    "500": {
+      "title": "500 - Error Interno del Servidor",
+      "description": "Algo salió mal en nuestro lado.",
+      "go_back_home": "Volver al inicio"
+    },
+    "generic": {
+      "title": "Algo salió mal",
+      "description": "Ocurrió un error inesperado.",
+      "go_back_home": "Volver al inicio"
+    }
   }
 }

@@ -26,5 +26,22 @@
     "error": "Error",
     "warning": "Warning",
     "info": "Information"
+  },
+  "errors": {
+    "404": {
+      "title": "404 - Page Not Found",
+      "description": "The page you are looking for does not exist.",
+      "go_back_home": "Go back home"
+    },
+    "500": {
+      "title": "500 - Internal Server Error",
+      "description": "Something went wrong on our end.",
+      "go_back_home": "Go back home"
+    },
+    "generic": {
+      "title": "Something went wrong",
+      "description": "An unexpected error occurred.",
+      "go_back_home": "Go back home"
+    }
   }
 }

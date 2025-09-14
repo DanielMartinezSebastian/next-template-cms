@@ -42,8 +42,9 @@ function loadDynamicTranslations(locale: string): AbstractIntlMessages {
   const failedFiles: string[] = [];
 
   // Get the registry for this locale
-  const localeRegistry = TRANSLATION_REGISTRY[locale as keyof typeof TRANSLATION_REGISTRY];
-  
+  const localeRegistry =
+    TRANSLATION_REGISTRY[locale as keyof typeof TRANSLATION_REGISTRY];
+
   if (!localeRegistry) {
     console.error(`❌ No translation registry found for locale: ${locale}`);
     return {};
@@ -52,16 +53,18 @@ function loadDynamicTranslations(locale: string): AbstractIntlMessages {
   // Load each file defined in the index
   for (const fileConfig of TRANSLATION_FILES) {
     const { filename, namespace } = fileConfig;
-    
+
     try {
       const content = localeRegistry[filename as keyof typeof localeRegistry];
-      
+
       if (!content) {
         failedFiles.push(filename);
-        console.warn(`⚠️ Translation file ${filename}.json not found in registry for locale ${locale}`);
+        console.warn(
+          `⚠️ Translation file ${filename}.json not found in registry for locale ${locale}`
+        );
         continue;
       }
-      
+
       if (namespace === null) {
         // Spread common translations at root level
         Object.assign(messages, content);
@@ -73,16 +76,25 @@ function loadDynamicTranslations(locale: string): AbstractIntlMessages {
       }
     } catch (error) {
       failedFiles.push(filename);
-      console.warn(`⚠️ Error processing translation file ${filename} for locale ${locale}:`, error);
+      console.warn(
+        `⚠️ Error processing translation file ${filename} for locale ${locale}:`,
+        error
+      );
     }
   }
 
   if (loadedFiles.length > 0) {
-    console.log(`✅ Loaded ${loadedFiles.length} translation files for ${locale}:`, loadedFiles);
+    console.log(
+      `✅ Loaded ${loadedFiles.length} translation files for ${locale}:`,
+      loadedFiles
+    );
   }
-  
+
   if (failedFiles.length > 0) {
-    console.warn(`⚠️ Failed to load ${failedFiles.length} files for ${locale}:`, failedFiles);
+    console.warn(
+      `⚠️ Failed to load ${failedFiles.length} files for ${locale}:`,
+      failedFiles
+    );
   }
 
   return messages;
@@ -108,40 +120,40 @@ export default getRequestConfig(async ({ requestLocale }) => {
       formats: {
         dateTime: {
           short: {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric'
-          }
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          },
         },
         number: {
           precise: {
-            maximumFractionDigits: 5
-          }
-        }
+            maximumFractionDigits: 5,
+          },
+        },
       },
       // Handle missing translations with development feedback
       onError(error) {
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Translation error:', error);
+        if (process.env.NODE_ENV === "development") {
+          console.error("Translation error:", error);
         }
       },
-      getMessageFallback({namespace, key, error}) {
-        const path = [namespace, key].filter((part) => part != null).join('.');
-        
-        if (process.env.NODE_ENV === 'development') {
+      getMessageFallback({ namespace, key, error }) {
+        const path = [namespace, key].filter((part) => part != null).join(".");
+
+        if (process.env.NODE_ENV === "development") {
           console.warn(`Missing translation: ${path} (${error.message})`);
           return `🚨 ${path}`;
         }
-        
+
         return path;
-      }
+      },
     };
   } catch (error) {
     console.error(`Error loading translations for locale ${locale}:`, error);
-    
+
     return {
       locale,
-      messages: {}
+      messages: {},
     };
   }
 });
