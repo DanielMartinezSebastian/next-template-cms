@@ -1,8 +1,23 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { setRequestLocale } from "next-intl/server";
+import { routing } from "@/i18n/routing";
 
-export default async function Home() {
+type Props = {
+  params: Promise<{locale: string}>;
+};
+
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({locale}));
+}
+
+export default async function Home({params}: Props) {
+  const {locale} = await params;
+  
+  // Enable static rendering
+  setRequestLocale(locale);
+  
   const t = await getTranslations('HomePage');
   const tNav = await getTranslations('Navigation');
 

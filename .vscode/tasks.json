@@ -1,0 +1,88 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Install Dependencies",
+			"type": "shell",
+			"command": "npm install",
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Start Development Server",
+			"type": "shell",
+			"command": "npm run dev",
+			"isBackground": true,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Create Spanish translations",
+			"type": "shell",
+			"command": "mkdir -p messages && echo '{\"HomePage\":{\"title\":\"Next.js Edit Mode Template\",\"subtitle\":\"Una plantilla completa de Next.js 15 con capacidades de edición visual\",\"description\":\"Comienza editando los componentes de página. Construido con TypeScript, Tailwind CSS 4, y soporte de internacionalización.\",\"features\":{\"visual_editor\":\"Editor Visual de Páginas\",\"i18n\":\"Internacionalización\",\"admin_panel\":\"Panel de Administración\",\"seo\":\"Optimizado para SEO\"},\"cta\":{\"get_started\":\"Comenzar\",\"learn_more\":\"Aprender Más\",\"view_docs\":\"Ver Documentación\"}},\"Navigation\":{\"home\":\"Inicio\",\"admin\":\"Admin\",\"docs\":\"Docs\",\"language_switcher\":\"Idioma\"},\"Common\":{\"loading\":\"Cargando...\",\"error\":\"Ocurrió un error\",\"save\":\"Guardar\",\"cancel\":\"Cancelar\",\"edit\":\"Editar\",\"delete\":\"Eliminar\",\"create\":\"Crear\"}}' > messages/es.json",
+			"group": "build"
+		},
+		{
+			"label": "Create English translations",
+			"type": "shell",
+			"command": "echo '{\"HomePage\":{\"title\":\"Next.js Edit Mode Template\",\"subtitle\":\"A comprehensive Next.js 15 template with visual editing capabilities\",\"description\":\"Get started by editing the page components. Built with TypeScript, Tailwind CSS 4, and internationalization support.\",\"features\":{\"visual_editor\":\"Visual Page Editor\",\"i18n\":\"Internationalization\",\"admin_panel\":\"Admin Panel\",\"seo\":\"SEO Optimized\"},\"cta\":{\"get_started\":\"Get Started\",\"learn_more\":\"Learn More\",\"view_docs\":\"View Documentation\"}},\"Navigation\":{\"home\":\"Home\",\"admin\":\"Admin\",\"docs\":\"Docs\",\"language_switcher\":\"Language\"},\"Common\":{\"loading\":\"Loading...\",\"error\":\"An error occurred\",\"save\":\"Save\",\"cancel\":\"Cancel\",\"edit\":\"Edit\",\"delete\":\"Delete\",\"create\":\"Create\"}}' > messages/en.json",
+			"group": "build"
+		},
+		{
+			"label": "Create i18n request config",
+			"type": "shell",
+			"command": "mkdir -p src/i18n && cat > src/i18n/request.ts << 'EOF'\nimport {getRequestConfig} from 'next-intl/server';\n\nexport default getRequestConfig(async () => {\n  // Provide a static locale for now, we'll make this dynamic later\n  const locale = 'en';\n\n  return {\n    locale,\n    messages: (await import(`../../messages/${locale}.json`)).default\n  };\n});\nEOF",
+			"group": "build"
+		},
+		{
+			"label": "Start Development Server",
+			"type": "shell",
+			"command": "npm run dev",
+			"isBackground": true,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Create middleware for i18n routing",
+			"type": "shell",
+			"command": "cat > src/middleware.ts << 'EOF'\nimport createMiddleware from 'next-intl/middleware';\n\nexport default createMiddleware({\n  // A list of all locales that are supported\n  locales: ['en', 'es'],\n\n  // Used when no locale matches\n  defaultLocale: 'en'\n});\n\nexport const config = {\n  // Match all pathnames except for\n  // - … if they start with `/api`, `/_next` or `/_vercel`\n  // - … the ones containing a dot (e.g. `favicon.ico`)\n  matcher: ['/((?!api|_next|_vercel|.*\\\\..*).*)'],\n};\nEOF",
+			"group": "build"
+		},
+		{
+			"label": "Create routing configuration",
+			"type": "shell",
+			"command": "cat > src/i18n/routing.ts << 'EOF'\nimport {defineRouting} from 'next-intl/routing';\n\nexport const routing = defineRouting({\n  // A list of all locales that are supported\n  locales: ['en', 'es'],\n\n  // Used when no locale matches\n  defaultLocale: 'en'\n});\n\n// Lightweight wrappers around Next.js' navigation APIs\n// that will consider the routing configuration\nexport const {Link, redirect, usePathname, useRouter, getPathname} = routing;\nEOF",
+			"group": "build"
+		},
+		{
+			"label": "Create locale directory structure",
+			"type": "shell",
+			"command": "mkdir -p src/app/\\[locale\\] && mv src/app/layout.tsx src/app/\\[locale\\]/ && mv src/app/page.tsx src/app/\\[locale\\]/",
+			"group": "build"
+		},
+		{
+			"label": "Create root layout",
+			"type": "shell",
+			"command": "cat > src/app/layout.tsx << 'EOF'\nimport type { Metadata } from \"next\";\nimport { Geist, Geist_Mono } from \"next/font/google\";\nimport \"./globals.css\";\n\nconst geistSans = Geist({\n  variable: \"--font-geist-sans\",\n  subsets: [\"latin\"],\n});\n\nconst geistMono = Geist_Mono({\n  variable: \"--font-geist-mono\",\n  subsets: [\"latin\"],\n});\n\nexport const metadata: Metadata = {\n  title: \"Next.js Edit Mode Template\",\n  description: \"A comprehensive Next.js 15 template with visual editing capabilities, internationalization, and content management system.\",\n};\n\nexport default function RootLayout({\n  children,\n}: Readonly<{\n  children: React.ReactNode;\n}>) {\n  return (\n    <html className={`${geistSans.variable} ${geistMono.variable}`}>\n      <body className=\"antialiased\">\n        {children}\n      </body>\n    </html>\n  );\n}\nEOF",
+			"group": "build"
+		},
+		{
+			"label": "Create not-found page",
+			"type": "shell",
+			"command": "cat > src/app/not-found.tsx << 'EOF'\nimport Link from 'next/link';\n\nexport default function NotFound() {\n  return (\n    <html>\n      <body>\n        <div className=\"min-h-screen flex items-center justify-center\">\n          <div className=\"text-center\">\n            <h1 className=\"text-4xl font-bold mb-4\">404 - Page Not Found</h1>\n            <p className=\"text-gray-600 mb-4\">\n              The page you are looking for does not exist.\n            </p>\n            <Link \n              href=\"/\" \n              className=\"text-blue-600 hover:text-blue-800 underline\"\n            >\n              Go back home\n            </Link>\n          </div>\n        </div>\n      </body>\n    </html>\n  );\n}\nEOF",
+			"group": "build"
+		},
+		{
+			"label": "Git Status and Add",
+			"type": "shell",
+			"command": "git status && git add .",
+			"group": "build"
+		}
+	]
+}
