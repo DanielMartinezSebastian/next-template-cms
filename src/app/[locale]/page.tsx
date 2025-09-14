@@ -41,17 +41,17 @@ export default async function Home({params}: Props) {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-          <div className="p-4 border rounded-lg">
-            <h3 className="font-semibold">{tHome('features.visual_editor')}</h3>
+          <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-background">
+            <h3 className="font-semibold text-foreground">{tHome('features.visual_editor')}</h3>
           </div>
-          <div className="p-4 border rounded-lg">
-            <h3 className="font-semibold">{tHome('features.i18n')}</h3>
+          <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-background">
+            <h3 className="font-semibold text-foreground">{tHome('features.i18n')}</h3>
           </div>
-          <div className="p-4 border rounded-lg">
-            <h3 className="font-semibold">{tHome('features.admin_panel')}</h3>
+          <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-background">
+            <h3 className="font-semibold text-foreground">{tHome('features.admin_panel')}</h3>
           </div>
-          <div className="p-4 border rounded-lg">
-            <h3 className="font-semibold">{tHome('features.seo')}</h3>
+          <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-background">
+            <h3 className="font-semibold text-foreground">{tHome('features.seo')}</h3>
           </div>
         </div>
 

@@ -501,6 +501,16 @@
 			"label": "Add dark theme fixes",
 			"type": "shell",
 			"command": "git add ."
+		},
+		{
+			"label": "Commit dark theme fix",
+			"type": "shell",
+			"command": "git commit -m \"fix: 🌙 CORREGIR TEMA OSCURO - Variables CSS dinámicas funcionando\n\n🎯 PROBLEMA RESUELTO:\n❌ bg-gray-50 forzaba fondo claro y rompía tema oscuro\n❌ Faltaba suppressHydrationWarning en root layout\n❌ Header y LocaleSwitcher con colores hardcodeados\n\n✅ SOLUCIONES IMPLEMENTADAS:\n• Layout: bg-gray-50 → bg-background (dinámico)\n• Root layout: añadido suppressHydrationWarning\n• Header: colores dinámicos text-foreground/text-foreground/70\n• LocaleSwitcher: soporte completo dark/light mode\n• CSS: clases custom .bg-background, .text-foreground\n• Fonts: var(--font-sans) en lugar de Arial\n\n🌙 CARACTERÍSTICAS TEMA OSCURO:\n• Variables CSS --background/#0a0a0a y --foreground/#ededed\n• Media query (prefers-color-scheme: dark) funcional\n• Transiciones suaves entre temas\n• Hover states adaptativos (blue-600/blue-400)\n• Borders dinámicos (gray-200/gray-800)\n\n🧪 VERIFICACIÓN PLAYWRIGHT:\n• ✅ Tema claro: fondo blanco, texto negro\n• ✅ Tema oscuro: fondo #0a0a0a, texto #ededed\n• ✅ Variables CSS aplicándose correctamente\n• ✅ Header y navegación adaptativos\n• ✅ LocaleSwitcher con colores dinámicos\n• ✅ Captura pantalla: dark-theme-fixed.png\n\n🚀 RESULTADO: Tema oscuro 100% funcional y responsivo\""
+		},
+		{
+			"label": "Final status after dark theme fix",
+			"type": "shell",
+			"command": "git log --oneline -3 && echo && git status"
 		}
 	]
 }

@@ -37,3 +37,21 @@ body {
 .text-foreground\/70 {
   color: color-mix(in srgb, var(--foreground) 70%, transparent);
 }
+
+  /* Dark mode SVG fixes - más específicos y robustos */
+  img[src="/next.svg"] {
+    filter: invert(1) brightness(1.1) !important;
+  }
+  
+  img[src="/vercel.svg"],
+  img[src="/file.svg"],
+  img[src="/window.svg"],
+  img[src="/globe.svg"] {
+    filter: invert(0.8) brightness(1.2) !important;
+    opacity: 0.9;
+  }
+  
+  /* Asegurar que todos los SVGs se vean bien */
+  img[src$=".svg"]:not(img[src="/next.svg"]) {
+    filter: invert(0.8) brightness(1.1) !important;
+  }

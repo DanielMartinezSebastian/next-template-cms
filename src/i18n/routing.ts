@@ -11,12 +11,12 @@ export const routing = defineRouting({
   // Cookie configuration for persistent locale preference
   localeCookie: {
     // Custom cookie name for user locale preference
-    name: 'USER_LOCALE',
+    name: "USER_LOCALE",
     // Expire in one year to remember user preference long-term
     maxAge: 60 * 60 * 24 * 365, // 365 days
     // Secure settings
-    sameSite: 'lax'
-  }
+    sameSite: "lax",
+  },
 });
 
 // Lightweight wrappers around Next.js' navigation APIs
