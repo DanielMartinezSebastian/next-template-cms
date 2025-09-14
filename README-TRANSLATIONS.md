@@ -319,6 +319,92 @@ process.env.DEBUG_TRANSLATIONS = 'true';
 - [ ] Traducciones automáticas
 - [ ] Analytics de uso
 
+## ⚠️ Guía de Compatibilidad - CRÍTICO para Desarrollo Futuro
+
+### ✅ **QUÉ SÍ HACER**
+
+```typescript
+// ✅ Usar next-intl normalmente (compatible al 100%)
+import { getTranslations } from 'next-intl/server';
+const t = await getTranslations('HomePage');
+return <h1>{t('title')}</h1>;
+
+// ✅ Añadir nuevos namespaces en archivos JSON
+// /messages/es.json
+{
+  "NewFeature": {
+    "title": "Nuevo Título",
+    "description": "Nueva descripción"
+  }
+}
+
+// ✅ Configurar estrategias en src/lib/translations/config.ts
+export const namespaceConfigs = {
+  'NewFeature': { 
+    strategy: 'static', 
+    cacheTimeout: 300,
+    fallbackToStatic: true 
+  }
+};
+
+// ✅ Usar TranslationManager para gestión programática
+import { translationManager } from '@/lib/translations/translation-manager';
+await translationManager.getTranslation('title', 'es', 'NewFeature');
+```
+
+### ❌ **QUÉ NO HACER**
+
+```typescript
+// ❌ NO reemplazar next-intl con otra solución
+// ❌ NO usar react-i18next, i18next, o otras librerías
+
+// ❌ NO modificar src/i18n/request.ts sin revisar el sistema híbrido
+// Este archivo integra next-intl con nuestro sistema híbrido
+
+// ❌ NO eliminar archivos en /messages/ (son fallback crítico)
+// Estos archivos garantizan que el sistema funcione sin base de datos
+
+// ❌ NO cambiar estructura de src/lib/translations/
+// Esta estructura es la base del sistema híbrido
+```
+
+### 🔄 **Al Implementar Prisma (Futuro)**
+
+Cuando se implemente la base de datos en fases futuras:
+
+```typescript
+// 1. Crear esquema compatible con nuestros tipos
+model Translation {
+  id        String @id @default(cuid())
+  namespace String
+  key       String  
+  locale    String
+  value     String
+  metadata  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([namespace, key, locale])
+  @@index([namespace, locale])
+}
+
+// 2. El sistema detectará automáticamente DATABASE_URL
+// 3. Migrará gradualmente usando scripts incluidos
+// 4. Mantendrá fallback a JSON garantizado
+```
+
+### 🧪 **Testing Obligatorio Antes de Commits**
+
+```bash
+# SIEMPRE verificar antes de commit:
+npm run dev
+curl http://localhost:3000/es    # ✅ Debe mostrar español
+curl http://localhost:3000/en    # ✅ Debe mostrar inglés
+curl http://localhost:3000/api/translations/metrics  # ✅ Status "healthy"
+
+# Si alguno falla, el sistema híbrido está comprometido
+```
+
 ## 🤝 Contribución
 
 Para contribuir al sistema de traducciones:
@@ -327,6 +413,7 @@ Para contribuir al sistema de traducciones:
 2. Verifica métricas: `curl /api/translations/metrics`
 3. Prueba con Playwright: `npm run test:e2e`
 4. Revisa performance en desarrollo
+5. **OBLIGATORIO**: Seguir guía de compatibilidad arriba
 
 ---
 
