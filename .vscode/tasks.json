@@ -83,6 +83,36 @@
 			"type": "shell",
 			"command": "git status && git add .",
 			"group": "build"
+		},
+		{
+			"label": "Git Commit",
+			"type": "shell",
+			"command": "git commit -m \"fix: resolve hydration mismatch error and implement Next.js 15 + next-intl 3.22 best practices\n\n✨ Features:\n- Complete internationalization setup with next-intl 3.22\n- Support for English and Spanish locales\n- Automatic locale detection and routing\n- MCP Playwright integration for testing\n\n🔧 Fixes:\n- Fixed hydration mismatch error by removing nested HTML elements\n- Migrated to Next.js 15 async APIs (await params)\n- Updated to next-intl 3.22 requestLocale pattern\n- Implemented proper layout structure following official docs\n\n⚡ Performance:\n- Added setRequestLocale for static rendering optimization\n- Implemented generateStaticParams for pre-rendering\n- Optimized layout structure for better performance\n\n📁 Architecture:\n- Proper [locale] dynamic routing setup\n- Clean separation between root and locale layouts\n- Modern next-intl configuration with defineRouting and createNavigation\n- TypeScript strict mode compliance\"",
+			"group": "build"
+		},
+		{
+			"label": "Git Log and Status",
+			"type": "shell",
+			"command": "git log --oneline -3 && echo && git status",
+			"group": "build"
+		},
+		{
+			"label": "Show Commit Details",
+			"type": "shell",
+			"command": "git show --stat HEAD",
+			"group": "build"
+		},
+		{
+			"label": "Check Git Status",
+			"type": "shell",
+			"command": "git status",
+			"group": "build"
+		},
+		{
+			"label": "Milestone Commit",
+			"type": "shell",
+			"command": "git add . && git commit -m \"milestone: ✅ INTERNACIONALIZACIÓN COMPLETA - Estado funcional verificado\n\n🎯 HITO ALCANZADO: Complete internationalization setup with next-intl 3.22\n\n✅ Estado Funcional Verificado:\n- Sistema de internacionalización 100% operativo\n- Soporte completo para inglés (en) y español (es)\n- Routing automático por locale (/en, /es)\n- Redirección inteligente desde raíz (/)\n- Zero errores de hidratación\n- Renderizado estático optimizado\n- APIs de Next.js 15 completamente integradas\n\n🔍 Verificación MCP Playwright:\n- ✅ Homepage funcional en ambos idiomas\n- ✅ Traducciones cargando correctamente\n- ✅ Navegación y middleware operativos\n- ✅ Console limpio sin errores\n\n⚡ Performance:\n- setRequestLocale habilitado para static rendering\n- generateStaticParams para pre-renderizado\n- Estructura de layouts optimizada\n\n📦 Tecnologías Integradas:\n- Next.js 15.5.3 con App Router\n- next-intl 3.22 con requestLocale pattern\n- TypeScript strict mode\n- Tailwind CSS 4\n- MCP Playwright testing\n\n🚀 LISTO PARA: Siguiente fase - Prisma + Database setup\"",
+			"group": "build"
 		}
 	]
 }
