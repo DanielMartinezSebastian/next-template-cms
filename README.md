@@ -3,20 +3,22 @@
 Una plantilla completa de Next.js 15 con capacidades de edición visual,
 internacionalización, y sistema de gestión de contenido.
 
-## 🎉 Estado del Proyecto: FASE 5 COMPLETADA
+## 🎉 Estado del Proyecto: FASE 6 COMPLETADA
 
-**✅ Database & Components Phase TERMINADA** - El proyecto cuenta con una
-**arquitectura sólida y production-ready** que incluye:
+**✅ Zustand State Management Phase TERMINADA** - El proyecto cuenta con una
+**arquitectura completa de gestión de estado** que incluye:
 
 - 🏗️ **Fundación técnica completa** (Next.js 15 + TypeScript + Tailwind CSS 4)
 - 🌐 **Sistema de traducciones híbrido** funcionando (JSON + PostgreSQL)
-- 🎨 **Biblioteca de componentes UI** con Base UI + CVA
+- 🎨 **Biblioteca de componentes UI** con Base UI + CVA + modo oscuro
 - 🗄️ **Schema de base de datos completo** para CMS avanzado
+- 🐻 **Gestión de estado Zustand** (4 stores especializados + demo interactiva)
+- 🌙 **Soporte completo de modo oscuro** con tokens semánticos
 - 🛠️ **Herramientas de desarrollo** profesionales (25+ tareas automatizadas)
-- 🧪 **Testing verificado** con Playwright (español/inglés)
+- 🧪 **Testing verificado** con Playwright (español/inglés + modo oscuro)
 
-**🚀 LISTO PARA**: Desarrollo de Zustand stores, editor visual, y panel de
-administración.
+**🚀 LISTO PARA**: Editor visual con Lexical, panel de administración avanzado,
+y páginas dinámicas.
 
 ## 🚀 Características Principales
 
@@ -24,6 +26,9 @@ administración.
 - **Tailwind CSS 4** para estilos modernos
 - **Internacionalización Híbrida** con next-intl (ES/EN) + PostgreSQL
 - **Base de datos PostgreSQL** con Prisma ORM
+- **Gestión de estado Zustand** con stores especializados y persistencia
+- **Modo oscuro completo** con tokens semánticos y soporte Base UI
+- **Página de demostración** interactiva (/stores-demo) con explicaciones
 - **Editor visual** con Lexical para edición de páginas
 - **Panel de administración** para gestión de contenido
 - **SEO optimizado** con metadatos dinámicos
@@ -93,15 +98,26 @@ administración.
 - [x] Crear estructura de base de datos escalable con indices optimizados
 - [x] **DatabaseTranslationProvider** implementado y funcional
 
-### Fase 6: Gestión de Estado 🔄 EN PROGRESO
+### Fase 6: Gestión de Estado ✅ COMPLETADO
 
-- [x] Configurar Zustand como dependencia
-- [ ] Crear stores para:
-  - [ ] Page configuration
-  - [ ] Edit mode state
-  - [ ] User preferences
-  - [ ] Translations cache
-- [ ] Implementar persistencia local cuando sea necesario
+- [x] **Configurar Zustand** como dependencia principal
+- [x] **Crear stores especializados**:
+  - [x] **Page Store**: Gestión de páginas CMS, componentes, y metadatos
+  - [x] **Edit Mode Store**: Control del editor visual, selección, e historial
+  - [x] **User Preferences Store**: Idioma, tema, configuración del editor
+  - [x] **Translation Cache Store**: Cache de traducciones y métricas de
+        rendimiento
+- [x] **Implementar persistencia localStorage** donde sea necesario
+- [x] **Arquitectura de action hooks** para separación limpia de lógica
+- [x] **Integración con DevTools** para desarrollo
+- [x] **Página de demostración interactiva** (/stores-demo) con:
+  - [x] Controles interactivos para cada store
+  - [x] Explicaciones técnicas en español
+  - [x] Tooltips informativos para cada funcionalidad
+  - [x] Soporte completo de modo oscuro
+  - [x] Diseño responsive y profesional
+- [x] **TypeScript strict mode** con tipado completo
+- [x] **Testing verificado** con Playwright
 
 ### Fase 7: Páginas Dinámicas 📄
 
@@ -157,12 +173,14 @@ src/
 │   ├── [locale]/
 │   │   ├── layout.tsx          # Layout internacional
 │   │   ├── page.tsx            # Página principal
+│   │   ├── stores-demo/        # ✅ Demo interactiva Zustand
+│   │   │   └── page.tsx        # ✅ Página de demostración
 │   │   ├── admin/              # Panel de administración
 │   │   └── [...slug]/          # Páginas dinámicas
 │   ├── api/
 │   │   └── translations/       # API sistema híbrido
 │   │       └── metrics/        # Métricas y gestión
-│   └── globals.css             # Estilos globales
+│   └── globals.css             # ✅ Estilos globales + modo oscuro
 ├── components/
 │   ├── ui/                     # Componentes base UI (Base UI + CVA)
 │   │   ├── button.tsx          # ✅ Button component con variantes
@@ -171,6 +189,9 @@ src/
 │   │   ├── LocaleSwitcher.tsx  # ✅ Selector de idioma (Base UI)
 │   │   ├── Header.tsx          # ✅ Header component
 │   │   └── index.ts            # ✅ Barrel exports
+│   ├── examples/               # ✅ Componentes de demostración
+│   │   ├── StoresExample.tsx   # ✅ Demo interactiva de stores
+│   │   └── index.ts            # ✅ Exports de ejemplos
 │   ├── layout/                 # Componentes de layout
 │   ├── admin/                  # Componentes de admin
 │   └── dynamic/                # Componentes dinámicos
@@ -185,7 +206,12 @@ src/
 │   ├── db.ts                   # ✅ Cliente Prisma configurado
 │   ├── utils.ts                # ✅ Utilidades (cn, clsx, tailwind-merge)
 │   └── validations.ts          # Esquemas Zod
-├── stores/                     # Zustand stores
+├── stores/                     # ✅ Zustand stores
+│   ├── index.ts                # ✅ Exports centrales y action hooks
+│   ├── page-store.ts           # ✅ Gestión páginas CMS
+│   ├── edit-mode-store.ts      # ✅ Control editor visual
+│   ├── user-preferences-store.ts # ✅ Preferencias usuario
+│   └── translation-cache-store.ts # ✅ Cache traducciones
 ├── types/
 │   └── translations.ts         # ✅ Tipos del sistema híbrido
 ├── i18n/                       # ✅ Configuración i18n
@@ -233,6 +259,9 @@ npm run type-check           # Verificar tipos de TypeScript
 npm run test:e2e             # Pruebas E2E con Playwright
 npm run test:e2e:ui          # Interfaz de Playwright para pruebas
 
+# Demo de Zustand stores
+# http://localhost:3000/stores-demo - Página de demostración interactiva
+
 # Tareas adicionales de VS Code (más de 25 tareas disponibles)
 # - 🚀 Dev: Start Development Server
 # - 🔍 TypeScript Check
@@ -277,7 +306,14 @@ npm run test:e2e:ui          # Interfaz de Playwright para pruebas
    npm run dev
    ```
 
-5. **Verificar sistema de traducciones**:
+5. **Explorar demo de Zustand**:
+
+   ```bash
+   # Página de demostración interactiva de stores
+   http://localhost:3000/stores-demo
+   ```
+
+6. **Verificar sistema de traducciones**:
 
    ```bash
    # Verificar estado del sistema híbrido
@@ -339,7 +375,11 @@ Ver **[README-TRANSLATIONS.md](./README-TRANSLATIONS.md)** para:
 
 ### Gestión de Estado
 
-- **Zustand** para estado global
+- **Zustand** para estado global (✅ implementado)
+  - **Page Store**: Gestión de páginas y componentes CMS
+  - **Edit Mode Store**: Control del editor visual con historial
+  - **User Preferences Store**: Configuración de usuario y idioma
+  - **Translation Cache Store**: Cache y métricas de traducciones
 - **React Hook Form** para formularios
 - **React Query** para cache de servidor (futuro)
 - **Immer** para actualizaciones inmutables
@@ -400,22 +440,23 @@ Ver **[README-TRANSLATIONS.md](./README-TRANSLATIONS.md)** para:
 3. **Explorar Prisma Studio**: `npm run db:studio`
 4. **Migrar traducciones**: `node scripts/migrate-translations.ts --execute`
 
-### Siguiente Fase de Desarrollo: Zustand Stores 🚀
+### Siguiente Fase de Desarrollo: Editor Visual Lexical 🚀
 
 El proyecto está listo para implementar:
 
-- **Page configuration store** (gestión de páginas dinámicas)
-- **Edit mode store** (estado de edición visual)
-- **User preferences store** (configuraciones de usuario)
-- **Theme store** (gestión de temas y colores)
+- **Editor visual Lexical** (infraestructura de stores completada)
+- **Drag & drop de componentes** (edit mode store listo)
+- **Páginas dinámicas** (page store implementado)
+- **Panel de administración** (user preferences y stores listos)
 
 ### Características Listas para Usar
 
 - ✅ **Sistema de traducciones híbrido** funcionando
-- ✅ **Componentes UI base** (Button, Input, Select) con variantes
+- ✅ **Componentes UI base** (Button, Input, Select) con variantes + modo oscuro
+- ✅ **Gestión de estado Zustand** (4 stores especializados + demo)
 - ✅ **Base de datos schema** completo para CMS
 - ✅ **Herramientas de desarrollo** (25+ tareas de VS Code)
-- ✅ **Testing E2E** con Playwright configurado
+- ✅ **Testing E2E** con Playwright configurado (modo claro/oscuro)
 - ✅ **Calidad de código** (ESLint + Prettier + TypeScript)
 
 ### Arquitectura Preparada Para
