@@ -1,3 +1,7 @@
+// LEGACY CONFIGURATION - TO BE REPLACED
+// This configuration is being replaced by the hybrid translation system
+// See: src/lib/translations/next-intl-hybrid.ts
+
 import { getRequestConfig } from "next-intl/server";
 import { routing } from "./routing";
 
@@ -15,3 +19,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     messages: (await import(`../../messages/${locale}.json`)).default,
   };
 });
+
+// TODO: Switch to hybrid system by importing from:
+// import hybridConfig from '@/lib/translations/next-intl-hybrid';
+// export default hybridConfig;
