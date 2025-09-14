@@ -1,0 +1,53 @@
+{
+  "home": "Home",
+  "admin": "Admin",
+  "docs": "Docs",
+  "language_switcher": "Language",
+  "locale_switcher": {
+    "label": "Change language",
+    "locale_en": "English",
+    "locale_es": "Spanish",
+    "current_locale": "Current language: {locale}"
+  },
+  "navigation": {
+    "home": "Home",
+    "admin": "Admin",
+    "docs": "Docs",
+    "language_switcher": "Language"
+  },
+  "buttons": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "create": "Create",
+    "get_started": "Get Started",
+    "learn_more": "Learn More",
+    "view_docs": "View Documentation"
+  },
+  "status": {
+    "success": "Success",
+    "error": "Error",
+    "warning": "Warning",
+    "info": "Information"
+  },
+  "errors": {
+    "404": {
+      "title": "404 - Page Not Found",
+      "description": "The page you are looking for does not exist.",
+      "go_back_home": "Go back home"
+    },
+    "500": {
+      "title": "500 - Internal Server Error",
+      "description": "Something went wrong on our end.",
+      "go_back_home": "Go back home"
+    },
+    "generic": {
+      "title": "Something went wrong",
+      "description": "An unexpected error occurred.",
+      "go_back_home": "Go back home"
+    }
+  }
+}

@@ -18,8 +18,9 @@ export default async function Home({params}: Props) {
   // Enable static rendering
   setRequestLocale(locale);
   
-  const t = await getTranslations('HomePage');
-  const tNav = await getTranslations('Navigation');
+  // Load translations from the new page-based structure
+  const tHome = await getTranslations('Home');      // Page-specific translations
+  const tCommon = await getTranslations();          // Common translations
 
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
@@ -34,23 +35,23 @@ export default async function Home({params}: Props) {
         />
         
         <div className="text-center sm:text-left">
-          <h1 className="text-4xl font-bold mb-4">{t('title')}</h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 mb-2">{t('subtitle')}</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{t('description')}</p>
+          <h1 className="text-4xl font-bold mb-4">{tHome('title')}</h1>
+          <p className="text-xl text-gray-600 dark:text-gray-300 mb-2">{tHome('subtitle')}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{tHome('description')}</p>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-          <div className="p-4 border rounded-lg">
-            <h3 className="font-semibold">{t('features.visual_editor')}</h3>
+          <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-background">
+            <h3 className="font-semibold text-foreground">{tHome('features.visual_editor')}</h3>
           </div>
-          <div className="p-4 border rounded-lg">
-            <h3 className="font-semibold">{t('features.i18n')}</h3>
+          <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-background">
+            <h3 className="font-semibold text-foreground">{tHome('features.i18n')}</h3>
           </div>
-          <div className="p-4 border rounded-lg">
-            <h3 className="font-semibold">{t('features.admin_panel')}</h3>
+          <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-background">
+            <h3 className="font-semibold text-foreground">{tHome('features.admin_panel')}</h3>
           </div>
-          <div className="p-4 border rounded-lg">
-            <h3 className="font-semibold">{t('features.seo')}</h3>
+          <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-background">
+            <h3 className="font-semibold text-foreground">{tHome('features.seo')}</h3>
           </div>
         </div>
 
@@ -59,7 +60,7 @@ export default async function Home({params}: Props) {
             className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
             href="/admin"
           >
-            {t('cta.get_started')}
+            {tHome('cta.get_started')}
           </Link>
           <a
             className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
@@ -67,7 +68,7 @@ export default async function Home({params}: Props) {
             target="_blank"
             rel="noopener noreferrer"
           >
-            {t('cta.view_docs')}
+            {tHome('cta.view_docs')}
           </a>
         </div>
       </main>
@@ -83,7 +84,7 @@ export default async function Home({params}: Props) {
             width={16}
             height={16}
           />
-          {tNav('admin')}
+          {tCommon('admin')}
         </Link>
         <Link
           className="flex items-center gap-2 hover:underline hover:underline-offset-4"
@@ -96,7 +97,7 @@ export default async function Home({params}: Props) {
             width={16}
             height={16}
           />
-          {tNav('docs')}
+          {tCommon('docs')}
         </Link>
         <Link
           className="flex items-center gap-2 hover:underline hover:underline-offset-4"
@@ -109,7 +110,7 @@ export default async function Home({params}: Props) {
             width={16}
             height={16}
           />
-          {tNav('home')}
+          {tCommon('home')}
         </Link>
       </footer>
     </div>

@@ -1,0 +1,32 @@
+{
+  "title": "Plantilla Next.js con Modo de Edición",
+  "subtitle": "Una plantilla completa de Next.js 15 con capacidades de edición visual",
+  "description": "Comienza editando los componentes de página. Construido con TypeScript, Tailwind CSS 4, y soporte de internacionalización.",
+  "hero": {
+    "title": "Plantilla Next.js con Modo de Edición",
+    "subtitle": "Una plantilla completa de Next.js 15 con capacidades de edición visual",
+    "description": "Comienza editando los componentes de página. Construido con TypeScript, Tailwind CSS 4, y soporte de internacionalización."
+  },
+  "features": {
+    "visual_editor": "Editor Visual de Páginas",
+    "i18n": "Internacionalización",
+    "admin_panel": "Panel de Administración",
+    "seo": "Optimizado para SEO",
+    "ssr": "Renderizado del Servidor",
+    "typescript": "TypeScript Listo",
+    "tailwind": "Tailwind CSS 4",
+    "database": "PostgreSQL y Prisma"
+  },
+  "cta": {
+    "get_started": "Comenzar",
+    "learn_more": "Aprender Más",
+    "view_docs": "Ver Documentación",
+    "explore": "Explorar Características"
+  },
+  "sections": {
+    "getting_started": "Comenzar",
+    "features_overview": "Visión General de Características",
+    "documentation": "Documentación",
+    "support": "Soporte"
+  }
+}

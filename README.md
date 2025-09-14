@@ -6,13 +6,14 @@ Una plantilla completa de Next.js 15 con capacidades de edición visual, interna
 
 - **Next.js 15** con App Router y TypeScript
 - **Tailwind CSS 4** para estilos modernos
-- **Internacionalización** con next-intl (ES/EN)
+- **Internacionalización Híbrida** con next-intl (ES/EN) + PostgreSQL
 - **Base de datos PostgreSQL** con Prisma ORM
 - **Editor visual** con Lexical para edición de páginas
 - **Panel de administración** para gestión de contenido
 - **SEO optimizado** con metadatos dinámicos
 - **Server-side rendering** por defecto
 - **Sistema de componentes** con Radix UI y CVA
+- **Sistema de traducciones escalable** - [Ver documentación](./README-TRANSLATIONS.md)
 
 ## 📋 Plan de Desarrollo Detallado
 
@@ -35,6 +36,12 @@ Una plantilla completa de Next.js 15 con capacidades de edición visual, interna
 - [x] Implementar hook useTranslations
 - [x] Configurar layout internacional
 - [x] Verificar funcionamiento con Playwright
+- [x] **Sistema Híbrido de Traducciones** implementado
+  - [x] Cache multi-nivel (Memory → Redis → JSON fallback)
+  - [x] Migración gradual JSON → PostgreSQL
+  - [x] API de métricas y monitoreo (/api/translations/metrics)
+  - [x] Zero breaking changes con next-intl
+  - [x] Documentación completa: [README-TRANSLATIONS.md](./README-TRANSLATIONS.md)
 
 ### Fase 4: Sistema de Componentes 🎨
 - [ ] Configurar CVA para variants de componentes
@@ -47,10 +54,13 @@ Una plantilla completa de Next.js 15 con capacidades de edición visual, interna
 - [ ] Crear esquema Prisma para:
   - Pages (páginas dinámicas)
   - Components (configuraciones de componentes)
-  - Translations (traducciones)
+  - **Translations (integración con sistema híbrido existente)**
   - Settings (configuraciones globales)
 - [ ] Configurar conexión PostgreSQL
+- [ ] **Activar automáticamente sistema híbrido** configurando DATABASE_URL
 - [ ] Crear seeds iniciales para desarrollo
+- [ ] **Migrar traducciones críticas** usando script automático
+- [ ] Verificar métricas en /api/translations/metrics
 
 ### Fase 6: Gestión de Estado 🔄
 - [ ] Configurar Zustand stores para:
@@ -110,7 +120,9 @@ src/
 │   │   ├── page.tsx            # Página principal
 │   │   ├── admin/              # Panel de administración
 │   │   └── [...slug]/          # Páginas dinámicas
-│   ├── api/                    # API Routes
+│   ├── api/
+│   │   └── translations/       # API sistema híbrido
+│   │       └── metrics/        # Métricas y gestión
 │   └── globals.css             # Estilos globales
 ├── components/
 │   ├── ui/                     # Componentes base UI
@@ -118,16 +130,26 @@ src/
 │   ├── admin/                  # Componentes de admin
 │   └── dynamic/                # Componentes dinámicos
 ├── lib/
+│   ├── translations/           # Sistema híbrido de traducciones
+│   │   ├── translation-manager.ts
+│   │   ├── config.ts
+│   │   └── next-intl-hybrid.ts
+│   ├── providers/              # Proveedores de traducciones
+│   ├── cache/                  # Sistema de cache multi-nivel
 │   ├── prisma.ts              # Cliente Prisma
 │   ├── utils.ts               # Utilidades
 │   └── validations.ts         # Esquemas Zod
 ├── stores/                     # Zustand stores
-├── types/                      # Tipos TypeScript
-└── i18n/                      # Configuración i18n
-    ├── config.ts
-    └── messages/
-        ├── es.json
-        └── en.json
+├── types/
+│   └── translations.ts         # Tipos del sistema híbrido
+├── i18n/                      # Configuración i18n
+│   ├── routing.ts             # Configuración de rutas
+│   └── request.ts             # Configuración híbrida
+├── messages/                   # Traducciones JSON (fallback crítico)
+│   ├── es.json
+│   └── en.json
+└── scripts/
+    └── migrate-translations.ts # Migración automática JSON→DB
 ```
 
 ## 🛠️ Comandos de Desarrollo
@@ -145,8 +167,14 @@ npm run db:push       # Sincronizar esquema
 npm run db:migrate    # Crear migración
 npm run db:studio     # Abrir Prisma Studio
 
-# Linting
+# Sistema de traducciones
+node scripts/migrate-translations.ts          # Vista previa migración
+node scripts/migrate-translations.ts --execute # Migrar a PostgreSQL
+curl http://localhost:3000/api/translations/metrics # Estado del sistema
+
+# Linting y testing
 npm run lint
+npm run test:e2e      # Playwright tests
 ```
 
 ## 🔧 Configuración Inicial
@@ -156,19 +184,60 @@ npm run lint
    npm install
    ```
 
-2. **Configurar base de datos**:
+2. **Configurar variables de entorno**:
    ```bash
-   # Crear archivo .env.local
-   DATABASE_URL="postgresql://usuario:password@localhost:5432/nexteditor"
+   # Copiar archivo de ejemplo con 150+ variables configuradas
+   cp .env.example .env.local
    
-   # Ejecutar migraciones
+   # Configurar base de datos (activa automáticamente sistema híbrido)
+   DATABASE_URL="postgresql://usuario:password@localhost:5432/nexteditor"
+   ```
+
+3. **Configurar base de datos**:
+   ```bash
+   # Ejecutar migraciones (cuando Prisma esté configurado)
    npm run db:push
    ```
 
-3. **Ejecutar en desarrollo**:
+4. **Ejecutar en desarrollo**:
    ```bash
    npm run dev
    ```
+
+5. **Verificar sistema de traducciones**:
+   ```bash
+   # Verificar estado del sistema híbrido
+   curl http://localhost:3000/api/translations/metrics
+   
+   # Probar traducciones en diferentes idiomas
+   curl http://localhost:3000/es
+   curl http://localhost:3000/en
+   ```
+
+## 🔄 Sistema Híbrido de Traducciones
+
+Este proyecto incluye un **sistema híbrido de traducciones** que permite migración gradual de archivos JSON a PostgreSQL sin interrupciones. 
+
+### ✅ Estado Actual
+- **Funcionando**: Archivos JSON (es/en) completamente operativos
+- **Preparado**: Para activación automática con PostgreSQL
+- **Verificado**: Testing completo con Playwright
+- **Monitoreado**: API de métricas en /api/translations/metrics
+
+### 🚀 Activación Futura
+```bash
+# Simplemente configurar en .env.local:
+DATABASE_URL="postgresql://..." # ← Sistema híbrido se activa automáticamente
+REDIS_URL="redis://..."         # ← Cache distribuido (opcional)
+```
+
+### 📚 Documentación Completa
+Ver **[README-TRANSLATIONS.md](./README-TRANSLATIONS.md)** para:
+- Arquitectura detallada del sistema híbrido
+- Guía de migración paso a paso
+- API de métricas y monitoreo
+- Configuración de cache multi-nivel
+- Scripts de migración automática
 
 ## 🎯 Características Técnicas
 
@@ -197,10 +266,78 @@ npm run lint
 ## 📝 Próximos Pasos
 
 1. Ejecutar `npm install` para instalar dependencias
-2. Configurar base de datos PostgreSQL
+2. Configurar variables de entorno con `cp .env.example .env.local`
 3. Ejecutar `npm run dev` para desarrollo
-4. Visitar `/admin` para panel de control
-5. Comenzar a crear componentes personalizados
+4. Verificar traducciones: `curl http://localhost:3000/api/translations/metrics`
+5. Visitar `/admin` para panel de control (futuro)
+6. Comenzar a crear componentes personalizados
+
+## ⚠️ Guía de Compatibilidad para Desarrollo Futuro
+
+### 🔒 **CRÍTICO**: Mantener Compatibilidad del Sistema Híbrido
+
+Para preservar la integridad del sistema híbrido de traducciones durante el desarrollo de las siguientes fases:
+
+#### ✅ **QUE SÍ HACER**
+```typescript
+// ✅ Usar traducciones a través de next-intl (compatible)
+const t = await getTranslations('HomePage');
+return <h1>{t('title')}</h1>;
+
+// ✅ Añadir nuevos namespaces en /messages/es.json y /messages/en.json
+{
+  "NewFeature": {
+    "title": "Nuevo Título",
+    "description": "Nueva descripción"
+  }
+}
+
+// ✅ Configurar estrategia en src/lib/translations/config.ts
+'NewFeature': { strategy: 'static', cacheTimeout: 300 }
+
+// ✅ Usar TranslationManager para gestión programática
+await translationManager.getTranslation('title', 'es', 'NewFeature');
+```
+
+#### ❌ **QUE NO HACER**
+```typescript
+// ❌ NO reemplazar next-intl con otra solución
+// ❌ NO modificar src/i18n/request.ts sin revisar híbrido
+// ❌ NO eliminar archivos en /messages/ (son fallback crítico)
+// ❌ NO cambiar estructura de src/lib/translations/
+```
+
+#### 🔄 **Al Implementar Prisma (Fase 5)**
+```typescript
+// 1. Crear esquema Prisma para translations
+model Translation {
+  id        String @id @default(cuid())
+  namespace String
+  key       String  
+  locale    String
+  value     String
+  // ... otros campos según src/types/translations.ts
+}
+
+// 2. Crear DatabaseTranslationProvider
+// 3. Activar con: translationManager.setDatabaseProvider(dbProvider)
+// 4. El sistema automáticamente balanceará JSON ↔ PostgreSQL
+```
+
+#### 🧪 **Testing Obligatorio Antes de Commits**
+```bash
+# Verificar que traducciones siguen funcionando
+npm run dev
+curl http://localhost:3000/es  # Debe mostrar español
+curl http://localhost:3000/en  # Debe mostrar inglés
+curl http://localhost:3000/api/translations/metrics  # Debe estar "healthy"
+```
+
+#### 📊 **Monitoreo Continuo**
+- API `/api/translations/metrics` debe responder siempre
+- Status debe ser "healthy" o "degraded" (nunca "unhealthy")
+- Cache hit rate debe mantenerse > 80%
+- Fallback a JSON debe estar garantizado
 
 ---
 

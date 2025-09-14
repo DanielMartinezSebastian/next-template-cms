@@ -3,6 +3,7 @@ import {getMessages} from 'next-intl/server';
 import {setRequestLocale} from 'next-intl/server';
 import {routing} from '@/i18n/routing';
 import {notFound} from 'next/navigation';
+import Header from '@/components/ui/Header';
 
 type Props = {
   children: React.ReactNode;
@@ -33,7 +34,12 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider messages={messages}>
-      {children}
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="flex-1">
+          {children}
+        </main>
+      </div>
     </NextIntlClientProvider>
   );
 }

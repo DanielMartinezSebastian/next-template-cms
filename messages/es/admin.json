@@ -1,0 +1,32 @@
+{
+  "dashboard": {
+    "title": "Panel de Administración",
+    "subtitle": "Gestiona el contenido y configuración de tu aplicación",
+    "welcome": "Bienvenido al panel de administración"
+  },
+  "navigation": {
+    "dashboard": "Panel",
+    "pages": "Páginas",
+    "translations": "Traducciones",
+    "users": "Usuarios",
+    "settings": "Configuración",
+    "logout": "Cerrar Sesión"
+  },
+  "pages": {
+    "title": "Gestión de Páginas",
+    "create_new": "Crear Nueva Página",
+    "edit_page": "Editar Página",
+    "delete_page": "Eliminar Página",
+    "publish": "Publicar",
+    "draft": "Borrador"
+  },
+  "translations": {
+    "title": "Gestión de Traducciones",
+    "add_translation": "Añadir Traducción",
+    "edit_translation": "Editar Traducción",
+    "namespace": "Namespace",
+    "key": "Clave",
+    "value": "Valor",
+    "locale": "Idioma"
+  }
+}

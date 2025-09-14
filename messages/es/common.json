@@ -1,0 +1,53 @@
+{
+  "home": "Inicio",
+  "admin": "Admin",
+  "docs": "Docs",
+  "language_switcher": "Idioma",
+  "locale_switcher": {
+    "label": "Cambiar idioma",
+    "locale_en": "Inglés",
+    "locale_es": "Español",
+    "current_locale": "Idioma actual: {locale}"
+  },
+  "navigation": {
+    "home": "Inicio",
+    "admin": "Admin",
+    "docs": "Docs",
+    "language_switcher": "Idioma"
+  },
+  "buttons": {
+    "loading": "Cargando...",
+    "error": "Ocurrió un error",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "create": "Crear",
+    "get_started": "Comenzar",
+    "learn_more": "Aprender Más",
+    "view_docs": "Ver Documentación"
+  },
+  "status": {
+    "success": "Éxito",
+    "error": "Error",
+    "warning": "Advertencia",
+    "info": "Información"
+  },
+  "errors": {
+    "404": {
+      "title": "404 - Página No Encontrada",
+      "description": "La página que estás buscando no existe.",
+      "go_back_home": "Volver al inicio"
+    },
+    "500": {
+      "title": "500 - Error Interno del Servidor",
+      "description": "Algo salió mal en nuestro lado.",
+      "go_back_home": "Volver al inicio"
+    },
+    "generic": {
+      "title": "Algo salió mal",
+      "description": "Ocurrió un error inesperado.",
+      "go_back_home": "Volver al inicio"
+    }
+  }
+}
