@@ -398,22 +398,9 @@
 			"problemMatcher": []
 		},
 		{
-			"label": "💾 Git Commit Base UI Migration",
-			"type": "shell",
-			"command": "git commit -m \"feat: Complete Base UI migration and component library implementation\" -m \"- Migrated from Radix UI to Base UI for better LLM development\" -m \"- Implemented Button, Input, and Select components with CVA variants\" -m \"- Updated LocaleSwitcher to use Base UI Select component\" -m \"- Added comprehensive Base UI documentation and patterns\" -m \"- Fixed all TypeScript errors and ESLint warnings\" -m \"- Added utility functions and component index exports\"",
-			"group": "build",
-			"presentation": {
-				"echo": true,
-				"reveal": "always",
-				"focus": true,
-				"panel": "shared"
-			},
-			"problemMatcher": []
-		},
-		{
 			"label": "� Git Commit Tasks Update",
 			"type": "shell",
-			"command": "git commit -m \"chore: Add git workflow tasks for easier commit and merge operations\"",
+			"command": "git commit -m \"chore: Update task operations\"",
 			"group": "build",
 			"presentation": {
 				"echo": true,
@@ -436,23 +423,6 @@
 			},
 			"problemMatcher": []
 		},
-		{
-			"label": "🔀 Git Merge Feature Branch",
-			"type": "shell",
-			"command": "git merge feature/database-components-implementation",
-			"group": "build",
-			"presentation": {
-				"echo": true,
-				"reveal": "always",
-				"focus": true,
-				"panel": "shared"
-			},
-			"problemMatcher": []
-		},
-
-		// =============================================================================
-		// LEGACY TASKS (FOR COMPATIBILITY)
-		// =============================================================================
 		{
 			"label": "Start Development Server",
 			"type": "shell",
