@@ -1,0 +1,203 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// LOCALIZATION & TRANSLATIONS
+// =============================================================================
+
+model Locale {
+  id        String @id @default(cuid())
+  code      String @unique // e.g., "en", "es", "fr"
+  name      String // e.g., "English", "Español", "Français"
+  isDefault Boolean @default(false)
+  isActive  Boolean @default(true)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  translations Translation[]
+  pageContents PageContent[]
+
+  @@map("locales")
+}
+
+model Namespace {
+  id          String  @id @default(cuid())
+  name        String  @unique // e.g., "home", "common", "admin"
+  description String?
+  isActive    Boolean @default(true)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  translations Translation[]
+
+  @@map("namespaces")
+}
+
+model Translation {
+  id        String @id @default(cuid())
+  key       String // e.g., "title", "welcome.message"
+  value     String
+  
+  // Foreign keys
+  localeId    String
+  namespaceId String
+  
+  // Metadata
+  isActive    Boolean @default(true)
+  lastUsedAt  DateTime?
+  usageCount  Int      @default(0)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  locale    Locale    @relation(fields: [localeId], references: [id], onDelete: Cascade)
+  namespace Namespace @relation(fields: [namespaceId], references: [id], onDelete: Cascade)
+
+  // Indexes
+  @@unique([key, localeId, namespaceId])
+  @@index([localeId, namespaceId])
+  @@index([key])
+  @@map("translations")
+}
+
+// =============================================================================
+// CONTENT MANAGEMENT - PAGES
+// =============================================================================
+
+model Page {
+  id       String @id @default(cuid())
+  slug     String @unique // e.g., "home", "about", "contact"
+  isActive Boolean @default(true)
+  
+  // SEO & Meta
+  template String? // Template type for rendering
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  contents PageContent[]
+  components PageComponent[]
+
+  @@map("pages")
+}
+
+model PageContent {
+  id     String @id @default(cuid())
+  pageId String
+  localeId String
+  
+  // Content fields
+  title       String
+  description String?
+  metaTitle   String?
+  metaDescription String?
+  keywords    String[]
+  
+  // Structured content (JSON)
+  content Json? // Flexible content structure
+  
+  // Publishing
+  isPublished Boolean @default(false)
+  publishedAt DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  page   Page   @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  locale Locale @relation(fields: [localeId], references: [id], onDelete: Cascade)
+
+  // Constraints
+  @@unique([pageId, localeId])
+  @@map("page_contents")
+}
+
+// =============================================================================
+// COMPONENT SYSTEM
+// =============================================================================
+
+model Component {
+  id   String @id @default(cuid())
+  name String @unique // e.g., "Hero", "FeatureGrid", "ContactForm"
+  type String // e.g., "layout", "content", "interactive"
+  
+  // Component definition
+  category    String? // e.g., "marketing", "forms", "navigation"
+  description String?
+  
+  // Configuration schema (JSON Schema)
+  configSchema Json?
+  defaultConfig Json?
+  
+  isActive Boolean @default(true)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  pageComponents PageComponent[]
+
+  @@map("components")
+}
+
+model PageComponent {
+  id String @id @default(cuid())
+  
+  // References
+  pageId      String
+  componentId String
+  
+  // Layout & positioning
+  order    Int     @default(0)
+  isVisible Boolean @default(true)
+  
+  // Component instance configuration
+  config Json? // Instance-specific configuration
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  page      Page      @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  component Component @relation(fields: [componentId], references: [id], onDelete: Cascade)
+
+  // Constraints
+  @@index([pageId, order])
+  @@map("page_components")
+}
+
+// =============================================================================
+// SYSTEM & CONFIGURATION
+// =============================================================================
+
+model SystemConfig {
+  id    String @id @default(cuid())
+  key   String @unique
+  value Json
+  
+  description String?
+  category    String? // e.g., "general", "seo", "integrations"
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("system_config")
+}

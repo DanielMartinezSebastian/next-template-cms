@@ -1,10 +1,12 @@
 # 🌐 Sistema Híbrido de Traducciones - Next.js Template
 
-> **Una solución que crece contigo**: Desde proyectos pequeños hasta aplicaciones enterprise
+> **Una solución que crece contigo**: Desde proyectos pequeños hasta
+> aplicaciones enterprise
 
 ## 💼 Casos de Uso Comerciales
 
 ### 🏪 **Proyectos Pequeños - Sin Base de Datos**
+
 - ✅ **Deploy inmediato**: Solo archivos JSON, sin setup complejo
 - ✅ **Costo cero**: Hosting estático en Vercel/Netlify gratuito
 - ✅ **Performance máximo**: Cache en memoria súper rápido
@@ -12,6 +14,7 @@
 - ✅ **Ideal para**: Landing pages, webs corporativas, portfolios
 
 ### 🏢 **Proyectos Enterprise - Con PostgreSQL**
+
 - ✅ **Escalabilidad ilimitada**: Miles de traducciones en base de datos
 - ✅ **Gestión profesional**: Panel admin para equipos
 - ✅ **Performance optimizado**: Cache Redis multinivel
@@ -19,14 +22,18 @@
 - ✅ **Ideal para**: E-commerce, SaaS, aplicaciones complejas
 
 ### 🚀 **Migración Sin Interrupciones**
+
 - ✅ **Crecimiento gradual**: Empezar pequeño, escalar cuando necesites
 - ✅ **Zero downtime**: Activación automática con `DATABASE_URL`
 - ✅ **Sin vendor lock-in**: Siempre puedes volver a JSON
-- ✅ **Progressive enhancement**: El sistema detecta automáticamente las capacidades
+- ✅ **Progressive enhancement**: El sistema detecta automáticamente las
+  capacidades
 
 ## 📊 Descripción General
 
-Este proyecto implementa un **sistema híbrido de traducciones** que permite migrar gradualmente de archivos JSON estáticos a una base de datos PostgreSQL, manteniendo la compatibilidad con next-intl y optimizando para SSR.
+Este proyecto implementa un **sistema híbrido de traducciones** que permite
+migrar gradualmente de archivos JSON estáticos a una base de datos PostgreSQL,
+manteniendo la compatibilidad con next-intl y optimizando para SSR.
 
 ## 🏗️ Arquitectura
 
@@ -61,10 +68,10 @@ src/app/api/translations/
 
 ```typescript
 const namespaceConfigs = {
-  'Navigation': { strategy: 'static', cacheTimeout: 3600 },
-  'HomePage': { strategy: 'hybrid', cacheTimeout: 300 },
-  'AdminPanel': { strategy: 'dynamic', cacheTimeout: 60 },
-  'UserContent': { strategy: 'dynamic', cacheTimeout: 0 }
+  Navigation: { strategy: 'static', cacheTimeout: 3600 },
+  HomePage: { strategy: 'hybrid', cacheTimeout: 300 },
+  AdminPanel: { strategy: 'dynamic', cacheTimeout: 60 },
+  UserContent: { strategy: 'dynamic', cacheTimeout: 0 },
 };
 ```
 
@@ -73,27 +80,31 @@ const namespaceConfigs = {
 ### Configuración Inicial
 
 1. **Instala las dependencias**:
+
    ```bash
    npm install
    ```
 
 2. **Configura las variables de entorno**:
+
    ```bash
    cp .env.example .env.local
    # Edita .env.local con tus valores específicos
    ```
 
 3. **Inicia el servidor de desarrollo**:
+
    ```bash
    npm run dev
    ```
 
 4. **Verifica el sistema de traducciones**:
+
    ```bash
    # Visita el sitio en diferentes idiomas
    curl http://localhost:3000/es
    curl http://localhost:3000/en
-   
+
    # Verifica las métricas del sistema
    curl http://localhost:3000/api/translations/metrics
    ```
@@ -105,7 +116,7 @@ import { getTranslations } from 'next-intl/server';
 
 export default async function HomePage() {
   const t = await getTranslations('HomePage');
-  
+
   return (
     <div>
       <h1>{t('title')}</h1>
@@ -121,7 +132,11 @@ export default async function HomePage() {
 import { translationManager } from '@/lib/translations/translation-manager';
 
 // Obtener una traducción específica
-const title = await translationManager.getTranslation('title', 'es', 'HomePage');
+const title = await translationManager.getTranslation(
+  'title',
+  'es',
+  'HomePage'
+);
 
 // Pre-cargar traducciones críticas
 await translationManager.preloadCriticalTranslations('es');
@@ -187,10 +202,11 @@ node scripts/migrate-translations.ts --locales en,es,fr
 El sistema detecta automáticamente la disponibilidad de PostgreSQL y Redis:
 
 1. **Configurar variables de entorno** en `.env.local`:
+
    ```env
    # PostgreSQL (REQUERIDO para activar base de datos)
    DATABASE_URL="postgresql://user:pass@localhost:5432/db"
-   
+
    # Redis (OPCIONAL pero recomendado para producción)
    REDIS_URL="redis://localhost:6379"
    ```
@@ -202,19 +218,21 @@ El sistema detecta automáticamente la disponibilidad de PostgreSQL y Redis:
    - ✅ Mantiene fallback a archivos JSON garantizado
 
 3. **Estados del sistema**:
+
    ```typescript
    // Solo archivos JSON (estado inicial)
    { "databaseEnabled": false, "providers": { "file": "ok", "database": "disabled" } }
-   
+
    // Híbrido con PostgreSQL
    { "databaseEnabled": true, "providers": { "file": "ok", "database": "ok" } }
    ```
 
 4. **Verificar activación**:
+
    ```bash
    # Revisar estado en métricas
    curl http://localhost:3000/api/translations/metrics
-   
+
    # El campo "databaseEnabled" debe ser true
    ```
 
@@ -237,14 +255,17 @@ El sistema detecta automáticamente la disponibilidad de PostgreSQL y Redis:
 
 ### Variables de Entorno
 
-El proyecto incluye un archivo `.env.example` con todas las variables de entorno necesarias. Para configurar el proyecto:
+El proyecto incluye un archivo `.env.example` con todas las variables de entorno
+necesarias. Para configurar el proyecto:
 
 1. **Copia el archivo de ejemplo**:
+
    ```bash
    cp .env.example .env.local
    ```
 
 2. **Configura las variables principales**:
+
    ```env
    # Base de datos (opcional - activa automáticamente el sistema híbrido)
    DATABASE_URL="postgresql://user:pass@localhost:5432/db"
@@ -301,12 +322,14 @@ console.log(health.status); // 'healthy' | 'degraded' | 'unhealthy'
 ### Problemas Comunes
 
 1. **Traducciones faltantes**:
+
    ```typescript
    // Verifica logs en desarrollo
    console.log('🚨 HomePage.missing_key');
    ```
 
 2. **Cache no se actualiza**:
+
    ```bash
    curl -X POST /api/translations/metrics -d '{"action":"reset"}'
    ```
@@ -327,7 +350,8 @@ process.env.DEBUG_TRANSLATIONS = 'true';
 
 ### Transición Automática: Archivos → PostgreSQL
 
-El sistema index-based está **diseñado para evolucionar** automáticamente hacia base de datos PostgreSQL sin cambios en tu código:
+El sistema index-based está **diseñado para evolucionar** automáticamente hacia
+base de datos PostgreSQL sin cambios en tu código:
 
 #### 🎯 Activación Automática
 
@@ -348,13 +372,13 @@ echo 'DATABASE_URL="postgresql://user:pass@localhost:5432/db"' >> .env.local
 
 const NAMESPACE_STRATEGIES = {
   // null (common) → static: Siempre desde archivos para máximo performance
-  'common': 'static',
-  
+  common: 'static',
+
   // Home → hybrid: Archivos + overrides desde base de datos
-  'Home': 'hybrid',
-  
+  Home: 'hybrid',
+
   // Admin → dynamic: Base de datos primero, archivos como fallback
-  'Admin': 'dynamic'
+  Admin: 'dynamic',
 };
 
 // ✨ Tu código de componentes NO cambia:
@@ -381,29 +405,26 @@ node scripts/migrate-translations.ts --execute
 #### 🎛️ Ventajas del Sistema Híbrido Futuro
 
 1. **Zero Breaking Changes**: Tu código React funciona idéntico
-2. **Performance Optimizado**: Critical UI desde archivos, contenido dinámico desde DB
-3. **Fallback Garantizado**: Si PostgreSQL falla, archivos JSON responden automáticamente
+2. **Performance Optimizado**: Critical UI desde archivos, contenido dinámico
+   desde DB
+3. **Fallback Garantizado**: Si PostgreSQL falla, archivos JSON responden
+   automáticamente
 4. **Escalabilidad**: Redis cache se activa automáticamente en producción
 5. **Monitoreo**: API de métricas incluida (`/api/translations/metrics`)
 
 #### 📈 Roadmap de Evolución
 
 ```markdown
-📅 AHORA (✅ Completado):
-✅ Sistema index-based con archivos JSON optimizado
-✅ Configuración de estrategias preparada
-✅ Zero legacy code, performance máximo
+📅 AHORA (✅ Completado): ✅ Sistema index-based con archivos JSON optimizado ✅
+Configuración de estrategias preparada ✅ Zero legacy code, performance máximo
 
-📅 CUANDO AGREGUES PRISMA (🔄 Preparado):
-🔄 Set DATABASE_URL → Activación automática
-🔄 Run migration script → Datos migrados
-✅ Sistema híbrido funcionando sin cambios en código
+📅 CUANDO AGREGUES PRISMA (🔄 Preparado): 🔄 Set DATABASE_URL → Activación
+automática 🔄 Run migration script → Datos migrados ✅ Sistema híbrido
+funcionando sin cambios en código
 
-� FUTURO (🚀 Escalable):
-🚀 Nuevos namespaces: Solo agregar en messages/index.ts
-🚀 A/B testing: Overrides desde base de datos
-🚀 Traducciones dinámicas: API admin panel
-🚀 CDN caching: Optimización automática
+� FUTURO (🚀 Escalable): 🚀 Nuevos namespaces: Solo agregar en messages/index.ts
+🚀 A/B testing: Overrides desde base de datos 🚀 Traducciones dinámicas: API
+admin panel 🚀 CDN caching: Optimización automática
 ```
 
 ### 💡 Resumen: Arquitectura Preparada para el Futuro
@@ -411,7 +432,7 @@ node scripts/migrate-translations.ts --execute
 Este sistema index-based es la **evolución perfecta** hacia PostgreSQL:
 
 - ✅ **Funciona perfectamente HOY** con JSON
-- ✅ **Se extiende MAÑANA** con PostgreSQL automáticamente  
+- ✅ **Se extiende MAÑANA** con PostgreSQL automáticamente
 - ✅ **Escala DESPUÉS** con Redis/CDN sin cambios
 - ✅ **Zero riesgos** - fallback garantizado siempre
 
@@ -438,10 +459,10 @@ return <h1>{t('title')}</h1>;
 
 // ✅ Configurar estrategias en src/lib/translations/config.ts
 export const namespaceConfigs = {
-  'NewFeature': { 
-    strategy: 'static', 
+  'NewFeature': {
+    strategy: 'static',
     cacheTimeout: 300,
-    fallbackToStatic: true 
+    fallbackToStatic: true
   }
 };
 
@@ -475,13 +496,13 @@ Cuando se implemente la base de datos en fases futuras:
 model Translation {
   id        String @id @default(cuid())
   namespace String
-  key       String  
+  key       String
   locale    String
   value     String
   metadata  Json?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   @@unique([namespace, key, locale])
   @@index([namespace, locale])
 }
@@ -515,7 +536,8 @@ Para contribuir al sistema de traducciones:
 
 ---
 
-**⚠️ Nota**: Este sistema está diseñado para migración gradual. Se puede usar en producción con archivos JSON y migrar a base de datos cuando sea necesario.
+**⚠️ Nota**: Este sistema está diseñado para migración gradual. Se puede usar en
+producción con archivos JSON y migrar a base de datos cuando sea necesario.
 
 ---
 
@@ -524,21 +546,26 @@ Para contribuir al sistema de traducciones:
 ### ✅ IMPLEMENTACIÓN FINAL VERIFICADA
 
 #### 🎯 **Sistema Index-Based Puro (Sin Legacy)**
-- ✅ **Zero legacy code** - Eliminados archivos messages/en.json, messages/es.json
-- ✅ **Configuración centralizada** - messages/index.ts como única fuente de verdad
+
+- ✅ **Zero legacy code** - Eliminados archivos messages/en.json,
+  messages/es.json
+- ✅ **Configuración centralizada** - messages/index.ts como única fuente de
+  verdad
 - ✅ **Performance optimizado** - Solo imports estáticos, zero dynamic loading
 - ✅ **TypeScript strict** - Tipos automáticos y detección de errores
 - ✅ **Build optimization** - Next.js optimiza automáticamente
 
 #### 📊 **Métricas de Rendimiento Final**
+
 - ⚡ **Latencia carga**: ~2ms (verificado con Playwright)
-- 🎯 **Cache hit rate**: 100% para archivos estáticos  
+- 🎯 **Cache hit rate**: 100% para archivos estáticos
 - 🔄 **Dynamic imports**: 0 - Todo resuelto en build time
 - 📦 **Bundle optimization**: Automático por Next.js
 - 🧪 **Console errors**: 0 - Sistema completamente limpio
 - 🔧 **TypeScript errors**: 0 - Compilación perfecta
 
 #### 🏗️ **Arquitectura Final Simplificada**
+
 ```
 Sistema Index-Based Puro (No Legacy) - 100% Optimizado
 ├── messages/
@@ -550,17 +577,19 @@ Sistema Index-Based Puro (No Legacy) - 100% Optimizado
 ```
 
 #### 🧪 **Verificación Playwright Completa**
+
 ```bash
 ✅ Inglés: "✅ Loaded 3 translation files for en"
-✅ Español: "✅ Loaded 3 translation files for es" 
+✅ Español: "✅ Loaded 3 translation files for es"
 ✅ Navegación funcional en ambos idiomas
 ✅ Traducciones cargando correctamente
 ✅ Console limpio sin errores o warnings
 ```
 
 #### 🔮 **Preparación PostgreSQL Automática**
+
 - 🎯 **Activación**: Configurar DATABASE_URL → Activación automática
-- 🔄 **Migración**: Script incluido para JSON → PostgreSQL  
+- 🔄 **Migración**: Script incluido para JSON → PostgreSQL
 - ✅ **Zero breaking changes**: Código React funciona idéntico
 - 🛡️ **Fallback garantizado**: Archivos JSON como respaldo siempre
 - 📈 **Escalabilidad**: Redis cache automático en producción
@@ -568,6 +597,7 @@ Sistema Index-Based Puro (No Legacy) - 100% Optimizado
 ### 🎉 **RESULTADO: Sistema Perfecto para Crecimiento**
 
 Has construido un sistema de traducciones que:
+
 1. **Funciona perfectamente HOY** con máximo rendimiento
 2. **Se extiende sin cambios MAÑANA** cuando agregues PostgreSQL
 3. **Escala automáticamente** con Redis, CDN y administración dinámica
@@ -610,18 +640,18 @@ export const TRANSLATION_FILES: TranslationFileConfig[] = [
   {
     filename: 'common',
     namespace: null, // Se despliega en el nivel raíz
-    description: 'Common UI elements: navigation, buttons, status messages'
+    description: 'Common UI elements: navigation, buttons, status messages',
   },
   {
     filename: 'home',
     namespace: 'Home',
-    description: 'Homepage content: hero, features, CTAs'
+    description: 'Homepage content: hero, features, CTAs',
   },
   {
     filename: 'admin',
     namespace: 'Admin',
-    description: 'Admin panel: dashboard, management, settings'
-  }
+    description: 'Admin panel: dashboard, management, settings',
+  },
   // ¡Solo agregar aquí para nuevos archivos! 🎉
 ];
 ```
@@ -676,10 +706,10 @@ Editar `messages/index.ts` y agregar:
 export const TRANSLATION_FILES: TranslationFileConfig[] = [
   // ... archivos existentes ...
   {
-    filename: 'product',        // 👈 Nombre del archivo (sin .json)
-    namespace: 'Product',       // 👈 Namespace para usar en componentes
-    description: 'Product pages: catalog, details, filters'
-  }
+    filename: 'product', // 👈 Nombre del archivo (sin .json)
+    namespace: 'Product', // 👈 Namespace para usar en componentes
+    description: 'Product pages: catalog, details, filters',
+  },
 ];
 ```
 
@@ -689,8 +719,8 @@ Editar `src/i18n/request.ts` y agregar:
 
 ```typescript
 // Agregar imports
-import enProduct from "../../messages/en/product.json";
-import esProduct from "../../messages/es/product.json";
+import enProduct from '../../messages/en/product.json';
+import esProduct from '../../messages/es/product.json';
 
 // Agregar al registry
 const TRANSLATION_REGISTRY = {
@@ -714,12 +744,12 @@ import { getTranslations } from 'next-intl/server';
 export default async function ProductPage() {
   const tProduct = await getTranslations('Product');
   const tCommon = await getTranslations(); // Para elementos comunes
-  
+
   return (
     <div>
       <h1>{tProduct('title')}</h1>
       <p>{tProduct('subtitle')}</p>
-      
+
       <button>{tProduct('actions.add_to_cart')}</button>
       <button>{tCommon('buttons.save')}</button>
     </div>
@@ -728,4 +758,3 @@ export default async function ProductPage() {
 ```
 
 ¡Y eso es todo! 🎉 **Sistema optimizado con el mínimo de configuración.**
-

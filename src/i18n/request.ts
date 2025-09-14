@@ -1,21 +1,21 @@
 // PAGE-BASED CONFIGURATION
 // Updated to load translation files using static imports based on index configuration
 
-import { getRequestConfig } from "next-intl/server";
-import { routing } from "./routing";
-import { TRANSLATION_FILES } from "../../messages";
-import type { AbstractIntlMessages } from "next-intl";
+import { getRequestConfig } from 'next-intl/server';
+import { routing } from './routing';
+import { TRANSLATION_FILES } from '../../messages';
+import type { AbstractIntlMessages } from 'next-intl';
 
 // Static imports for all translation files
 // English translations
-import enCommon from "../../messages/en/common.json";
-import enHome from "../../messages/en/home.json";
-import enAdmin from "../../messages/en/admin.json";
+import enCommon from '../../messages/en/common.json';
+import enHome from '../../messages/en/home.json';
+import enAdmin from '../../messages/en/admin.json';
 
 // Spanish translations
-import esCommon from "../../messages/es/common.json";
-import esHome from "../../messages/es/home.json";
-import esAdmin from "../../messages/es/admin.json";
+import esCommon from '../../messages/es/common.json';
+import esHome from '../../messages/es/home.json';
+import esAdmin from '../../messages/es/admin.json';
 
 // Translation file registry - maps locale and filename to actual content
 const TRANSLATION_REGISTRY = {
@@ -42,8 +42,7 @@ function loadDynamicTranslations(locale: string): AbstractIntlMessages {
   const failedFiles: string[] = [];
 
   // Get the registry for this locale
-  const localeRegistry =
-    TRANSLATION_REGISTRY[locale as keyof typeof TRANSLATION_REGISTRY];
+  const localeRegistry = TRANSLATION_REGISTRY[locale as keyof typeof TRANSLATION_REGISTRY];
 
   if (!localeRegistry) {
     console.error(`❌ No translation registry found for locale: ${locale}`);
@@ -76,25 +75,16 @@ function loadDynamicTranslations(locale: string): AbstractIntlMessages {
       }
     } catch (error) {
       failedFiles.push(filename);
-      console.warn(
-        `⚠️ Error processing translation file ${filename} for locale ${locale}:`,
-        error
-      );
+      console.warn(`⚠️ Error processing translation file ${filename} for locale ${locale}:`, error);
     }
   }
 
   if (loadedFiles.length > 0) {
-    console.log(
-      `✅ Loaded ${loadedFiles.length} translation files for ${locale}:`,
-      loadedFiles
-    );
+    console.log(`✅ Loaded ${loadedFiles.length} translation files for ${locale}:`, loadedFiles);
   }
 
   if (failedFiles.length > 0) {
-    console.warn(
-      `⚠️ Failed to load ${failedFiles.length} files for ${locale}:`,
-      failedFiles
-    );
+    console.warn(`⚠️ Failed to load ${failedFiles.length} files for ${locale}:`, failedFiles);
   }
 
   return messages;
@@ -105,7 +95,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
   let locale = await requestLocale;
 
   // Ensure that the incoming locale is valid
-  if (!locale || !routing.locales.includes(locale as "en" | "es")) {
+  if (!locale || !routing.locales.includes(locale as 'en' | 'es')) {
     locale = routing.defaultLocale;
   }
 
@@ -120,9 +110,9 @@ export default getRequestConfig(async ({ requestLocale }) => {
       formats: {
         dateTime: {
           short: {
-            day: "numeric",
-            month: "short",
-            year: "numeric",
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
           },
         },
         number: {
@@ -133,14 +123,14 @@ export default getRequestConfig(async ({ requestLocale }) => {
       },
       // Handle missing translations with development feedback
       onError(error) {
-        if (process.env.NODE_ENV === "development") {
-          console.error("Translation error:", error);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Translation error:', error);
         }
       },
       getMessageFallback({ namespace, key, error }) {
-        const path = [namespace, key].filter((part) => part != null).join(".");
+        const path = [namespace, key].filter(part => part != null).join('.');
 
-        if (process.env.NODE_ENV === "development") {
+        if (process.env.NODE_ENV === 'development') {
           console.warn(`Missing translation: ${path} (${error.message})`);
           return `🚨 ${path}`;
         }

@@ -1,8 +1,49 @@
-<!-- Use this file to provide workspace-specific custom instructions to Copilot. For more details, visit https://code.visualstudio.com/docs/copilot/copilot-customization#_use-a-githubcopilotinstructionsmd-file -->
+<!-- Use this file to provide workspace-specific custom instructions to Copilot. For more details, visit https://code.visualstudio.com/docs/copilot/c### Current Phase: Database and Components 🔄 IN PROGRESS
+
+#### Database Setup and Configuration
+- [ ] 1. Configurar entorno de base de datos
+  - [ ] 1.1. Crear archivo .env.local con DATABASE_URL
+  - [ ] 1.2. Instalar y configurar Prisma CLI
+  - [ ] 1.3. Inicializar esquema de Prisma
+- [ ] 2. Diseñar esquema de base de datos
+  - [ ] 2.1. Crear modelos para traducciones (Translation, Locale, Namespace)
+  - [ ] 2.2. Crear modelos para páginas (Page, PageContent)
+  - [ ] 2.3. Crear modelos para componentes (Component, ComponentConfig)
+- [ ] 3. Configurar conexión de base de datos
+  - [ ] 3.1. Generar cliente Prisma
+  - [ ] 3.2. Ejecutar migraciones iniciales
+  - [ ] 3.3. Verificar conexión con Prisma Studio
+
+#### Translation System Database Integration
+- [ ] 4. Implementar provider de base de datos para traducciones
+  - [ ] 4.1. Crear DatabaseTranslationProvider
+  - [ ] 4.2. Integrar con TranslationManager existente
+  - [ ] 4.3. Probar sistema híbrido archivo/base de datos
+
+#### UI Components Library
+- [ ] 5. Crear biblioteca de componentes UI base
+  - [ ] 5.1. Configurar CVA para variantes de componentes
+  - [ ] 5.2. Crear componente Button con Radix UI
+  - [ ] 5.3. Crear componente Input con validación
+  - [ ] 5.4. Crear componente Card y layout básicos
+
+#### State Management
+- [ ] 6. Configurar Zustand para manejo de estado
+  - [ ] 6.1. Crear store para estado de traducciones
+  - [ ] 6.2. Crear store para configuración de UI
+  - [ ] 6.3. Integrar con React Server Components
+
+#### Testing and Verification
+- [ ] 7. Verificar integración con Playwright
+  - [ ] 7.1. Probar funcionalidad de base de datos
+  - [ ] 7.2. Verificar componentes UI en diferentes locales
+  - [ ] 7.3. Validar rendimiento del sistema híbridocustomization#_use-a-githubcopilotinstructionsmd-file -->
 
 # Next.js Edit Mode Template - Copilot Instructions
 
-This project is a comprehensive Next.js 15 template with visual editing capabilities, internationalization, and a content management system designed to be a production-ready foundation for modern web applications.
+This project is a comprehensive Next.js 15 template with visual editing
+capabilities, internationalization, and a content management system designed to
+be a production-ready foundation for modern web applications.
 
 ## Project Architecture
 
@@ -31,13 +72,18 @@ This project is a comprehensive Next.js 15 template with visual editing capabili
 ## Development Guidelines
 
 ### Core Principles
-- **Server Components First**: Prioritize server components, use client components only when necessary (interactivity, hooks, browser APIs)
+
+- **Server Components First**: Prioritize server components, use client
+  components only when necessary (interactivity, hooks, browser APIs)
 - **TypeScript Strict**: Use strict mode with comprehensive type definitions
-- **Atomic Design**: Organize components as Atoms → Molecules → Organisms → Templates → Pages
-- **Progressive Enhancement**: Ensure functionality works without JavaScript, enhance with interactivity
+- **Atomic Design**: Organize components as Atoms → Molecules → Organisms →
+  Templates → Pages
+- **Progressive Enhancement**: Ensure functionality works without JavaScript,
+  enhance with interactivity
 - **Performance First**: Optimize for Core Web Vitals and SSR performance
 
 ### Code Quality Standards
+
 - **Error Boundaries**: Implement at page and component levels
 - **Validation**: Use Zod schemas for runtime validation
 - **Accessibility**: Follow WCAG 2.1 AA standards
@@ -45,7 +91,9 @@ This project is a comprehensive Next.js 15 template with visual editing capabili
 - **Security**: Validate all inputs, sanitize outputs, protect API routes
 
 ### Testing and Verification Strategy
-- **MCP Playwright Integration**: Use browser automation for visual and functional verification
+
+- **MCP Playwright Integration**: Use browser automation for visual and
+  functional verification
 - **Component Testing**: Test UI components in isolation
 - **E2E Testing**: Test complete user workflows
 - **Visual Regression**: Compare screenshots across changes
@@ -54,6 +102,7 @@ This project is a comprehensive Next.js 15 template with visual editing capabili
 ## MCP Playwright Integration
 
 ### When to Use Playwright
+
 - **After each significant feature implementation**
 - **Before committing major changes**
 - **When testing responsive design**
@@ -62,15 +111,18 @@ This project is a comprehensive Next.js 15 template with visual editing capabili
 - **Verifying admin panel functionality**
 
 ### Playwright Testing Workflow
+
 1. **Start development server** (`npm run dev`)
 2. **Navigate to pages** using `mcp_playwright_browser_navigate`
-3. **Take screenshots** for visual verification with `mcp_playwright_browser_take_screenshot`
+3. **Take screenshots** for visual verification with
+   `mcp_playwright_browser_take_screenshot`
 4. **Test interactions** (clicks, form fills, navigation)
 5. **Verify responsive behavior** at different viewport sizes
 6. **Check accessibility** with snapshots and screen readers
 7. **Document issues** and iterate on fixes
 
 ### Standard Playwright Checks
+
 ```typescript
 // Navigation and basic rendering
 - Navigate to http://localhost:3000
@@ -96,25 +148,46 @@ This project is a comprehensive Next.js 15 template with visual editing capabili
 ```
 
 ## Project Status: DEVELOPMENT PHASE
+
 Setting up the foundational architecture with iterative development and testing.
 
 ### Completed ✅
-- [x] Verify that the copilot-instructions.md file in the .github directory is created
-- [x] Clarify Project Requirements - Next.js 15 template with TypeScript, Tailwind 4, next-intl, Prisma, visual editor
-- [x] Scaffold the Project - Next.js project created with TypeScript, Tailwind CSS, ESLint, App Router
-- [x] Customize the Project - Updated package.json with all dependencies and created detailed development plan
-- [x] Compile the Project - All dependencies installed successfully (471 packages, 0 vulnerabilities)
-- [x] Launch Project and Verify with Playwright - Initial setup tested and verified
-- [x] Configure Internationalization - next-intl middleware, [locale] routing, translations (es/en) working
 
-### Current Phase: Foundation Enhancement 🔄
-- [ ] Install Required Extensions
-- [ ] Configure Prettier and ESLint rules
-- [ ] Setup Git with Husky hooks
-- [ ] Configure environment variables (.env.local)
-- [ ] Create development task automation
+- [x] Verify that the copilot-instructions.md file in the .github directory is
+      created
+- [x] Clarify Project Requirements - Next.js 15 template with TypeScript,
+      Tailwind 4, next-intl, Prisma, visual editor
+- [x] Scaffold the Project - Next.js project created with TypeScript, Tailwind
+      CSS, ESLint, App Router
+- [x] Customize the Project - Updated package.json with all dependencies and
+      created detailed development plan
+- [x] Compile the Project - All dependencies installed successfully (471
+      packages, 0 vulnerabilities)
+- [x] Launch Project and Verify with Playwright - Initial setup tested and
+      verified
+- [x] Configure Internationalization - next-intl middleware, [locale] routing,
+      translations (es/en) working
 
-### Next Phase: Database and Components 📝
+### Foundation Enhancement ✅ COMPLETED
+
+- [x] Install Required Extensions - GitLens, Git Graph, Headwind, Tailwind CSS
+      IntelliSense, Tailwind Docs verified
+- [x] Configure Prettier and ESLint rules - Complete configuration with
+      prettier-plugin-tailwindcss
+- [x] Setup Git with Husky hooks - Pre-commit and pre-push hooks with
+      comprehensive quality checks
+- [x] Configure environment variables (.env.local) - Development environment
+      configured
+- [x] Create development task automation - 20+ VS Code tasks for complete
+      workflow
+- [x] Create VS Code workspace settings - Professional configuration with
+      IntelliSense, formatting, and Tailwind support
+- [x] Fix translation JSON issues - Spanish translations corrected and verified
+- [x] Verify with Playwright - Both English and Spanish locales tested
+      successfully
+
+### Current Phase: Database and Components �
+
 - [ ] Configure Prisma schema for pages, components, translations
 - [ ] Setup PostgreSQL connection and migrations
 - [ ] Create base UI components with Radix UI and CVA
@@ -124,6 +197,7 @@ Setting up the foundational architecture with iterative development and testing.
 ## File Structure Standards
 
 ### Components Organization
+
 ```
 src/components/
 ├── ui/                    # Atomic UI components (Button, Input, etc.)
@@ -144,6 +218,7 @@ src/components/
 ```
 
 ### API Routes Structure
+
 ```
 src/app/api/
 ├── pages/                # Page CRUD operations
@@ -158,6 +233,7 @@ src/app/api/
 ## Development Workflow
 
 ### Feature Development Process
+
 1. **Plan**: Define feature requirements and acceptance criteria
 2. **Design**: Create component interfaces and API contracts
 3. **Implement**: Write code following project standards
@@ -166,6 +242,7 @@ src/app/api/
 6. **Document**: Update README and component documentation
 
 ### Quality Gates
+
 - **TypeScript**: No compilation errors
 - **ESLint**: No linting errors or warnings
 - **Prettier**: Consistent code formatting
@@ -176,6 +253,7 @@ src/app/api/
 ## Integration Guidelines
 
 ### Database Integration (Prisma)
+
 - Use server actions for database operations
 - Implement proper error handling and validation
 - Use transactions for complex operations
@@ -183,6 +261,7 @@ src/app/api/
 - Follow Prisma best practices for performance
 
 ### State Management (Zustand)
+
 - Keep stores minimal and focused
 - Use TypeScript interfaces for store types
 - Implement persistence only when necessary
@@ -190,13 +269,16 @@ src/app/api/
 - Use React Server Components for server state
 
 ### Styling Guidelines (Tailwind CSS 4)
+
 - Use design tokens for consistency
 - Implement responsive design mobile-first
 - Create reusable component variants with CVA
 - Optimize for dark/light theme support
 - Follow semantic class naming conventions
+- Use https://base-ui.com/llms.txt library for class suggestions and utilities
 
 ### Internationalization (next-intl)
+
 - Use translation keys that describe content purpose
 - Implement ICU message format for complex translations
 - Handle pluralization and date/time formatting

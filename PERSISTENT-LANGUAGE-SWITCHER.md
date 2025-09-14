@@ -47,14 +47,14 @@ src/
 export const routing = defineRouting({
   locales: ['en', 'es'],
   defaultLocale: 'en',
-  
+
   // 🍪 Configuración de cookie persistente
   localeCookie: {
     name: 'USER_LOCALE',
     maxAge: 60 * 60 * 24 * 365, // 1 año
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
-  }
+  },
 });
 ```
 
@@ -71,7 +71,7 @@ export default function LocaleSwitcher() {
 
   function handleLocaleChange(event: React.ChangeEvent<HTMLSelectElement>) {
     const nextLocale = event.target.value;
-    
+
     startTransition(() => {
       // 🚀 Cambio de idioma con persistencia automática
       router.replace(pathname, { locale: nextLocale });
@@ -80,12 +80,11 @@ export default function LocaleSwitcher() {
 
   return (
     <select value={locale} onChange={handleLocaleChange}>
-      {routing.locales.map((localeOption) => (
+      {routing.locales.map(localeOption => (
         <option key={localeOption} value={localeOption}>
-          {localeOption === 'en' 
-            ? `🇺🇸 ${t('locale_switcher.locale_en')}` 
-            : `🇪🇸 ${t('locale_switcher.locale_es')}`
-          }
+          {localeOption === 'en'
+            ? `🇺🇸 ${t('locale_switcher.locale_en')}`
+            : `🇪🇸 ${t('locale_switcher.locale_es')}`}
         </option>
       ))}
     </select>
@@ -117,7 +116,7 @@ import Header from '@/components/ui/Header';
 
 export default async function MyPage() {
   const t = await getTranslations();
-  
+
   return (
     <div>
       <Header /> {/* Incluye automáticamente el selector */}
@@ -136,7 +135,7 @@ import LocaleSwitcher from '@/components/ui/LocaleSwitcher';
 
 export default function MyClientComponent() {
   const t = useTranslations();
-  
+
   return (
     <div>
       <LocaleSwitcher /> {/* Selector independiente */}
@@ -161,18 +160,21 @@ import { Link } from '@/i18n/navigation';
 ## 📊 Beneficios Implementados
 
 ### ✅ Usuario
+
 - **Persistencia**: Idioma recordado entre sesiones
 - **Experiencia fluida**: Cambio instantáneo sin recarga
 - **Accesibilidad**: Labels y estados de carga
 - **Visual**: Banderas y UI elegante
 
 ### ✅ Desarrollador
+
 - **Zero config**: Funciona automáticamente
 - **Type-safe**: TypeScript completo
 - **Compatibilidad**: next-intl official patterns
 - **Escalable**: Fácil agregar nuevos idiomas
 
 ### ✅ SEO
+
 - **URLs localizadas**: `/en/page`, `/es/page`
 - **Metadata dinámico**: Títulos por idioma
 - **Static generation**: Pre-renderizado automático
@@ -183,6 +185,7 @@ import { Link } from '@/i18n/navigation';
 ### Mejoras Futuras
 
 1. **Detección automática**:
+
    ```tsx
    // Detectar idioma del navegador en primera visita
    const browserLocale = navigator.language.slice(0, 2);
@@ -192,13 +195,14 @@ import { Link } from '@/i18n/navigation';
    ```
 
 2. **Selector avanzado**:
+
    ```tsx
    // Dropdown con nombres nativos
    const localeNames = {
      en: 'English',
      es: 'Español',
      fr: 'Français',
-     de: 'Deutsch'
+     de: 'Deutsch',
    };
    ```
 
@@ -206,9 +210,9 @@ import { Link } from '@/i18n/navigation';
    ```tsx
    // Tracking de cambios de idioma
    function handleLocaleChange(nextLocale) {
-     analytics.track('Language Changed', { 
-       from: locale, 
-       to: nextLocale 
+     analytics.track('Language Changed', {
+       from: locale,
+       to: nextLocale,
      });
    }
    ```
@@ -228,7 +232,9 @@ import { Link } from '@/i18n/navigation';
 
 ### 🎯 Resultado
 
-**El usuario puede cambiar idioma y el sistema recordará su preferencia indefinidamente, funcionando perfectamente en todas las páginas de la aplicación.**
+**El usuario puede cambiar idioma y el sistema recordará su preferencia
+indefinidamente, funcionando perfectamente en todas las páginas de la
+aplicación.**
 
 ---
 

@@ -18,19 +18,19 @@ export interface TranslationFileConfig {
 
 export const TRANSLATION_FILES: TranslationFileConfig[] = [
   {
-    filename: "common",
+    filename: 'common',
     namespace: null, // Spread at root level for direct access
-    description: "Common UI elements: navigation, buttons, status messages",
+    description: 'Common UI elements: navigation, buttons, status messages',
   },
   {
-    filename: "home",
-    namespace: "Home",
-    description: "Homepage content: hero, features, CTAs",
+    filename: 'home',
+    namespace: 'Home',
+    description: 'Homepage content: hero, features, CTAs',
   },
   {
-    filename: "admin",
-    namespace: "Admin",
-    description: "Admin panel: dashboard, management, settings",
+    filename: 'admin',
+    namespace: 'Admin',
+    description: 'Admin panel: dashboard, management, settings',
   },
   // Add new translation files here:
   // {
@@ -56,19 +56,17 @@ export const TRANSLATION_FILES: TranslationFileConfig[] = [
 
 // Helper function to get all available namespaces
 export function getAvailableNamespaces(): string[] {
-  return TRANSLATION_FILES.map((file) => file.namespace).filter(
+  return TRANSLATION_FILES.map(file => file.namespace).filter(
     (namespace): namespace is string => namespace !== null
   );
 }
 
 // Helper function to get files that should be spread at root
 export function getCommonFiles(): string[] {
-  return TRANSLATION_FILES.filter((file) => file.namespace === null).map(
-    (file) => file.filename
-  );
+  return TRANSLATION_FILES.filter(file => file.namespace === null).map(file => file.filename);
 }
 
 // Helper function to validate if a translation file is configured
 export function isConfiguredFile(filename: string): boolean {
-  return TRANSLATION_FILES.some((file) => file.filename === filename);
+  return TRANSLATION_FILES.some(file => file.filename === filename);
 }

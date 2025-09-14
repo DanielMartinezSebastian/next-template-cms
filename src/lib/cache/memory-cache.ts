@@ -12,14 +12,15 @@ export class MemoryCache implements CacheLayer {
   private defaultTtl: number;
   private currentSize = 0;
 
-  constructor(maxSize = 100 * 1024 * 1024, defaultTtl = 300) { // 100MB default
+  constructor(maxSize = 100 * 1024 * 1024, defaultTtl = 300) {
+    // 100MB default
     this.maxSize = maxSize;
     this.defaultTtl = defaultTtl;
   }
 
   async get<T>(key: string): Promise<T | null> {
     const item = this.cache.get(key);
-    
+
     if (!item) {
       return null;
     }
@@ -36,7 +37,7 @@ export class MemoryCache implements CacheLayer {
   async set<T>(key: string, value: T, ttl?: number): Promise<void> {
     const expires = Date.now() + (ttl || this.defaultTtl) * 1000;
     const size = this.estimateSize(value);
-    
+
     // Remove old value if exists
     const existing = this.cache.get(key);
     if (existing) {
@@ -79,13 +80,13 @@ export class MemoryCache implements CacheLayer {
   async exists(key: string): Promise<boolean> {
     const item = this.cache.get(key);
     if (!item) return false;
-    
+
     if (Date.now() > item.expires) {
       this.cache.delete(key);
       this.currentSize -= item.size;
       return false;
     }
-    
+
     return true;
   }
 
@@ -95,7 +96,7 @@ export class MemoryCache implements CacheLayer {
       size: this.cache.size,
       memoryUsage: this.currentSize,
       maxSize: this.maxSize,
-      utilizationRate: this.currentSize / this.maxSize
+      utilizationRate: this.currentSize / this.maxSize,
     };
   }
 

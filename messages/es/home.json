@@ -1,16 +1,16 @@
 {
-  "title": "Plantilla Next.js con Modo de Edición",
-  "subtitle": "Una plantilla completa de Next.js 15 con capacidades de edición visual",
-  "description": "Comienza editando los componentes de página. Construido con TypeScript, Tailwind CSS 4, y soporte de internacionalización.",
+  "title": "Plantilla Next.js con Modo de Edicion",
+  "subtitle": "Una plantilla completa de Next.js 15 con capacidades de edicion visual",
+  "description": "Comienza editando los componentes de pagina. Construido con TypeScript, Tailwind CSS 4, y soporte de internacionalizacion.",
   "hero": {
-    "title": "Plantilla Next.js con Modo de Edición",
-    "subtitle": "Una plantilla completa de Next.js 15 con capacidades de edición visual",
-    "description": "Comienza editando los componentes de página. Construido con TypeScript, Tailwind CSS 4, y soporte de internacionalización."
+    "title": "Plantilla Next.js con Modo de Edicion",
+    "subtitle": "Una plantilla completa de Next.js 15 con capacidades de edicion visual",
+    "description": "Comienza editando los componentes de pagina. Construido con TypeScript, Tailwind CSS 4, y soporte de internacionalizacion."
   },
   "features": {
-    "visual_editor": "Editor Visual de Páginas",
-    "i18n": "Internacionalización",
-    "admin_panel": "Panel de Administración",
+    "visual_editor": "Editor Visual de Paginas",
+    "i18n": "Internacionalizacion",
+    "admin_panel": "Panel de Administracion",
     "seo": "Optimizado para SEO",
     "ssr": "Renderizado del Servidor",
     "typescript": "TypeScript Listo",
@@ -19,14 +19,14 @@
   },
   "cta": {
     "get_started": "Comenzar",
-    "learn_more": "Aprender Más",
-    "view_docs": "Ver Documentación",
-    "explore": "Explorar Características"
+    "learn_more": "Aprender Mas",
+    "view_docs": "Ver Documentacion",
+    "explore": "Explorar Caracteristicas"
   },
   "sections": {
     "getting_started": "Comenzar",
-    "features_overview": "Visión General de Características",
-    "documentation": "Documentación",
+    "features_overview": "Vision General de Caracteristicas",
+    "documentation": "Documentacion",
     "support": "Soporte"
   }
 }

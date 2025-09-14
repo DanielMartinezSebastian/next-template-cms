@@ -41,21 +41,23 @@ open http://localhost:3000/es
 
 ## 🎯 Estrategias Automáticas Post-Migración
 
-| Namespace | Estrategia | Origen | Cache | Fallback |
-|-----------|------------|---------|-------|----------|
-| common (null) | static | 📁 Archivos JSON | 1h | N/A |
-| Home | hybrid | 🗄️ PostgreSQL | 5min | 📁 Archivos |
-| Admin | dynamic | 🗄️ PostgreSQL | 1min | 📁 Archivos |
+| Namespace     | Estrategia | Origen           | Cache | Fallback    |
+| ------------- | ---------- | ---------------- | ----- | ----------- |
+| common (null) | static     | 📁 Archivos JSON | 1h    | N/A         |
+| Home          | hybrid     | 🗄️ PostgreSQL    | 5min  | 📁 Archivos |
+| Admin         | dynamic    | 🗄️ PostgreSQL    | 1min  | 📁 Archivos |
 
 ## ✅ Verificaciones de Seguridad
 
 ### Antes de Migrar
+
 - [ ] Backup de archivos JSON existentes
 - [ ] PostgreSQL conectando correctamente
 - [ ] Tests Playwright pasando
 - [ ] `npm run build` sin errores
 
 ### Después de Migrar
+
 - [ ] Todas las traducciones visibles en navegador
 - [ ] API métricas showing "healthy"
 - [ ] Console sin errores de carga
@@ -64,7 +66,9 @@ open http://localhost:3000/es
 ## 🔧 Troubleshooting
 
 ### Problema: "Database not detected"
+
 **Solución**:
+
 ```bash
 # Verificar variable
 echo $DATABASE_URL
@@ -74,14 +78,18 @@ npm run dev
 ```
 
 ### Problema: "Some translations missing"
+
 **Solución**:
+
 ```bash
 # Ejecutar migración incremental
 node scripts/migrate-translations.ts --locales en,es --verbose
 ```
 
 ### Problema: "Performance degradation"
+
 **Solución**:
+
 ```bash
 # Verificar métricas
 curl http://localhost:3000/api/translations/metrics
@@ -93,6 +101,7 @@ curl -X POST http://localhost:3000/api/translations/metrics -d '{"action":"reset
 ## 🎉 Post-Migración: Nuevas Capacidades
 
 ### Traducciones Dinámicas
+
 ```bash
 # Ahora puedes actualizar traducciones via API (futuro)
 POST /api/translations
@@ -105,6 +114,7 @@ POST /api/translations
 ```
 
 ### A/B Testing
+
 ```bash
 # Overrides temporales (futuro)
 POST /api/translations/override
@@ -119,5 +129,5 @@ POST /api/translations/override
 
 ---
 
-**💡 Recuerda**: La migración es opcional y gradual. Tu sistema funciona perfecto con archivos JSON indefinidamente.
-EOF'
+**💡 Recuerda**: La migración es opcional y gradual. Tu sistema funciona
+perfecto con archivos JSON indefinidamente. EOF'

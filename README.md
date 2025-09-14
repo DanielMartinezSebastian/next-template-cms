@@ -1,6 +1,7 @@
 # Next.js Edit Mode Template
 
-Una plantilla completa de Next.js 15 con capacidades de edición visual, internacionalización, y sistema de gestión de contenido.
+Una plantilla completa de Next.js 15 con capacidades de edición visual,
+internacionalización, y sistema de gestión de contenido.
 
 ## 🚀 Características Principales
 
@@ -13,23 +14,27 @@ Una plantilla completa de Next.js 15 con capacidades de edición visual, interna
 - **SEO optimizado** con metadatos dinámicos
 - **Server-side rendering** por defecto
 - **Sistema de componentes** con Radix UI y CVA
-- **Sistema de traducciones escalable** - [Ver documentación](./README-TRANSLATIONS.md)
+- **Sistema de traducciones escalable** -
+  [Ver documentación](./README-TRANSLATIONS.md)
 
 ## 📋 Plan de Desarrollo Detallado
 
 ### Fase 1: Configuración Base ✅
+
 - [x] Crear proyecto Next.js 15 con TypeScript
 - [x] Configurar Tailwind CSS 4
 - [x] Configurar ESLint y estructura inicial
 - [x] Actualizar package.json con todas las dependencias
 
 ### Fase 2: Configuración de Herramientas 🔄
+
 - [ ] Configurar Git con Husky para hooks de pre-commit
 - [ ] Configurar Prettier para formateo automático
 - [ ] Configurar eslint-config-next con reglas personalizadas
 - [ ] Inicializar base de datos PostgreSQL con Prisma
 
 ### Fase 3: Internacionalización ✅
+
 - [x] Configurar next-intl middleware
 - [x] Crear estructura de routing con [locale]
 - [x] Configurar archivos de traducción (es/en)
@@ -41,9 +46,11 @@ Una plantilla completa de Next.js 15 con capacidades de edición visual, interna
   - [x] Migración gradual JSON → PostgreSQL
   - [x] API de métricas y monitoreo (/api/translations/metrics)
   - [x] Zero breaking changes con next-intl
-  - [x] Documentación completa: [README-TRANSLATIONS.md](./README-TRANSLATIONS.md)
+  - [x] Documentación completa:
+        [README-TRANSLATIONS.md](./README-TRANSLATIONS.md)
 
 ### Fase 4: Sistema de Componentes 🎨
+
 - [ ] Configurar CVA para variants de componentes
 - [ ] Crear componentes base con Radix UI:
   - Button, Input, Dialog, Switch, Toast, Tooltip
@@ -51,6 +58,7 @@ Una plantilla completa de Next.js 15 con capacidades de edición visual, interna
 - [ ] Crear layout components (Header, Footer, Sidebar)
 
 ### Fase 5: Base de Datos y Modelos 🗄️
+
 - [ ] Crear esquema Prisma para:
   - Pages (páginas dinámicas)
   - Components (configuraciones de componentes)
@@ -63,6 +71,7 @@ Una plantilla completa de Next.js 15 con capacidades de edición visual, interna
 - [ ] Verificar métricas en /api/translations/metrics
 
 ### Fase 6: Gestión de Estado 🔄
+
 - [ ] Configurar Zustand stores para:
   - Page configuration
   - Edit mode state
@@ -71,12 +80,14 @@ Una plantilla completa de Next.js 15 con capacidades de edición visual, interna
 - [ ] Implementar persistencia local cuando sea necesario
 
 ### Fase 7: Páginas Dinámicas 📄
+
 - [ ] Crear sistema de páginas basado en JSON
 - [ ] Implementar tipos TypeScript para configuraciones
 - [ ] Crear API routes para CRUD de páginas
 - [ ] Implementar renderizado SSR de páginas dinámicas
 
 ### Fase 8: Editor Visual 🖊️
+
 - [ ] Integrar Lexical editor
 - [ ] Crear modo de edición de páginas
 - [ ] Implementar drag & drop de componentes
@@ -84,6 +95,7 @@ Una plantilla completa de Next.js 15 con capacidades de edición visual, interna
 - [ ] Implementar preview mode
 
 ### Fase 9: Panel de Administración 👨‍💼
+
 - [ ] Crear rutas de admin protegidas
 - [ ] Formularios de gestión con React Hook Form + Zod
 - [ ] Interface para gestión de páginas
@@ -91,12 +103,14 @@ Una plantilla completa de Next.js 15 con capacidades de edición visual, interna
 - [ ] Configuración de tema y colores
 
 ### Fase 10: SEO y Metadatos 🔍
+
 - [ ] Implementar generación automática de metadatos
 - [ ] Configurar robots.txt y sitemap dinámico
 - [ ] Optimizar Core Web Vitals
 - [ ] Implementar JSON-LD estructurado
 
 ### Fase 11: Componentes de Ejemplo 🎯
+
 - [ ] Hero sections responsivos
 - [ ] Cards de contenido
 - [ ] Formularios de contacto
@@ -104,6 +118,7 @@ Una plantilla completa de Next.js 15 con capacidades de edición visual, interna
 - [ ] Testimonios y reviews
 
 ### Fase 12: Testing y Optimización ⚡
+
 - [ ] Configurar testing básico
 - [ ] Optimizar bundle size
 - [ ] Implementar lazy loading
@@ -180,35 +195,40 @@ npm run test:e2e      # Playwright tests
 ## 🔧 Configuración Inicial
 
 1. **Instalar dependencias**:
+
    ```bash
    npm install
    ```
 
 2. **Configurar variables de entorno**:
+
    ```bash
    # Copiar archivo de ejemplo con 150+ variables configuradas
    cp .env.example .env.local
-   
+
    # Configurar base de datos (activa automáticamente sistema híbrido)
    DATABASE_URL="postgresql://usuario:password@localhost:5432/nexteditor"
    ```
 
 3. **Configurar base de datos**:
+
    ```bash
    # Ejecutar migraciones (cuando Prisma esté configurado)
    npm run db:push
    ```
 
 4. **Ejecutar en desarrollo**:
+
    ```bash
    npm run dev
    ```
 
 5. **Verificar sistema de traducciones**:
+
    ```bash
    # Verificar estado del sistema híbrido
    curl http://localhost:3000/api/translations/metrics
-   
+
    # Probar traducciones en diferentes idiomas
    curl http://localhost:3000/es
    curl http://localhost:3000/en
@@ -216,15 +236,18 @@ npm run test:e2e      # Playwright tests
 
 ## 🔄 Sistema Híbrido de Traducciones
 
-Este proyecto incluye un **sistema híbrido de traducciones** que permite migración gradual de archivos JSON a PostgreSQL sin interrupciones. 
+Este proyecto incluye un **sistema híbrido de traducciones** que permite
+migración gradual de archivos JSON a PostgreSQL sin interrupciones.
 
 ### ✅ Estado Actual
+
 - **Funcionando**: Archivos JSON (es/en) completamente operativos
 - **Preparado**: Para activación automática con PostgreSQL
 - **Verificado**: Testing completo con Playwright
 - **Monitoreado**: API de métricas en /api/translations/metrics
 
 ### 🚀 Activación Futura
+
 ```bash
 # Simplemente configurar en .env.local:
 DATABASE_URL="postgresql://..." # ← Sistema híbrido se activa automáticamente
@@ -232,7 +255,9 @@ REDIS_URL="redis://..."         # ← Cache distribuido (opcional)
 ```
 
 ### 📚 Documentación Completa
+
 Ver **[README-TRANSLATIONS.md](./README-TRANSLATIONS.md)** para:
+
 - Arquitectura detallada del sistema híbrido
 - Guía de migración paso a paso
 - API de métricas y monitoreo
@@ -242,22 +267,26 @@ Ver **[README-TRANSLATIONS.md](./README-TRANSLATIONS.md)** para:
 ## 🎯 Características Técnicas
 
 ### Arquitectura de Componentes
+
 - **Atomic Design**: Atoms, Molecules, Organisms
 - **Server Components** por defecto
 - **Client Components** solo cuando es necesario
 - **Composable patterns** con Radix UI
 
 ### Gestión de Estado
+
 - **Zustand** para estado global
 - **React Hook Form** para formularios
 - **React Query** para cache de servidor (futuro)
 
 ### Validación
+
 - **Zod schemas** para validación de tipos
 - **TypeScript strict mode**
 - **Runtime validation** en API routes
 
 ### SEO y Performance
+
 - **Static Generation** cuando sea posible
 - **Dynamic imports** para code splitting
 - **Image optimization** con Next.js Image
@@ -276,9 +305,11 @@ Ver **[README-TRANSLATIONS.md](./README-TRANSLATIONS.md)** para:
 
 ### 🔒 **CRÍTICO**: Mantener Compatibilidad del Sistema Híbrido
 
-Para preservar la integridad del sistema híbrido de traducciones durante el desarrollo de las siguientes fases:
+Para preservar la integridad del sistema híbrido de traducciones durante el
+desarrollo de las siguientes fases:
 
 #### ✅ **QUE SÍ HACER**
+
 ```typescript
 // ✅ Usar traducciones a través de next-intl (compatible)
 const t = await getTranslations('HomePage');
@@ -300,6 +331,7 @@ await translationManager.getTranslation('title', 'es', 'NewFeature');
 ```
 
 #### ❌ **QUE NO HACER**
+
 ```typescript
 // ❌ NO reemplazar next-intl con otra solución
 // ❌ NO modificar src/i18n/request.ts sin revisar híbrido
@@ -308,12 +340,13 @@ await translationManager.getTranslation('title', 'es', 'NewFeature');
 ```
 
 #### 🔄 **Al Implementar Prisma (Fase 5)**
+
 ```typescript
 // 1. Crear esquema Prisma para translations
 model Translation {
   id        String @id @default(cuid())
   namespace String
-  key       String  
+  key       String
   locale    String
   value     String
   // ... otros campos según src/types/translations.ts
@@ -325,6 +358,7 @@ model Translation {
 ```
 
 #### 🧪 **Testing Obligatorio Antes de Commits**
+
 ```bash
 # Verificar que traducciones siguen funcionando
 npm run dev
@@ -334,6 +368,7 @@ curl http://localhost:3000/api/translations/metrics  # Debe estar "healthy"
 ```
 
 #### 📊 **Monitoreo Continuo**
+
 - API `/api/translations/metrics` debe responder siempre
 - Status debe ser "healthy" o "degraded" (nunca "unhealthy")
 - Cache hit rate debe mantenerse > 80%
@@ -355,8 +390,13 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the
+result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+You can start editing the page by modifying `app/page.tsx`. The page
+auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This project uses
+[`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts)
+to automatically optimize and load [Geist](https://vercel.com/font), a new font
+family for Vercel.

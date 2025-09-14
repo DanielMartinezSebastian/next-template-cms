@@ -1,6 +1,6 @@
-import { TranslationProvider, TranslationMetrics } from '@/types/translations';
 import { FileTranslationProvider } from '@/lib/providers/file-translation-provider';
-import { translationSystemConfig, getNamespaceConfig, shouldUseDatabase } from './config';
+import { TranslationMetrics, TranslationProvider } from '@/types/translations';
+import { getNamespaceConfig, shouldUseDatabase, translationSystemConfig } from './config';
 
 export class TranslationManager {
   private fileProvider: FileTranslationProvider;
@@ -12,10 +12,10 @@ export class TranslationManager {
       translationSystemConfig.fallback.staticFilesPath,
       {
         maxSize: translationSystemConfig.cache.memory.maxSize,
-        ttl: translationSystemConfig.cache.memory.ttl
+        ttl: translationSystemConfig.cache.memory.ttl,
       }
     );
-    
+
     // TODO: Initialize database provider when Prisma is set up
     // this.databaseProvider = new DatabaseTranslationProvider();
   }
@@ -27,13 +27,9 @@ export class TranslationManager {
     return TranslationManager.instance;
   }
 
-  async getTranslation(
-    key: string, 
-    locale: string, 
-    namespace: string
-  ): Promise<string | null> {
+  async getTranslation(key: string, locale: string, namespace: string): Promise<string | null> {
     const config = getNamespaceConfig(namespace);
-    
+
     try {
       // Strategy 1: Try database if configured for dynamic/hybrid
       if (shouldUseDatabase(namespace) && this.databaseProvider) {
@@ -41,21 +37,20 @@ export class TranslationManager {
         if (dbValue !== null) {
           return dbValue;
         }
-        
+
         // If hybrid strategy and DB fails, fall back to static
         if (config.strategy === 'hybrid' && config.fallbackToStatic) {
           const staticValue = await this.fileProvider.getTranslation(key, locale, namespace);
           return staticValue;
         }
       }
-      
+
       // Strategy 2: Use static files (default for static strategy or fallback)
       const staticValue = await this.fileProvider.getTranslation(key, locale, namespace);
       return staticValue;
-      
     } catch (error) {
       console.error(`Error getting translation ${namespace}:${key} for ${locale}:`, error);
-      
+
       // Last resort: try static files if not already tried
       if (shouldUseDatabase(namespace) && config.fallbackToStatic) {
         try {
@@ -64,17 +59,14 @@ export class TranslationManager {
           console.error('Fallback to static files also failed:', fallbackError);
         }
       }
-      
+
       return null;
     }
   }
 
-  async getNamespace(
-    namespace: string, 
-    locale: string
-  ): Promise<Record<string, string>> {
+  async getNamespace(namespace: string, locale: string): Promise<Record<string, string>> {
     const config = getNamespaceConfig(namespace);
-    
+
     try {
       // Try database first for dynamic/hybrid namespaces
       if (shouldUseDatabase(namespace) && this.databaseProvider) {
@@ -82,19 +74,18 @@ export class TranslationManager {
         if (Object.keys(dbNamespace).length > 0) {
           return dbNamespace;
         }
-        
+
         // Fallback to static for hybrid strategy
         if (config.strategy === 'hybrid' && config.fallbackToStatic) {
           return await this.fileProvider.getNamespace(namespace, locale);
         }
       }
-      
+
       // Use static files
       return await this.fileProvider.getNamespace(namespace, locale);
-      
     } catch (error) {
       console.error(`Error getting namespace ${namespace} for ${locale}:`, error);
-      
+
       // Fallback to static
       if (shouldUseDatabase(namespace) && config.fallbackToStatic) {
         try {
@@ -103,20 +94,20 @@ export class TranslationManager {
           console.error('Fallback to static files failed:', fallbackError);
         }
       }
-      
+
       return {};
     }
   }
 
   async preloadCriticalTranslations(locale: string): Promise<void> {
     const promises: Promise<void>[] = [];
-    
+
     for (const [namespace, config] of Object.entries(translationSystemConfig.namespaceConfigs)) {
       if (config.preloadKeys.length > 0) {
         promises.push(this.warmCache(namespace, locale));
       }
     }
-    
+
     await Promise.allSettled(promises);
   }
 
@@ -124,7 +115,7 @@ export class TranslationManager {
     try {
       // Warm both providers if available
       await this.fileProvider.warmCache(namespace, locale);
-      
+
       if (shouldUseDatabase(namespace) && this.databaseProvider) {
         await this.databaseProvider.warmCache(namespace, locale);
       }
@@ -136,7 +127,7 @@ export class TranslationManager {
   async invalidateCache(namespace?: string, locale?: string): Promise<void> {
     try {
       await this.fileProvider.invalidateCache(namespace, locale);
-      
+
       if (this.databaseProvider) {
         await this.databaseProvider.invalidateCache(namespace, locale);
       }
@@ -159,14 +150,14 @@ export class TranslationManager {
       system: {
         providersActive: this.databaseProvider ? 2 : 1,
         databaseEnabled: translationSystemConfig.database.enabled,
-        cacheEnabled: translationSystemConfig.cache.memory.enabled
-      }
+        cacheEnabled: translationSystemConfig.cache.memory.enabled,
+      },
     };
 
     if (this.databaseProvider) {
       return {
         ...metrics,
-        database: await this.databaseProvider.getMetrics()
+        database: await this.databaseProvider.getMetrics(),
       };
     }
 
@@ -190,15 +181,27 @@ export class TranslationManager {
       database?: number;
     };
   }> {
-    const result = {
-      status: 'healthy' as const,
+    interface HealthCheckResult {
+      status: 'healthy' | 'degraded' | 'unhealthy';
       providers: {
-        file: 'ok' as const,
-        database: 'disabled' as const
+        file: 'ok' | 'error';
+        database: 'ok' | 'error' | 'disabled';
+      };
+      latency: {
+        file: number;
+        database?: number;
+      };
+    }
+
+    const result: HealthCheckResult = {
+      status: 'healthy',
+      providers: {
+        file: 'ok',
+        database: 'disabled',
       },
       latency: {
-        file: 0
-      }
+        file: 0,
+      },
     };
 
     // Test file provider
