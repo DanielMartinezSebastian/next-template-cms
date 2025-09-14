@@ -18,12 +18,12 @@ datasource db {
 // =============================================================================
 
 model Locale {
-  id        String @id @default(cuid())
-  code      String @unique // e.g., "en", "es", "fr"
+  id        String  @id @default(cuid())
+  code      String  @unique // e.g., "en", "es", "fr"
   name      String // e.g., "English", "Español", "Français"
   isDefault Boolean @default(false)
   isActive  Boolean @default(true)
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -39,7 +39,7 @@ model Namespace {
   name        String  @unique // e.g., "home", "common", "admin"
   description String?
   isActive    Boolean @default(true)
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -50,19 +50,19 @@ model Namespace {
 }
 
 model Translation {
-  id        String @id @default(cuid())
-  key       String // e.g., "title", "welcome.message"
-  value     String
-  
+  id    String @id @default(cuid())
+  key   String // e.g., "title", "welcome.message"
+  value String
+
   // Foreign keys
   localeId    String
   namespaceId String
-  
+
   // Metadata
-  isActive    Boolean @default(true)
-  lastUsedAt  DateTime?
-  usageCount  Int      @default(0)
-  
+  isActive   Boolean   @default(true)
+  lastUsedAt DateTime?
+  usageCount Int       @default(0)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -82,42 +82,42 @@ model Translation {
 // =============================================================================
 
 model Page {
-  id       String @id @default(cuid())
-  slug     String @unique // e.g., "home", "about", "contact"
+  id       String  @id @default(cuid())
+  slug     String  @unique // e.g., "home", "about", "contact"
   isActive Boolean @default(true)
-  
+
   // SEO & Meta
   template String? // Template type for rendering
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations
-  contents PageContent[]
+  contents   PageContent[]
   components PageComponent[]
 
   @@map("pages")
 }
 
 model PageContent {
-  id     String @id @default(cuid())
-  pageId String
+  id       String @id @default(cuid())
+  pageId   String
   localeId String
-  
+
   // Content fields
-  title       String
-  description String?
-  metaTitle   String?
+  title           String
+  description     String?
+  metaTitle       String?
   metaDescription String?
-  keywords    String[]
-  
+  keywords        String[]
+
   // Structured content (JSON)
   content Json? // Flexible content structure
-  
+
   // Publishing
-  isPublished Boolean @default(false)
+  isPublished Boolean   @default(false)
   publishedAt DateTime?
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -138,17 +138,17 @@ model Component {
   id   String @id @default(cuid())
   name String @unique // e.g., "Hero", "FeatureGrid", "ContactForm"
   type String // e.g., "layout", "content", "interactive"
-  
+
   // Component definition
   category    String? // e.g., "marketing", "forms", "navigation"
   description String?
-  
+
   // Configuration schema (JSON Schema)
-  configSchema Json?
+  configSchema  Json?
   defaultConfig Json?
-  
+
   isActive Boolean @default(true)
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -160,18 +160,18 @@ model Component {
 
 model PageComponent {
   id String @id @default(cuid())
-  
+
   // References
   pageId      String
   componentId String
-  
+
   // Layout & positioning
-  order    Int     @default(0)
+  order     Int     @default(0)
   isVisible Boolean @default(true)
-  
+
   // Component instance configuration
   config Json? // Instance-specific configuration
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -192,10 +192,10 @@ model SystemConfig {
   id    String @id @default(cuid())
   key   String @unique
   value Json
-  
+
   description String?
   category    String? // e.g., "general", "seo", "integrations"
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

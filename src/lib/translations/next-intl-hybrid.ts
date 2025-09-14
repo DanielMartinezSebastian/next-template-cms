@@ -1,4 +1,5 @@
 import { getRequestConfig } from 'next-intl/server';
+import type { AbstractIntlMessages } from 'next-intl';
 import { translationManager } from './translation-manager';
 import { routing } from '@/i18n/routing';
 
@@ -11,7 +12,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
   let locale = await requestLocale;
 
   // Validate and fallback locale
-  if (!locale || !routing.locales.includes(locale as any)) {
+  if (!locale || !routing.locales.includes(locale as (typeof routing.locales)[number])) {
     locale = routing.defaultLocale;
   }
 
@@ -63,8 +64,8 @@ export default getRequestConfig(async ({ requestLocale }) => {
  * This allows us to intercept translation requests and route them
  * to our hybrid translation system
  */
-function createTranslationProxy(locale: string): any {
-  const cache = new Map<string, any>();
+function createTranslationProxy(locale: string): AbstractIntlMessages {
+  const cache = new Map<string, AbstractIntlMessages>();
 
   return new Proxy(
     {},
@@ -88,10 +89,6 @@ function createTranslationProxy(locale: string): any {
                 return undefined;
               }
 
-              // Create a getter that returns a promise-like object
-              // This is a bit of a hack to make it work with next-intl's sync API
-              const translationKey = `${namespace}.${key}`;
-
               // For nested objects, return another proxy
               if (key.includes('.') || !isLeafKey(key)) {
                 return createNestedProxy(namespace, key, locale);
@@ -103,12 +100,12 @@ function createTranslationProxy(locale: string): any {
             },
 
             // Support for Object.keys() and iteration
-            ownKeys(nsTarget) {
+            ownKeys() {
               // Return known keys for this namespace
               return getNamespaceKeys(namespace, locale);
             },
 
-            has(nsTarget, key) {
+            has(_, key) {
               return hasTranslation(namespace, key as string, locale);
             },
           }
@@ -119,11 +116,11 @@ function createTranslationProxy(locale: string): any {
       },
 
       // Support for Object.keys() at the root level
-      ownKeys(target) {
+      ownKeys() {
         return ['HomePage', 'Navigation', 'Common', 'AdminPanel', 'SEO']; // Known namespaces
       },
 
-      has(target, namespace) {
+      has(_, namespace) {
         return (
           typeof namespace === 'string' &&
           ['HomePage', 'Navigation', 'Common', 'AdminPanel', 'SEO'].includes(namespace)
@@ -136,7 +133,11 @@ function createTranslationProxy(locale: string): any {
 /**
  * Creates a nested proxy for complex translation objects
  */
-function createNestedProxy(namespace: string, basePath: string, locale: string): any {
+function createNestedProxy(
+  namespace: string,
+  basePath: string,
+  locale: string
+): AbstractIntlMessages {
   return new Proxy(
     {},
     {

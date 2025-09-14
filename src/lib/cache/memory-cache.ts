@@ -7,7 +7,7 @@ interface CacheItem<T> {
 }
 
 export class MemoryCache implements CacheLayer {
-  private cache = new Map<string, CacheItem<any>>();
+  private cache = new Map<string, CacheItem<unknown>>();
   private maxSize: number;
   private defaultTtl: number;
   private currentSize = 0;
@@ -31,7 +31,7 @@ export class MemoryCache implements CacheLayer {
       return null;
     }
 
-    return item.value;
+    return item.value as T;
   }
 
   async set<T>(key: string, value: T, ttl?: number): Promise<void> {
@@ -110,7 +110,7 @@ export class MemoryCache implements CacheLayer {
     }
   }
 
-  private estimateSize(value: any): number {
+  private estimateSize(value: unknown): number {
     // Rough estimation of object size in bytes
     return JSON.stringify(value).length * 2; // UTF-16 chars are 2 bytes
   }

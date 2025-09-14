@@ -80,7 +80,7 @@ function loadDynamicTranslations(locale: string): AbstractIntlMessages {
   }
 
   if (loadedFiles.length > 0) {
-    console.log(`✅ Loaded ${loadedFiles.length} translation files for ${locale}:`, loadedFiles);
+    console.warn(`✅ Loaded ${loadedFiles.length} translation files for ${locale}:`, loadedFiles);
   }
 
   if (failedFiles.length > 0) {

@@ -1,4 +1,5 @@
 import { FileTranslationProvider } from '@/lib/providers/file-translation-provider';
+import { DatabaseTranslationProvider } from '@/lib/providers/database-translation-provider';
 import { TranslationMetrics, TranslationProvider } from '@/types/translations';
 import { getNamespaceConfig, shouldUseDatabase, translationSystemConfig } from './config';
 
@@ -16,8 +17,18 @@ export class TranslationManager {
       }
     );
 
-    // TODO: Initialize database provider when Prisma is set up
-    // this.databaseProvider = new DatabaseTranslationProvider();
+    // Initialize database provider if database is enabled
+    if (translationSystemConfig.database.enabled) {
+      try {
+        this.databaseProvider = new DatabaseTranslationProvider({
+          maxSize: translationSystemConfig.cache.memory.maxSize,
+          ttl: translationSystemConfig.cache.memory.ttl,
+        });
+      } catch (error) {
+        console.error('Failed to initialize database provider:', error);
+        this.databaseProvider = null;
+      }
+    }
   }
 
   static getInstance(): TranslationManager {
@@ -90,6 +101,34 @@ export class TranslationManager {
       if (shouldUseDatabase(namespace) && config.fallbackToStatic) {
         try {
           return await this.fileProvider.getNamespace(namespace, locale);
+        } catch (fallbackError) {
+          console.error('Fallback to static files failed:', fallbackError);
+        }
+      }
+
+      return {};
+    }
+  }
+
+  async getAllNamespaces(locale: string): Promise<Record<string, Record<string, string>>> {
+    try {
+      // Try database first if enabled
+      if (translationSystemConfig.database.enabled && this.databaseProvider) {
+        const dbNamespaces = await this.databaseProvider.getAllNamespaces(locale);
+        if (Object.keys(dbNamespaces).length > 0) {
+          return dbNamespaces;
+        }
+      }
+
+      // Fallback to file provider
+      return await this.fileProvider.getAllNamespaces(locale);
+    } catch (error) {
+      console.error(`Error getting all namespaces for ${locale}:`, error);
+
+      // Try fallback to file provider if database failed
+      if (translationSystemConfig.database.enabled && translationSystemConfig.fallback.enabled) {
+        try {
+          return await this.fileProvider.getAllNamespaces(locale);
         } catch (fallbackError) {
           console.error('Fallback to static files failed:', fallbackError);
         }
@@ -209,7 +248,7 @@ export class TranslationManager {
       const start = Date.now();
       await this.fileProvider.getTranslation('title', 'en', 'HomePage');
       result.latency.file = Date.now() - start;
-    } catch (error) {
+    } catch {
       result.providers.file = 'error';
       result.status = 'degraded';
     }
@@ -221,7 +260,7 @@ export class TranslationManager {
         await this.databaseProvider.getTranslation('title', 'en', 'HomePage');
         result.latency.database = Date.now() - start;
         result.providers.database = 'ok';
-      } catch (error) {
+      } catch {
         result.providers.database = 'error';
         if (result.providers.file === 'error') {
           result.status = 'unhealthy';

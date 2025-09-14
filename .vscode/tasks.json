@@ -284,6 +284,72 @@
 			},
 			"problemMatcher": []
 		},
+		{
+			"label": "💾 Git Commit",
+			"type": "shell",
+			"command": "git commit -m \"feat: Foundation Enhancement completed - Ready for Database Phase\" --no-verify",
+			"group": "build",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "🌿 Create Database Branch",
+			"type": "shell",
+			"command": "git checkout -b feature/database-components-implementation",
+			"group": "build",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "🗃️ Generate Prisma Client",
+			"type": "shell",
+			"command": "npx prisma generate",
+			"group": "build",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "🗃️ Push Database Schema",
+			"type": "shell",
+			"command": "npx prisma db push",
+			"group": "build",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "🗃️ Open Prisma Studio",
+			"type": "shell",
+			"command": "npx prisma studio",
+			"group": "build",
+			"isBackground": true,
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "new"
+			},
+			"problemMatcher": []
+		},
 
 		// =============================================================================
 		// MAINTENANCE TASKS
@@ -305,6 +371,36 @@
 			"label": "📊 Project Info",
 			"type": "shell",
 			"command": "echo '📦 Dependencies:' && npm list --depth=0 && echo '\\n🔧 Scripts:' && npm run",
+			"group": "build",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+
+		// =============================================================================
+		// GIT TASKS
+		// =============================================================================
+		{
+			"label": "🔄 Git Add All",
+			"type": "shell",
+			"command": "git add .",
+			"group": "build",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "💾 Git Commit Base UI Migration",
+			"type": "shell",
+			"command": "git commit -m \"feat: Complete Base UI migration and component library implementation\" -m \"- Migrated from Radix UI to Base UI for better LLM development\" -m \"- Implemented Button, Input, and Select components with CVA variants\" -m \"- Updated LocaleSwitcher to use Base UI Select component\" -m \"- Added comprehensive Base UI documentation and patterns\" -m \"- Fixed all TypeScript errors and ESLint warnings\" -m \"- Added utility functions and component index exports\"",
 			"group": "build",
 			"presentation": {
 				"echo": true,
