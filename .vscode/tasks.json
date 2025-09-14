@@ -511,6 +511,21 @@
 			"label": "Final status after dark theme fix",
 			"type": "shell",
 			"command": "git log --oneline -3 && echo && git status"
+		},
+		{
+			"label": "Commit clean CSS",
+			"type": "shell",
+			"command": "git commit -m \"style: 🧹 LIMPIAR CSS - Mantener solo variables de tema esenciales\n\n✅ LIMPIEZA APLICADA:\n• Eliminadas reglas SVG específicas (no necesarias)\n• Mantenidas variables CSS --background y --foreground\n• Conservadas clases Tailwind custom (.bg-background, .text-foreground)\n• CSS minimalista y enfocado en tema dinámico\n\n🎯 RESULTADO: CSS limpio, funcional y mantenible\""
+		},
+		{
+			"label": "Switch to main branch",
+			"type": "shell",
+			"command": "git checkout main"
+		},
+		{
+			"label": "Commit VSCode config",
+			"type": "shell",
+			"command": "git add .vscode/tasks.json && git commit -m \"chore: 🔧 Guardar configuración VSCode tasks\""
 		}
 	]
 }
