@@ -1,0 +1,30 @@
+{
+  "home": "Home",
+  "admin": "Admin",
+  "docs": "Docs",
+  "language_switcher": "Language",
+  "navigation": {
+    "home": "Home",
+    "admin": "Admin",
+    "docs": "Docs",
+    "language_switcher": "Language"
+  },
+  "buttons": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "create": "Create",
+    "get_started": "Get Started",
+    "learn_more": "Learn More",
+    "view_docs": "View Documentation"
+  },
+  "status": {
+    "success": "Success",
+    "error": "Error",
+    "warning": "Warning",
+    "info": "Information"
+  }
+}

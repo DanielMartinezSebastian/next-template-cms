@@ -11,54 +11,46 @@ const defaultNamespaceConfig: TranslationConfig = {
 
 // Namespace-specific configurations
 export const namespaceConfigs: Record<string, TranslationConfig> = {
-  // Critical UI elements - always static for performance
-  'Navigation': {
-    strategy: 'static',
-    cacheTimeout: 3600, // 1 hour
-    fallbackToStatic: true,
-    preloadKeys: ['home', 'admin', 'docs', 'language_switcher'],
-    priority: 'performance'
-  },
-  
+  // Traducciones compartidas - siempre estáticas y rápidas
   'Common': {
     strategy: 'static',
-    cacheTimeout: 3600, // 1 hour
+    cacheTimeout: 3600, // 1 hora
     fallbackToStatic: true,
-    preloadKeys: ['loading', 'error', 'save', 'cancel'],
+    preloadKeys: ['navigation.home', 'navigation.admin', 'buttons.save', 'buttons.cancel'],
     priority: 'performance'
   },
 
-  // Homepage can be hybrid - some content from DB
-  'HomePage': {
+  // Página de inicio - híbrida para flexibilidad
+  'Home': {
     strategy: 'hybrid',
-    cacheTimeout: 300, // 5 minutes
+    cacheTimeout: 300, // 5 minutos
     fallbackToStatic: true,
-    preloadKeys: ['title', 'subtitle'],
+    preloadKeys: ['hero.title', 'hero.subtitle'],
     priority: 'balanced'
   },
 
-  // Admin panel - fresh content from DB
-  'AdminPanel': {
+  // Panel de administración - dinámico para actualizaciones frecuentes
+  'Admin': {
     strategy: 'dynamic',
-    cacheTimeout: 60, // 1 minute
+    cacheTimeout: 60, // 1 minuto
     fallbackToStatic: true,
     preloadKeys: [],
     priority: 'freshness'
   },
 
-  // User-generated content - always from DB
+  // Contenido de usuario - siempre dinámico
   'UserContent': {
     strategy: 'dynamic',
-    cacheTimeout: 0, // No cache
+    cacheTimeout: 0, // Sin cache
     fallbackToStatic: false,
     preloadKeys: [],
     priority: 'freshness'
   },
 
-  // SEO content - hybrid approach
+  // SEO content - híbrido
   'SEO': {
     strategy: 'hybrid',
-    cacheTimeout: 1800, // 30 minutes
+    cacheTimeout: 1800, // 30 minutos
     fallbackToStatic: true,
     preloadKeys: ['title', 'description'],
     priority: 'performance'

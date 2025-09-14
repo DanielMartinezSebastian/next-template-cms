@@ -1,0 +1,32 @@
+{
+  "dashboard": {
+    "title": "Admin Dashboard",
+    "subtitle": "Manage your application content and settings",
+    "welcome": "Welcome to the admin panel"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "pages": "Pages",
+    "translations": "Translations",
+    "users": "Users",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "pages": {
+    "title": "Page Management",
+    "create_new": "Create New Page",
+    "edit_page": "Edit Page",
+    "delete_page": "Delete Page",
+    "publish": "Publish",
+    "draft": "Draft"
+  },
+  "translations": {
+    "title": "Translation Management",
+    "add_translation": "Add Translation",
+    "edit_translation": "Edit Translation",
+    "namespace": "Namespace",
+    "key": "Key",
+    "value": "Value",
+    "locale": "Locale"
+  }
+}

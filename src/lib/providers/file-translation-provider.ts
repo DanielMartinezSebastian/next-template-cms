@@ -136,16 +136,30 @@ export class FileTranslationProvider implements TranslationProvider {
 
   private async loadNamespaceFromFile(namespace: string, locale: string): Promise<Record<string, string> | null> {
     try {
-      const filePath = path.join(this.basePath, `${locale}.json`);
-      const fileContent = await fs.readFile(filePath, 'utf-8');
-      const data = JSON.parse(fileContent);
+      // Intentar cargar archivo específico por namespace primero
+      const specificFilePath = path.join(this.basePath, locale, `${namespace.toLowerCase()}.json`);
       
-      // Return the specific namespace or flatten if needed
-      if (data[namespace]) {
-        return this.flattenObject(data[namespace]);
+      try {
+        const specificContent = await fs.readFile(specificFilePath, 'utf-8');
+        const specificData = JSON.parse(specificContent);
+        return this.flattenObject(specificData);
+      } catch {
+        // Fallback al archivo general si no existe el específico
+        const generalFilePath = path.join(this.basePath, `${locale}.json`);
+        
+        try {
+          const generalContent = await fs.readFile(generalFilePath, 'utf-8');
+          const generalData = JSON.parse(generalContent);
+          
+          if (generalData[namespace]) {
+            return this.flattenObject(generalData[namespace]);
+          }
+        } catch {
+          // Si tampoco existe el archivo general, reportar error
+          console.error(`No translation file found for namespace ${namespace} and locale ${locale}`);
+        }
       }
       
-      // If no namespace found, return empty object
       return null;
     } catch (error) {
       console.error(`Error loading namespace ${namespace} from file for ${locale}:`, error);
@@ -153,16 +167,16 @@ export class FileTranslationProvider implements TranslationProvider {
     }
   }
 
-  private getNestedValue(obj: Record<string, any> | null, key: string): string | undefined {
+  private getNestedValue(obj: Record<string, unknown> | null, key: string): string | undefined {
     if (!obj) return undefined;
     
     // Support nested keys like 'features.visual_editor'
     const keys = key.split('.');
-    let current = obj;
+    let current: unknown = obj;
     
     for (const k of keys) {
-      if (current && typeof current === 'object' && k in current) {
-        current = current[k];
+      if (current && typeof current === 'object' && current !== null && k in current) {
+        current = (current as Record<string, unknown>)[k];
       } else {
         return undefined;
       }
@@ -171,17 +185,18 @@ export class FileTranslationProvider implements TranslationProvider {
     return typeof current === 'string' ? current : undefined;
   }
 
-  private flattenObject(obj: any, prefix = ''): Record<string, string> {
+  private flattenObject(obj: Record<string, unknown>, prefix = ''): Record<string, string> {
     const flattened: Record<string, string> = {};
     
     for (const key in obj) {
       if (obj.hasOwnProperty(key)) {
         const newKey = prefix ? `${prefix}.${key}` : key;
+        const value = obj[key];
         
-        if (typeof obj[key] === 'object' && obj[key] !== null) {
-          Object.assign(flattened, this.flattenObject(obj[key], newKey));
+        if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+          Object.assign(flattened, this.flattenObject(value as Record<string, unknown>, newKey));
         } else {
-          flattened[newKey] = String(obj[key]);
+          flattened[newKey] = String(value);
         }
       }
     }

@@ -1,0 +1,30 @@
+{
+  "home": "Inicio",
+  "admin": "Admin",
+  "docs": "Docs",
+  "language_switcher": "Idioma",
+  "navigation": {
+    "home": "Inicio",
+    "admin": "Admin",
+    "docs": "Docs",
+    "language_switcher": "Idioma"
+  },
+  "buttons": {
+    "loading": "Cargando...",
+    "error": "Ocurrió un error",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "create": "Crear",
+    "get_started": "Comenzar",
+    "learn_more": "Aprender Más",
+    "view_docs": "Ver Documentación"
+  },
+  "status": {
+    "success": "Éxito",
+    "error": "Error",
+    "warning": "Advertencia",
+    "info": "Información"
+  }
+}

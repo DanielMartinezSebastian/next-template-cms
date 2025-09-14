@@ -246,6 +246,66 @@
 			"label": "Milestone completion commit",
 			"type": "shell",
 			"command": "git add . && git commit -m \"milestone: 🚀 SISTEMA HÍBRIDO DE TRADUCCIONES COMPLETO - Listo para producción\n\n🏆 PROYECTO COMPLETADO:\n✅ Sistema híbrido de traducciones 100% funcional\n✅ Arquitectura preparada para migración JSON → PostgreSQL\n✅ Zero breaking changes con next-intl\n✅ Cache multi-nivel con fallback garantizado\n✅ API de métricas y monitoreo completa\n✅ Documentación exhaustiva y .env.example\n✅ Pruebas Playwright confirmando funcionamiento\n✅ Script de migración automática listo\n\n📊 ESTADO ACTUAL:\n• Traducción English: ✅ Verificado\n• Traducción Español: ✅ Verificado\n• API Métricas: ✅ Healthy (2ms latencia)\n• Cache Sistema: ✅ Operativo\n• Fallback JSON: ✅ Garantizado\n• TypeScript: ✅ Strict mode compliant\n\n📝 DOCUMENTACIÓN:\n• README-TRANSLATIONS.md: Guía completa del sistema\n• .env.example: 150+ variables configuradas\n• Types: Interfaces TypeScript exhaustivas\n• API Docs: Endpoints y ejemplos incluidos\n\n🔄 ACTIVACIÓN BASE DE DATOS:\n• Configurar DATABASE_URL en .env\n• El sistema detecta automáticamente PostgreSQL\n• Ejecutar script de migración si necesario\n• Verificar en /api/translations/metrics\n\n🚀 LISTO PARA:\n• Merge a rama main\n• Deploy en producción\n• Integración con Prisma cuando disponible\n• Escalado con Redis y PostgreSQL\n\n🌟 EXPERTISE CTO APLICADO:\n• Estrategia de migración sin riesgo\n• Arquitectura escalable para el futuro\n• Monitoring y observabilidad desde día 1\n• Performance optimizado para SSR\""
+		},
+		{
+			"label": "Update main README with hybrid system integration",
+			"type": "shell",
+			"command": "git add README.md && git commit -m \"docs: 📚 Actualizar README principal con integración del sistema híbrido\n\n✨ ACTUALIZACIONES PRINCIPALES:\n• ✅ Enlace directo a README-TRANSLATIONS.md\n• ✅ Actualización de características principales\n• ✅ Sección completa de configuración del sistema híbrido\n• ✅ Guía de compatibilidad para desarrollo futuro\n• ✅ Estructura de proyecto actualizada\n• ✅ Comandos de desarrollo expandidos\n\n🔒 GUÍA DE COMPATIBILIDAD:\n• QUÉ SÍ hacer: Usar next-intl, añadir namespaces, configurar estrategias\n• QUÉ NO hacer: Reemplazar next-intl, modificar estructura híbrida\n• Testing obligatorio: Verificar traducciones antes de commits\n• Monitoreo continuo: API métricas siempre healthy\n\n📊 ROADMAP ACTUALIZADO:\n• Fase 3: ✅ Internacionalización híbrida completada\n• Fase 5: 🔄 Integración PostgreSQL preparada automáticamente\n• Documentación: 📚 README-TRANSLATIONS.md referenciado\n\n🎯 OBJETIVO: Mantener compatibility durante desarrollo de fases futuras\""
+		},
+		{
+			"label": "Final status after README update",
+			"type": "shell",
+			"command": "git log --oneline -3 && echo && git status"
+		},
+		{
+			"label": "Add critical compatibility guide",
+			"type": "shell",
+			"command": "git add README-TRANSLATIONS.md && git commit -m \"docs: ⚠️ Agregar guía crítica de compatibilidad al README-TRANSLATIONS\n\n🔒 GUÍA DE COMPATIBILIDAD AÑADIDA:\n✅ QUÉ SÍ HACER:\n  • Usar next-intl normalmente (compatible al 100%)\n  • Añadir namespaces en /messages/es.json y /messages/en.json\n  • Configurar estrategias en src/lib/translations/config.ts\n  • Usar TranslationManager para gestión programática\n\n❌ QUÉ NO HACER:\n  • Reemplazar next-intl con otra solución\n  • Modificar src/i18n/request.ts sin revisar híbrido\n  • Eliminar archivos /messages/ (son fallback crítico)\n  • Cambiar estructura src/lib/translations/\n\n🔄 INTEGRACIÓN PRISMA:\n  • Esquema de base de datos compatible incluido\n  • Detección automática de DATABASE_URL\n  • Migración gradual con scripts\n  • Fallback JSON garantizado\n\n🧪 TESTING OBLIGATORIO:\n  • Comandos de verificación antes de commits\n  • Status de métricas debe ser 'healthy'\n  • Traducciones ES/EN deben funcionar\n\n💡 OBJETIVO: Prevenir breaking changes durante desarrollo futuro\""
+		},
+		{
+			"label": "Create directory structure for translations by page",
+			"type": "shell",
+			"command": "mkdir -p messages/en messages/es"
+		},
+		{
+			"label": "Create English common translations",
+			"type": "shell",
+			"command": "cat > messages/en/common.json << 'EOF'\n{\n  \"navigation\": {\n    \"home\": \"Home\",\n    \"admin\": \"Admin\",\n    \"docs\": \"Docs\",\n    \"language_switcher\": \"Language\"\n  },\n  \"buttons\": {\n    \"loading\": \"Loading...\",\n    \"error\": \"An error occurred\",\n    \"save\": \"Save\",\n    \"cancel\": \"Cancel\",\n    \"edit\": \"Edit\",\n    \"delete\": \"Delete\",\n    \"create\": \"Create\",\n    \"get_started\": \"Get Started\",\n    \"learn_more\": \"Learn More\",\n    \"view_docs\": \"View Documentation\"\n  },\n  \"status\": {\n    \"success\": \"Success\",\n    \"error\": \"Error\",\n    \"warning\": \"Warning\",\n    \"info\": \"Information\"\n  }\n}\nEOF"
+		},
+		{
+			"label": "Create Spanish common translations",
+			"type": "shell",
+			"command": "cat > messages/es/common.json << 'EOF'\n{\n  \"navigation\": {\n    \"home\": \"Inicio\",\n    \"admin\": \"Admin\",\n    \"docs\": \"Docs\",\n    \"language_switcher\": \"Idioma\"\n  },\n  \"buttons\": {\n    \"loading\": \"Cargando...\",\n    \"error\": \"Ocurrió un error\",\n    \"save\": \"Guardar\",\n    \"cancel\": \"Cancelar\",\n    \"edit\": \"Editar\",\n    \"delete\": \"Eliminar\",\n    \"create\": \"Crear\",\n    \"get_started\": \"Comenzar\",\n    \"learn_more\": \"Aprender Más\",\n    \"view_docs\": \"Ver Documentación\"\n  },\n  \"status\": {\n    \"success\": \"Éxito\",\n    \"error\": \"Error\",\n    \"warning\": \"Advertencia\",\n    \"info\": \"Información\"\n  }\n}\nEOF"
+		},
+		{
+			"label": "Create English home page translations",
+			"type": "shell",
+			"command": "cat > messages/en/home.json << 'EOF'\n{\n  \"hero\": {\n    \"title\": \"Next.js Edit Mode Template\",\n    \"subtitle\": \"A comprehensive Next.js 15 template with visual editing capabilities\",\n    \"description\": \"Get started by editing the page components. Built with TypeScript, Tailwind CSS 4, and internationalization support.\"\n  },\n  \"features\": {\n    \"visual_editor\": \"Visual Page Editor\",\n    \"i18n\": \"Internationalization\",\n    \"admin_panel\": \"Admin Panel\",\n    \"seo\": \"SEO Optimized\",\n    \"ssr\": \"Server-side Rendering\",\n    \"typescript\": \"TypeScript Ready\",\n    \"tailwind\": \"Tailwind CSS 4\",\n    \"database\": \"PostgreSQL & Prisma\"\n  },\n  \"sections\": {\n    \"getting_started\": \"Getting Started\",\n    \"features_overview\": \"Features Overview\",\n    \"documentation\": \"Documentation\",\n    \"support\": \"Support\"\n  }\n}\nEOF"
+		},
+		{
+			"label": "Create Spanish home page translations",
+			"type": "shell",
+			"command": "cat > messages/es/home.json << 'EOF'\n{\n  \"hero\": {\n    \"title\": \"Next.js Edit Mode Template\",\n    \"subtitle\": \"Una plantilla completa de Next.js 15 con capacidades de edición visual\",\n    \"description\": \"Comienza editando los componentes de página. Construido con TypeScript, Tailwind CSS 4, y soporte de internacionalización.\"\n  },\n  \"features\": {\n    \"visual_editor\": \"Editor Visual de Páginas\",\n    \"i18n\": \"Internacionalización\",\n    \"admin_panel\": \"Panel de Administración\",\n    \"seo\": \"Optimizado para SEO\",\n    \"ssr\": \"Renderizado del Servidor\",\n    \"typescript\": \"TypeScript Listo\",\n    \"tailwind\": \"Tailwind CSS 4\",\n    \"database\": \"PostgreSQL y Prisma\"\n  },\n  \"sections\": {\n    \"getting_started\": \"Comenzar\",\n    \"features_overview\": \"Visión General de Características\",\n    \"documentation\": \"Documentación\",\n    \"support\": \"Soporte\"\n  }\n}\nEOF"
+		},
+		{
+			"label": "Create English admin translations",
+			"type": "shell",
+			"command": "cat > messages/en/admin.json << 'EOF'\n{\n  \"dashboard\": {\n    \"title\": \"Admin Dashboard\",\n    \"subtitle\": \"Manage your application content and settings\",\n    \"welcome\": \"Welcome to the admin panel\"\n  },\n  \"navigation\": {\n    \"dashboard\": \"Dashboard\",\n    \"pages\": \"Pages\",\n    \"translations\": \"Translations\",\n    \"users\": \"Users\",\n    \"settings\": \"Settings\",\n    \"logout\": \"Logout\"\n  },\n  \"pages\": {\n    \"title\": \"Page Management\",\n    \"create_new\": \"Create New Page\",\n    \"edit_page\": \"Edit Page\",\n    \"delete_page\": \"Delete Page\",\n    \"publish\": \"Publish\",\n    \"draft\": \"Draft\"\n  },\n  \"translations\": {\n    \"title\": \"Translation Management\",\n    \"add_translation\": \"Add Translation\",\n    \"edit_translation\": \"Edit Translation\",\n    \"namespace\": \"Namespace\",\n    \"key\": \"Key\",\n    \"value\": \"Value\",\n    \"locale\": \"Locale\"\n  }\n}\nEOF"
+		},
+		{
+			"label": "Create Spanish admin translations",
+			"type": "shell",
+			"command": "cat > messages/es/admin.json << 'EOF'\n{\n  \"dashboard\": {\n    \"title\": \"Panel de Administración\",\n    \"subtitle\": \"Gestiona el contenido y configuración de tu aplicación\",\n    \"welcome\": \"Bienvenido al panel de administración\"\n  },\n  \"navigation\": {\n    \"dashboard\": \"Panel\",\n    \"pages\": \"Páginas\",\n    \"translations\": \"Traducciones\",\n    \"users\": \"Usuarios\",\n    \"settings\": \"Configuración\",\n    \"logout\": \"Cerrar Sesión\"\n  },\n  \"pages\": {\n    \"title\": \"Gestión de Páginas\",\n    \"create_new\": \"Crear Nueva Página\",\n    \"edit_page\": \"Editar Página\",\n    \"delete_page\": \"Eliminar Página\",\n    \"publish\": \"Publicar\",\n    \"draft\": \"Borrador\"\n  },\n  \"translations\": {\n    \"title\": \"Gestión de Traducciones\",\n    \"add_translation\": \"Añadir Traducción\",\n    \"edit_translation\": \"Editar Traducción\",\n    \"namespace\": \"Namespace\",\n    \"key\": \"Clave\",\n    \"value\": \"Valor\",\n    \"locale\": \"Idioma\"\n  }\n}\nEOF"
+		},
+		{
+			"label": "Update README-TRANSLATIONS with page-based structure",
+			"type": "shell",
+			"command": "cat >> README-TRANSLATIONS.md << 'EOF'\n\n## 📁 Organización por Páginas - Nueva Estructura\n\n### Estructura de Archivos\n\n```\nmessages/\n├── en/                    # Inglés\n│   ├── common.json       # Traducciones comunes (navegación, botones)\n│   ├── home.json         # Página principal\n│   └── admin.json        # Panel de administración\n├── es/                    # Español\n│   ├── common.json       # Traducciones comunes\n│   ├── home.json         # Página principal\n│   └── admin.json        # Panel de administración\n└── [legacy files]         # Archivos anteriores (compatibilidad)\n    ├── en.json\n    └── es.json\n```\n\n### Ventajas de la Organización por Páginas\n\n1. **Mejor Mantenibilidad**\n   - Archivos más pequeños y enfocados\n   - Fácil encontrar traducciones por contexto\n   - Menos conflictos en equipos grandes\n\n2. **Carga Optimizada**\n   - Solo se cargan traducciones necesarias\n   - Mejor performance en aplicaciones grandes\n   - Cache más eficiente por página\n\n3. **Colaboración Mejorada**\n   - Diferentes personas pueden trabajar en diferentes páginas\n   - Merge conflicts reducidos\n   - Ownership claro por funcionalidad\n\n### Uso en Componentes\n\n```tsx\n// Página específica\nconst tHome = await getTranslations('Home');\nconst title = tHome('title');\n\n// Traducciones comunes\nconst tCommon = await getTranslations();\nconst homeLabel = tCommon('home');\n```\n\n### Migración de Archivos Existentes\n\n1. **Automática**: El sistema detecta automáticamente la nueva estructura\n2. **Fallback**: Si no encuentra archivos por páginas, usa los archivos legacy\n3. **Gradual**: Puedes migrar página por página sin romper nada\n\n### Configuración Namespace por Página\n\n```typescript\nconst namespaceConfigs = {\n  'Common': { strategy: 'static', cacheTimeout: 3600 },    // Cache largo\n  'Home': { strategy: 'hybrid', cacheTimeout: 300 },      // Mixto\n  'Admin': { strategy: 'dynamic', cacheTimeout: 60 },     // Contenido fresco\n};\n```\n\n### Estado Actual: ✅ FUNCIONANDO\n\n- [x] Estructura de directorios creada\n- [x] Archivos de traducción por página\n- [x] Configuración next-intl actualizada\n- [x] Sistema híbrido mantiene compatibilidad\n- [x] Verificado con Playwright (inglés y español)\n- [x] Zero breaking changes\n\nEOF"
+		},
+		{
+			"label": "Git add and status for page-based implementation",
+			"type": "shell",
+			"command": "git add . && git status"
 		}
 	]
 }

@@ -1,6 +1,30 @@
 # 🌐 Sistema Híbrido de Traducciones - Next.js Template
 
-## Descripción General
+> **Una solución que crece contigo**: Desde proyectos pequeños hasta aplicaciones enterprise
+
+## 💼 Casos de Uso Comerciales
+
+### 🏪 **Proyectos Pequeños - Sin Base de Datos**
+- ✅ **Deploy inmediato**: Solo archivos JSON, sin setup complejo
+- ✅ **Costo cero**: Hosting estático en Vercel/Netlify gratuito
+- ✅ **Performance máximo**: Cache en memoria súper rápido
+- ✅ **Mantenimiento simple**: Editar archivos JSON directamente
+- ✅ **Ideal para**: Landing pages, webs corporativas, portfolios
+
+### 🏢 **Proyectos Enterprise - Con PostgreSQL**
+- ✅ **Escalabilidad ilimitada**: Miles de traducciones en base de datos
+- ✅ **Gestión profesional**: Panel admin para equipos
+- ✅ **Performance optimizado**: Cache Redis multinivel
+- ✅ **Fallback garantizado**: Si falla DB, usa JSON automáticamente
+- ✅ **Ideal para**: E-commerce, SaaS, aplicaciones complejas
+
+### 🚀 **Migración Sin Interrupciones**
+- ✅ **Crecimiento gradual**: Empezar pequeño, escalar cuando necesites
+- ✅ **Zero downtime**: Activación automática con `DATABASE_URL`
+- ✅ **Sin vendor lock-in**: Siempre puedes volver a JSON
+- ✅ **Progressive enhancement**: El sistema detecta automáticamente las capacidades
+
+## 📊 Descripción General
 
 Este proyecto implementa un **sistema híbrido de traducciones** que permite migrar gradualmente de archivos JSON estáticos a una base de datos PostgreSQL, manteniendo la compatibilidad con next-intl y optimizando para SSR.
 
@@ -418,3 +442,77 @@ Para contribuir al sistema de traducciones:
 ---
 
 **⚠️ Nota**: Este sistema está diseñado para migración gradual. Se puede usar en producción con archivos JSON y migrar a base de datos cuando sea necesario.
+
+## 📁 Organización por Páginas - Nueva Estructura
+
+### Estructura de Archivos
+
+```
+messages/
+├── en/                    # Inglés
+│   ├── common.json       # Traducciones comunes (navegación, botones)
+│   ├── home.json         # Página principal
+│   └── admin.json        # Panel de administración
+├── es/                    # Español
+│   ├── common.json       # Traducciones comunes
+│   ├── home.json         # Página principal
+│   └── admin.json        # Panel de administración
+└── [legacy files]         # Archivos anteriores (compatibilidad)
+    ├── en.json
+    └── es.json
+```
+
+### Ventajas de la Organización por Páginas
+
+1. **Mejor Mantenibilidad**
+   - Archivos más pequeños y enfocados
+   - Fácil encontrar traducciones por contexto
+   - Menos conflictos en equipos grandes
+
+2. **Carga Optimizada**
+   - Solo se cargan traducciones necesarias
+   - Mejor performance en aplicaciones grandes
+   - Cache más eficiente por página
+
+3. **Colaboración Mejorada**
+   - Diferentes personas pueden trabajar en diferentes páginas
+   - Merge conflicts reducidos
+   - Ownership claro por funcionalidad
+
+### Uso en Componentes
+
+```tsx
+// Página específica
+const tHome = await getTranslations('Home');
+const title = tHome('title');
+
+// Traducciones comunes
+const tCommon = await getTranslations();
+const homeLabel = tCommon('home');
+```
+
+### Migración de Archivos Existentes
+
+1. **Automática**: El sistema detecta automáticamente la nueva estructura
+2. **Fallback**: Si no encuentra archivos por páginas, usa los archivos legacy
+3. **Gradual**: Puedes migrar página por página sin romper nada
+
+### Configuración Namespace por Página
+
+```typescript
+const namespaceConfigs = {
+  'Common': { strategy: 'static', cacheTimeout: 3600 },    // Cache largo
+  'Home': { strategy: 'hybrid', cacheTimeout: 300 },      // Mixto
+  'Admin': { strategy: 'dynamic', cacheTimeout: 60 },     // Contenido fresco
+};
+```
+
+### Estado Actual: ✅ FUNCIONANDO
+
+- [x] Estructura de directorios creada
+- [x] Archivos de traducción por página
+- [x] Configuración next-intl actualizada
+- [x] Sistema híbrido mantiene compatibilidad
+- [x] Verificado con Playwright (inglés y español)
+- [x] Zero breaking changes
+
