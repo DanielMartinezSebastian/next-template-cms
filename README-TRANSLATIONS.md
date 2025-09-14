@@ -46,6 +46,34 @@ const namespaceConfigs = {
 
 ## 🚀 Uso
 
+### Configuración Inicial
+
+1. **Instala las dependencias**:
+   ```bash
+   npm install
+   ```
+
+2. **Configura las variables de entorno**:
+   ```bash
+   cp .env.example .env.local
+   # Edita .env.local con tus valores específicos
+   ```
+
+3. **Inicia el servidor de desarrollo**:
+   ```bash
+   npm run dev
+   ```
+
+4. **Verifica el sistema de traducciones**:
+   ```bash
+   # Visita el sitio en diferentes idiomas
+   curl http://localhost:3000/es
+   curl http://localhost:3000/en
+   
+   # Verifica las métricas del sistema
+   curl http://localhost:3000/api/translations/metrics
+   ```
+
 ### En Componentes (Compatible con next-intl)
 
 ```tsx
@@ -132,16 +160,39 @@ node scripts/migrate-translations.ts --locales en,es,fr
 
 ### Activar Base de Datos
 
-1. **Configurar variables de entorno**:
+El sistema detecta automáticamente la disponibilidad de PostgreSQL y Redis:
+
+1. **Configurar variables de entorno** en `.env.local`:
    ```env
-   DATABASE_URL="postgresql://..."
-   REDIS_URL="redis://..."  # Opcional
+   # PostgreSQL (REQUERIDO para activar base de datos)
+   DATABASE_URL="postgresql://user:pass@localhost:5432/db"
+   
+   # Redis (OPCIONAL pero recomendado para producción)
+   REDIS_URL="redis://localhost:6379"
    ```
 
 2. **El sistema automáticamente**:
-   - Detecta la disponibilidad de la base de datos
-   - Cambia a estrategia híbrida
-   - Mantiene fallback a archivos JSON
+   - ✅ Detecta `DATABASE_URL` y activa el proveedor de base de datos
+   - ✅ Detecta `REDIS_URL` y activa el cache distribuido
+   - ✅ Cambia a estrategia híbrida según configuración por namespace
+   - ✅ Mantiene fallback a archivos JSON garantizado
+
+3. **Estados del sistema**:
+   ```typescript
+   // Solo archivos JSON (estado inicial)
+   { "databaseEnabled": false, "providers": { "file": "ok", "database": "disabled" } }
+   
+   // Híbrido con PostgreSQL
+   { "databaseEnabled": true, "providers": { "file": "ok", "database": "ok" } }
+   ```
+
+4. **Verificar activación**:
+   ```bash
+   # Revisar estado en métricas
+   curl http://localhost:3000/api/translations/metrics
+   
+   # El campo "databaseEnabled" debe ser true
+   ```
 
 ## ⚡ Performance
 
@@ -162,15 +213,36 @@ node scripts/migrate-translations.ts --locales en,es,fr
 
 ### Variables de Entorno
 
+El proyecto incluye un archivo `.env.example` con todas las variables de entorno necesarias. Para configurar el proyecto:
+
+1. **Copia el archivo de ejemplo**:
+   ```bash
+   cp .env.example .env.local
+   ```
+
+2. **Configura las variables principales**:
+   ```env
+   # Base de datos (opcional - activa automáticamente el sistema híbrido)
+   DATABASE_URL="postgresql://user:pass@localhost:5432/db"
+
+   # Cache distribuido (opcional - recomendado para producción)
+   REDIS_URL="redis://localhost:6379"
+
+   # Configuración de desarrollo
+   NODE_ENV="development"  # Cache más corto
+   DEBUG_TRANSLATIONS=true  # Logs detallados
+   ```
+
+### Variables Críticas para el Sistema de Traducciones
+
 ```env
-# Base de datos (opcional)
-DATABASE_URL="postgresql://user:pass@localhost:5432/db"
-
-# Cache distribuido (opcional)
-REDIS_URL="redis://localhost:6379"
-
-# Configuración de desarrollo
-NODE_ENV="development"  # Cache más corto
+# Sistema híbrido de traducciones
+DATABASE_URL="postgresql://..."           # Activa automáticamente la base de datos
+REDIS_URL="redis://..."                  # Cache distribuido (producción)
+TRANSLATIONS_DATABASE_ENABLED=false      # Override manual (opcional)
+TRANSLATIONS_CACHE_TTL=300               # TTL del cache en segundos
+TRANSLATIONS_CACHE_MAX_SIZE=104857600    # Tamaño máximo del cache (100MB)
+DEBUG_TRANSLATIONS=false                 # Logs detallados de traducciones
 ```
 
 ### Configuración por Entorno
