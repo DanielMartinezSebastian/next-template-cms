@@ -3,7 +3,7 @@ export { Input, inputVariants } from './input';
 export {
   Select,
   SelectItem,
+  selectItemVariants,
   SelectSeparator,
   selectTriggerVariants,
-  selectItemVariants,
 } from './select';

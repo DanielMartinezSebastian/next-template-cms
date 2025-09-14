@@ -1,6 +1,6 @@
+import { Link } from '@/i18n/navigation';
 import { getTranslations } from 'next-intl/server';
 import LocaleSwitcher from './LocaleSwitcher';
-import { Link } from '@/i18n/navigation';
 
 /**
  * Header component with navigation and language switcher
@@ -33,6 +33,12 @@ export default async function Header() {
               className="text-foreground/70 px-3 py-2 text-sm font-medium transition-colors hover:text-blue-600 dark:hover:text-blue-400"
             >
               {t('navigation.admin')}
+            </Link>
+            <Link
+              href="/stores-demo"
+              className="text-foreground/70 px-3 py-2 text-sm font-medium transition-colors hover:text-blue-600 dark:hover:text-blue-400"
+            >
+              Stores Demo
             </Link>
             <Link
               href="/docs"
