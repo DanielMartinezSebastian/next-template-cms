@@ -1,8 +1,92 @@
 // PAGE-BASED CONFIGURATION
-// Updated to load page-specific translation files from new structure
+// Updated to load translation files using static imports based on index configuration
 
 import { getRequestConfig } from "next-intl/server";
 import { routing } from "./routing";
+import { TRANSLATION_FILES } from "../../messages";
+import type { AbstractIntlMessages } from "next-intl";
+
+// Static imports for all translation files
+// English translations
+import enCommon from "../../messages/en/common.json";
+import enHome from "../../messages/en/home.json";
+import enAdmin from "../../messages/en/admin.json";
+
+// Spanish translations
+import esCommon from "../../messages/es/common.json";
+import esHome from "../../messages/es/home.json";
+import esAdmin from "../../messages/es/admin.json";
+
+// Translation file registry - maps locale and filename to actual content
+const TRANSLATION_REGISTRY = {
+  en: {
+    common: enCommon,
+    home: enHome,
+    admin: enAdmin,
+  },
+  es: {
+    common: esCommon,
+    home: esHome,
+    admin: esAdmin,
+  },
+} as const;
+
+/**
+ * Loads translation files based on the index configuration
+ * Uses static imports for optimal performance and reliability
+ * Automatically maps files defined in messages/index.ts to imported content
+ */
+function loadDynamicTranslations(locale: string): AbstractIntlMessages {
+  const messages: Record<string, AbstractIntlMessages> = {};
+  const loadedFiles: string[] = [];
+  const failedFiles: string[] = [];
+
+  // Get the registry for this locale
+  const localeRegistry = TRANSLATION_REGISTRY[locale as keyof typeof TRANSLATION_REGISTRY];
+  
+  if (!localeRegistry) {
+    console.error(`❌ No translation registry found for locale: ${locale}`);
+    return {};
+  }
+
+  // Load each file defined in the index
+  for (const fileConfig of TRANSLATION_FILES) {
+    const { filename, namespace } = fileConfig;
+    
+    try {
+      const content = localeRegistry[filename as keyof typeof localeRegistry];
+      
+      if (!content) {
+        failedFiles.push(filename);
+        console.warn(`⚠️ Translation file ${filename}.json not found in registry for locale ${locale}`);
+        continue;
+      }
+      
+      if (namespace === null) {
+        // Spread common translations at root level
+        Object.assign(messages, content);
+        loadedFiles.push(`${filename} (root level)`);
+      } else {
+        // Use configured namespace
+        messages[namespace] = content;
+        loadedFiles.push(`${filename} → ${namespace}`);
+      }
+    } catch (error) {
+      failedFiles.push(filename);
+      console.warn(`⚠️ Error processing translation file ${filename} for locale ${locale}:`, error);
+    }
+  }
+
+  if (loadedFiles.length > 0) {
+    console.log(`✅ Loaded ${loadedFiles.length} translation files for ${locale}:`, loadedFiles);
+  }
+  
+  if (failedFiles.length > 0) {
+    console.warn(`⚠️ Failed to load ${failedFiles.length} files for ${locale}:`, failedFiles);
+  }
+
+  return messages;
+}
 
 export default getRequestConfig(async ({ requestLocale }) => {
   // This typically corresponds to the `[locale]` segment
@@ -14,15 +98,8 @@ export default getRequestConfig(async ({ requestLocale }) => {
   }
 
   try {
-    // Load translations from the new page-based structure
-    const messages = {
-      // Load common translations (navigation, buttons, etc.)
-      ...(await import(`../../messages/${locale}/common.json`)).default,
-      
-      // Load page-specific translations as namespaces
-      Home: (await import(`../../messages/${locale}/home.json`)).default,
-      Admin: (await import(`../../messages/${locale}/admin.json`)).default,
-    };
+    // Load translations dynamically from the page-based structure
+    const messages = await loadDynamicTranslations(locale);
 
     return {
       locale,
@@ -62,25 +139,21 @@ export default getRequestConfig(async ({ requestLocale }) => {
   } catch (error) {
     console.error(`Error loading translations for locale ${locale}:`, error);
     
-    // Fallback: try to load legacy files
-    try {
-      const fallbackMessages = (await import(`../../messages/${locale}.json`)).default;
-      console.warn(`Loaded fallback translations for ${locale}`);
-      return {
-        locale,
-        messages: fallbackMessages
-      };
-    } catch (fallbackError) {
-      console.error('Fallback also failed:', fallbackError);
-      return {
-        locale,
-        messages: {}
-      };
-    }
+    return {
+      locale,
+      messages: {}
+    };
   }
 });
 
-// HYBRID SYSTEM INTEGRATION:
-// For database integration, replace this with:
+// INDEX-BASED SYSTEM:
+// Translation files are automatically loaded based on messages/index.ts configuration
+// To add new translation files:
+// 1. Create JSON files in messages/en/ and messages/es/
+// 2. Add static imports above
+// 3. Add to TRANSLATION_REGISTRY
+// 4. Add to TRANSLATION_FILES in messages/index.ts
+//
+// For future database integration, replace this with:
 // import hybridConfig from '@/lib/translations/next-intl-hybrid';
 // export default hybridConfig;
