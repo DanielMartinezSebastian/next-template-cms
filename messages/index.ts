@@ -45,6 +45,15 @@ export const TRANSLATION_FILES: TranslationFileConfig[] = [
   // }
 ];
 
+// FUTURE: Database compatibility mapping
+// Each namespace here will automatically work with the hybrid system:
+// - namespace: null (common) → static strategy (always from files)
+// - namespace: 'Home' → hybrid strategy (files + database override)
+// - namespace: 'Admin' → dynamic strategy (database first, files fallback)
+// 
+// The TranslationManager will use this configuration to determine
+// the loading strategy for each namespace when DATABASE_URL is set.
+
 // Helper function to get all available namespaces
 export function getAvailableNamespaces(): string[] {
   return TRANSLATION_FILES
