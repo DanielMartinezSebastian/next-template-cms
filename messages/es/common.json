@@ -3,6 +3,12 @@
   "admin": "Admin",
   "docs": "Docs",
   "language_switcher": "Idioma",
+  "locale_switcher": {
+    "label": "Cambiar idioma",
+    "locale_en": "Inglés",
+    "locale_es": "Español",
+    "current_locale": "Idioma actual: {locale}"
+  },
   "navigation": {
     "home": "Inicio",
     "admin": "Admin",
