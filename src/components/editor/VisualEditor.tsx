@@ -41,6 +41,7 @@ interface VisualEditorProps {
   onChange?: (content: string) => void;
   className?: string;
   readOnly?: boolean;
+  width?: number; // Width for responsive layout adjustments
 }
 
 // Error boundary component
@@ -78,6 +79,7 @@ export function VisualEditor({
   onChange,
   className = '',
   readOnly = false,
+  width,
 }: Omit<VisualEditorProps, 'initialContent'>) {
   const [isClient, setIsClient] = useState(false);
 
@@ -132,18 +134,30 @@ export function VisualEditor({
   }
 
   return (
-    <div className={`bg-card border-border overflow-hidden rounded-lg border ${className}`}>
+    <div
+      className={`bg-card border-border overflow-hidden rounded-lg border ${className}`}
+      style={{ width: width ? `${width - 32}px` : '100%' }} // Responsive container width
+    >
       <LexicalComposer initialConfig={initialConfig}>
         {/* Toolbar */}
-        {!readOnly && <ToolbarPlugin />}
+        {!readOnly && <ToolbarPlugin width={width} />}
 
         {/* Main Editor */}
-        <div className="relative min-h-[400px]">
+        <div
+          className="relative min-h-[400px]"
+          style={{ width: '100%' }} // Use full width of parent container
+        >
           <RichTextPlugin
             contentEditable={
               <ContentEditable
                 className="text-foreground resize-none overflow-hidden p-4 outline-none"
-                style={{ minHeight: '400px' }}
+                style={{
+                  minHeight: '400px',
+                  width: '100%',
+                  maxWidth: '100%',
+                  wordWrap: 'break-word',
+                  overflowWrap: 'break-word',
+                }}
                 aria-label="Rich text editor"
               />
             }

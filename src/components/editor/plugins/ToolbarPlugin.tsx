@@ -26,9 +26,10 @@ import {
 
 interface ToolbarPluginProps {
   className?: string;
+  width?: number; // Width for responsive layout adjustments
 }
 
-export function ToolbarPlugin({ className = '' }: ToolbarPluginProps) {
+export function ToolbarPlugin({ className = '', width }: ToolbarPluginProps) {
   const [editor] = useLexicalComposerContext();
   const [activeFormats, setActiveFormats] = useState<Set<string>>(new Set());
   const [isEditable, setIsEditable] = useState(true);
@@ -144,7 +145,10 @@ export function ToolbarPlugin({ className = '' }: ToolbarPluginProps) {
   }
 
   return (
-    <div className={`border-border bg-card flex flex-wrap gap-2 border-b p-4 ${className}`}>
+    <div
+      className={`border-border bg-card flex flex-wrap gap-2 border-b p-4 ${className}`}
+      style={{ width: width ? `${width - 32}px` : '100%' }} // Match parent width with padding
+    >
       {/* Text Formatting */}
       <div className="border-border flex gap-1 border-r pr-2">
         <Button

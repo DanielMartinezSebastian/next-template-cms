@@ -24,16 +24,35 @@ export default function AdminPageEditor() {
   const { enabled: isEditMode, selectedComponentId } = useEditModeStore();
   const { enableEditMode } = useEditModeActions();
 
-  // Local state
+  // Local state - Start with small default that will be adjusted to respect new dvw values
   const [content, setContent] = useState<string>('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [breakpoint, setBreakpoint] = useState<TailwindBreakpoint>('lg');
-  const [sidebarWidth, setSidebarWidth] = useState(384); // Default 24rem = 384px
+  const [sidebarWidth, setSidebarWidth] = useState(384); // Start with 20dvw equivalent (will be adjusted)
   const [isResizing, setIsResizing] = useState(false);
+  const [maxSidebarWidth, setMaxSidebarWidth] = useState(1920); // Dynamic max width (100dvw)
+  const [sizeState, setSizeState] = useState<'default' | 'half' | 'full'>('default'); // Size toggle state
 
-  // Constants for resizing constraints
-  const MIN_SIDEBAR_WIDTH = 280; // Minimum width (17.5rem)
-  const MAX_SIDEBAR_WIDTH = 600; // Maximum width (37.5rem)
+  // Calculate different width sizes based on dvw values
+  const getDefaultWidth = () => Math.floor(window.innerWidth * 0.2); // 20dvw as default
+  const getHalfScreenWidth = () => Math.floor(window.innerWidth * 0.4); // 40dvw as half
+  const getFullScreenWidth = () => window.innerWidth; // 100dvw as full
+
+  // Update max width based on window size
+  useEffect(() => {
+    const updateMaxWidth = () => {
+      // Full screen width = 100dvw (entire viewport width)
+      const newMaxWidth = window.innerWidth;
+      setMaxSidebarWidth(newMaxWidth);
+
+      // Adjust current width if it exceeds new maximum
+      setSidebarWidth(prevWidth => Math.min(prevWidth, newMaxWidth));
+    };
+
+    updateMaxWidth();
+    window.addEventListener('resize', updateMaxWidth);
+    return () => window.removeEventListener('resize', updateMaxWidth);
+  }, []);
 
   useEffect(() => {
     if (!isEditMode) {
@@ -81,7 +100,9 @@ export default function AdminPageEditor() {
     const handleResize = (e: MouseEvent) => {
       if (!isResizing) return;
 
-      const newWidth = Math.min(Math.max(e.clientX, MIN_SIDEBAR_WIDTH), MAX_SIDEBAR_WIDTH);
+      // Minimum 5dvw for usability, maximum 100dvw
+      const dynamicMin = Math.floor(window.innerWidth * 0.05); // 5dvw as minimum
+      const newWidth = Math.min(Math.max(e.clientX, dynamicMin), maxSidebarWidth);
       setSidebarWidth(newWidth);
     };
 
@@ -99,7 +120,48 @@ export default function AdminPageEditor() {
         document.removeEventListener('mouseup', stopResize);
       };
     }
-  }, [isResizing, MIN_SIDEBAR_WIDTH, MAX_SIDEBAR_WIDTH]);
+  }, [isResizing, maxSidebarWidth]);
+
+  // Function to toggle between three size states
+  const toggleEditorSize = () => {
+    let newState: 'default' | 'half' | 'full';
+    let newWidth: number;
+
+    switch (sizeState) {
+      case 'default':
+        newState = 'half';
+        newWidth = getHalfScreenWidth();
+        break;
+      case 'half':
+        newState = 'full';
+        newWidth = getFullScreenWidth();
+        break;
+      case 'full':
+      default:
+        newState = 'default';
+        newWidth = getDefaultWidth();
+        break;
+    }
+
+    setSizeState(newState);
+    setSidebarWidth(newWidth);
+  };
+
+  // Effect to update size state when width changes manually (by dragging)
+  useEffect(() => {
+    const tolerance = 100; // Increased tolerance for larger widths
+    const defaultWidth = Math.floor(window.innerWidth * 0.2); // 20dvw
+    const halfScreenWidth = Math.floor(window.innerWidth * 0.4); // 40dvw
+    const fullScreenWidth = window.innerWidth; // 100dvw
+
+    if (Math.abs(sidebarWidth - defaultWidth) <= tolerance) {
+      setSizeState('default');
+    } else if (Math.abs(sidebarWidth - halfScreenWidth) <= tolerance) {
+      setSizeState('half');
+    } else if (Math.abs(sidebarWidth - fullScreenWidth) <= tolerance) {
+      setSizeState('full');
+    }
+  }, [sidebarWidth, maxSidebarWidth]);
 
   if (isLoading) {
     return (
@@ -172,6 +234,43 @@ export default function AdminPageEditor() {
         <div className="bg-card border-border flex items-center justify-between border-b p-4">
           <h2 className="text-foreground text-lg font-semibold">Editor</h2>
           <div className="flex items-center space-x-2">
+            {/* Size Toggle Button */}
+            <button
+              onClick={toggleEditorSize}
+              className="text-muted-foreground hover:text-foreground rounded-md p-2 transition-colors"
+              title={`Cambiar a ${sizeState === 'default' ? '40dvw (media pantalla)' : sizeState === 'half' ? '100dvw (pantalla completa)' : '20dvw (tamaño compacto)'}`}
+            >
+              {sizeState === 'default' && (
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 8h16M4 16h16"
+                  />
+                </svg>
+              )}
+              {sizeState === 'half' && (
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 3v18m6-18v18"
+                  />
+                </svg>
+              )}
+              {sizeState === 'full' && (
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 4h16v16H4z"
+                  />
+                </svg>
+              )}
+            </button>
             {/* Close Sidebar */}
             <button
               onClick={toggleSidebar}
@@ -192,7 +291,12 @@ export default function AdminPageEditor() {
 
         {/* Sidebar Content */}
         <div className="h-[calc(100%-4rem)] overflow-hidden">
-          <PageEditorPanel locale={locale} pageId={pageId} onContentChange={handleContentChange} />
+          <PageEditorPanel
+            locale={locale}
+            pageId={pageId}
+            onContentChange={handleContentChange}
+            width={sidebarWidth}
+          />
         </div>
 
         {/* Resizable Divider */}

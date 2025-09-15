@@ -15,6 +15,7 @@ interface PageEditorPanelProps {
   locale: string;
   onContentChange?: (content: string) => void;
   onPageUpdate?: (page: Partial<PageConfig>) => void;
+  width?: number; // Width of the editor panel for responsive adjustments
 }
 
 export function PageEditorPanel({
@@ -22,6 +23,7 @@ export function PageEditorPanel({
   locale,
   onContentChange,
   onPageUpdate,
+  width,
 }: PageEditorPanelProps) {
   const { pages } = usePageStore();
   const { updatePage } = usePageActions();
@@ -124,8 +126,11 @@ export function PageEditorPanel({
 
   return (
     <div
-      className="bg-card border-border flex w-96 flex-col border-r"
-      style={{ height: 'calc(100dvh - 66px)' }} // Restar altura del header admin + margen
+      className="bg-card border-border flex flex-col border-r"
+      style={{
+        height: 'calc(100dvh - 66px)', // Restar altura del header admin + margen
+        width: width ? `${width}px` : '384px', // Use dynamic width or default
+      }}
     >
       {/* Header - Fixed */}
       <div className="border-border flex-shrink-0 border-b p-6">
@@ -196,6 +201,7 @@ export function PageEditorPanel({
               placeholder="Start creating your page content..."
               onChange={handleContentChange}
               className="min-h-[300px]"
+              width={width}
             />
           </div>
         </div>
