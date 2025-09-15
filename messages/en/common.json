@@ -15,6 +15,8 @@
     "docs": "Docs",
     "language_switcher": "Language"
   },
+  "theme": "Theme",
+  "toggleTheme": "Toggle between light and dark mode",
   "buttons": {
     "loading": "Loading...",
     "error": "An error occurred",

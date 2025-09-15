@@ -1,3 +1,4 @@
+import { UIThemeProvider } from '@/components/ui';
 import Header from '@/components/ui/Header';
 import { routing } from '@/i18n/routing';
 import { NextIntlClientProvider } from 'next-intl';
@@ -30,6 +31,7 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   return (
     <NextIntlClientProvider messages={messages}>
+      <UIThemeProvider />
       <div className="bg-background min-h-screen">
         <Header />
         <main className="flex-1">{children}</main>

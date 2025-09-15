@@ -7,6 +7,7 @@
 import Image from 'next/image';
 import { createElement, useEffect, useState } from 'react';
 import { PageComponent, PageConfig } from '../../stores';
+import { ThemeToggle } from '../ui/theme-toggle';
 
 // Types for Lexical content
 interface LexicalNode {
@@ -337,10 +338,16 @@ export function PagePreview({
               </div>
             </div>
 
-            {/* Live Indicator */}
-            <div className="flex items-center space-x-1">
-              <div className="h-3 w-3 rounded-full bg-green-500"></div>
-              <span className="text-muted-foreground text-xs">Live</span>
+            {/* Live Indicator and Theme Toggle */}
+            <div className="flex items-center space-x-4">
+              {/* Theme Toggle */}
+              <ThemeToggle variant="outline" size="md" />
+
+              {/* Live Indicator */}
+              <div className="flex items-center space-x-1">
+                <div className="h-3 w-3 rounded-full bg-green-500"></div>
+                <span className="text-muted-foreground text-xs">Live</span>
+              </div>
             </div>
           </div>
 

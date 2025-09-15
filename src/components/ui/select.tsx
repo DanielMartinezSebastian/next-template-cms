@@ -1,16 +1,16 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import { Select as BaseSelect } from '@base-ui-components/react/select';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/lib/utils';
 import { forwardRef } from 'react';
 
 const selectTriggerVariants = cva(
-  'ring-offset-background flex h-10 w-full items-center justify-between rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+  'ring-offset-background bg-background text-foreground placeholder:text-muted-foreground focus:ring-primary border-border hover:border-primary/50 flex h-10 w-full items-center justify-between rounded-md border px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
   {
     variants: {
       variant: {
-        default: 'border-gray-300 focus:ring-blue-500',
+        default: 'border-border focus:ring-primary',
         error: 'border-red-500 focus:ring-red-500',
         success: 'border-green-500 focus:ring-green-500',
       },
@@ -22,11 +22,11 @@ const selectTriggerVariants = cva(
 );
 
 const selectItemVariants = cva(
-  'relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none data-[disabled]:pointer-events-none data-[highlighted]:bg-blue-100 data-[highlighted]:text-blue-900 data-[disabled]:opacity-50',
+  'data-[highlighted]:bg-muted data-[highlighted]:text-foreground relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
   {
     variants: {
       variant: {
-        default: 'data-[highlighted]:bg-blue-100 data-[highlighted]:text-blue-900',
+        default: 'data-[highlighted]:bg-muted data-[highlighted]:text-foreground',
       },
     },
     defaultVariants: {
@@ -74,7 +74,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
         </BaseSelect.Trigger>
         <BaseSelect.Portal>
           <BaseSelect.Positioner sideOffset={5}>
-            <BaseSelect.Popup className="relative z-50 min-w-[8rem] overflow-hidden rounded-md border border-gray-200 bg-white text-gray-950 shadow-md">
+            <BaseSelect.Popup className="border-border bg-background text-foreground relative z-50 min-w-[8rem] overflow-hidden rounded-md border shadow-md">
               {children}
             </BaseSelect.Popup>
           </BaseSelect.Positioner>
@@ -122,7 +122,7 @@ const SelectSeparator = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivE
   ({ className, ...props }, ref) => (
     <BaseSelect.Separator
       ref={ref}
-      className={cn('-mx-1 my-1 h-px bg-gray-100', className)}
+      className={cn('bg-border -mx-1 my-1 h-px', className)}
       {...props}
     />
   )
@@ -132,4 +132,4 @@ Select.displayName = 'Select';
 SelectItem.displayName = 'SelectItem';
 SelectSeparator.displayName = 'SelectSeparator';
 
-export { Select, SelectItem, SelectSeparator, selectTriggerVariants, selectItemVariants };
+export { Select, SelectItem, selectItemVariants, SelectSeparator, selectTriggerVariants };

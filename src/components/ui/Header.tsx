@@ -4,6 +4,7 @@ import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
 import LocaleSwitcher from './LocaleSwitcher';
+import { ThemeToggle } from './theme-toggle';
 
 /**
  * Header component with navigation and language switcher
@@ -59,8 +60,9 @@ export default function Header() {
             </Link>
           </nav>
 
-          {/* Language Switcher */}
+          {/* Language Switcher and Theme Toggle */}
           <div className="flex items-center space-x-4">
+            <ThemeToggle />
             <LocaleSwitcher />
           </div>
         </div>

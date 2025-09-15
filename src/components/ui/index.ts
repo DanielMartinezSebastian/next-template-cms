@@ -7,3 +7,5 @@ export {
   SelectSeparator,
   selectTriggerVariants,
 } from './select';
+export { ThemeToggle, themeToggleVariants } from './theme-toggle';
+export { UIThemeProvider } from './ui-theme-provider';
