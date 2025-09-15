@@ -175,7 +175,7 @@ export function PageEditorPanel({
               value={pageData.metadata?.description || ''}
               onChange={e => handleMetadataChange('description', e.target.value)}
               placeholder="Brief description for search engines..."
-              className="border-border bg-background text-foreground placeholder:text-muted-foreground focus:ring-primary min-h-[80px] w-full resize-none rounded-md border px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2"
+              className="border-border bg-background text-foreground placeholder:text-muted-foreground focus:ring-primary min-h-[80px] w-full resize-none rounded-md border px-3 py-2 transition-colors focus:border-transparent focus:outline-none focus:ring-1"
               maxLength={160}
             />
             <p className="text-muted-foreground text-xs">
