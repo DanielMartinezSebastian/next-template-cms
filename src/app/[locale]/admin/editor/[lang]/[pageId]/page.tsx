@@ -4,11 +4,11 @@
  */
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { usePageStore, useEditModeStore, useEditModeActions } from '../../../../../../stores';
+import { useEffect, useState } from 'react';
 import { PageEditorPanel } from '../../../../../../components/admin/PageEditorPanel';
-import { PagePreview } from '../../../../../../components/admin/PagePreview';
+import { PagePreview, TailwindBreakpoint } from '../../../../../../components/admin/PagePreview';
+import { useEditModeActions, useEditModeStore, usePageStore } from '../../../../../../stores';
 
 interface PageEditorParams {
   locale: string;
@@ -26,8 +26,8 @@ export default function AdminPageEditor() {
 
   // Local state
   const [content, setContent] = useState<string>('');
-  const [isResizing, setIsResizing] = useState(false);
-  const [panelWidth, setPanelWidth] = useState(50); // Percentage
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [breakpoint, setBreakpoint] = useState<TailwindBreakpoint>('lg');
 
   useEffect(() => {
     if (!isEditMode) {
@@ -54,44 +54,17 @@ export default function AdminPageEditor() {
     setContent(newContent);
   };
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsResizing(true);
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
   };
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isResizing) return;
-
-      const container = document.getElementById('editor-container');
-      if (!container) return;
-
-      const containerRect = container.getBoundingClientRect();
-      const newWidth = ((e.clientX - containerRect.left) / containerRect.width) * 100;
-
-      // Limit panel width between 30% and 70%
-      const clampedWidth = Math.min(Math.max(newWidth, 30), 70);
-      setPanelWidth(clampedWidth);
-    };
-
-    const handleMouseUp = () => {
-      setIsResizing(false);
-    };
-
-    if (isResizing) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-    }
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isResizing]);
+  const handleBreakpointChange = (newBreakpoint: TailwindBreakpoint) => {
+    setBreakpoint(newBreakpoint);
+  };
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex h-full items-center justify-center">
         <div className="flex items-center space-x-4">
           <div className="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent"></div>
           <span className="text-muted-foreground">Cargando página...</span>
@@ -102,7 +75,7 @@ export default function AdminPageEditor() {
 
   if (error) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex h-full items-center justify-center">
         <div className="space-y-4 text-center">
           <div className="text-destructive">
             <svg
@@ -133,35 +106,63 @@ export default function AdminPageEditor() {
   }
 
   return (
-    <div
-      id="editor-container"
-      className="bg-background flex h-screen"
-      style={{ userSelect: isResizing ? 'none' : 'auto' }}
-    >
-      {/* Left Panel - Editor */}
+    <div className="bg-background relative flex h-full overflow-hidden">
+      {/* Sidebar Toggle Button - Always visible when sidebar is closed */}
+      {!isSidebarOpen && (
+        <button
+          onClick={toggleSidebar}
+          className="bg-primary text-primary-foreground hover:bg-primary/90 fixed left-0 top-1/2 z-50 flex h-12 w-8 -translate-y-1/2 transform items-center justify-center rounded-r-lg shadow-lg transition-all duration-300"
+          title="Abrir panel editor"
+        >
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      )}
+
+      {/* Sidebar - Editor Panel */}
       <div
-        className="bg-card border-border overflow-hidden border-r"
-        style={{ width: `${panelWidth}%` }}
+        className={`bg-card border-border relative border-r transition-all duration-300 ease-in-out ${
+          isSidebarOpen ? 'w-96 translate-x-0' : 'w-0 -translate-x-full'
+        }`}
       >
-        <PageEditorPanel locale={locale} pageId={pageId} onContentChange={handleContentChange} />
+        {/* Sidebar Header */}
+        <div className="bg-card border-border flex items-center justify-between border-b p-4">
+          <h2 className="text-foreground text-lg font-semibold">Editor</h2>
+          <div className="flex items-center space-x-2">
+            {/* Close Sidebar */}
+            <button
+              onClick={toggleSidebar}
+              className="text-muted-foreground hover:text-foreground rounded-md p-2 transition-colors"
+              title="Cerrar panel"
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Sidebar Content */}
+        <div className="h-[calc(100%-4rem)] overflow-hidden">
+          <PageEditorPanel locale={locale} pageId={pageId} onContentChange={handleContentChange} />
+        </div>
       </div>
 
-      {/* Resizer */}
-      <div
-        className={`bg-border hover:bg-primary w-1 cursor-col-resize transition-colors ${
-          isResizing ? 'bg-primary' : ''
-        }`}
-        onMouseDown={handleMouseDown}
-        title="Redimensionar paneles"
-      />
-
-      {/* Right Panel - Preview */}
-      <div className="flex-1 overflow-hidden" style={{ width: `${100 - panelWidth}%` }}>
+      {/* Main Content - Preview Area */}
+      <div className="flex-1">
         <PagePreview
           page={currentPage || {}}
           content={content}
           locale={locale}
-          className="h-full"
+          className=""
+          breakpoint={breakpoint}
+          onBreakpointChange={handleBreakpointChange}
         />
       </div>
 
@@ -169,13 +170,6 @@ export default function AdminPageEditor() {
       {selectedComponentId && (
         <div className="bg-primary text-primary-foreground fixed right-4 top-4 z-50 rounded-md px-3 py-1 text-sm">
           Componente seleccionado: {selectedComponentId}
-        </div>
-      )}
-
-      {/* Resize Indicator */}
-      {isResizing && (
-        <div className="bg-background border-border text-foreground fixed left-1/2 top-4 z-50 -translate-x-1/2 transform rounded-md border px-3 py-1 text-sm shadow-lg">
-          {Math.round(panelWidth)}% / {Math.round(100 - panelWidth)}%
         </div>
       )}
     </div>

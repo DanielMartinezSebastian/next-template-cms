@@ -1,13 +1,24 @@
+'use client';
+
 import { Link } from '@/i18n/navigation';
-import { getTranslations } from 'next-intl/server';
+import { useTranslations } from 'next-intl';
+import { usePathname } from 'next/navigation';
 import LocaleSwitcher from './LocaleSwitcher';
 
 /**
  * Header component with navigation and language switcher
  * Demonstrates persistent language switching implementation
+ * Now with conditional rendering for editor routes
  */
-export default async function Header() {
-  const t = await getTranslations();
+export default function Header() {
+  const t = useTranslations();
+  const pathname = usePathname();
+  const isAdminRoute = pathname.includes('/admin');
+
+  // Don't render header on admin routes
+  if (isAdminRoute) {
+    return null;
+  }
 
   return (
     <header className="bg-background border-b border-gray-200 shadow-sm dark:border-gray-800">

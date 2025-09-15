@@ -4,11 +4,11 @@
  */
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
+import { PageConfig, usePageActions, usePageStore } from '../../stores';
+import { VisualEditor } from '../editor';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { VisualEditor } from '../editor';
-import { usePageActions, usePageStore, PageConfig } from '../../stores';
 
 interface PageEditorPanelProps {
   pageId: string;
@@ -123,17 +123,23 @@ export function PageEditorPanel({
   );
 
   return (
-    <div className="bg-card border-border h-screen w-96 overflow-y-auto border-r">
-      {/* Header */}
-      <div className="border-border border-b p-6">
+    <div
+      className="bg-card border-border flex w-96 flex-col border-r"
+      style={{ height: 'calc(100dvh - 66px)' }} // Restar altura del header admin + margen
+    >
+      {/* Header - Fixed */}
+      <div className="border-border flex-shrink-0 border-b p-6">
         <h2 className="text-card-foreground mb-2 text-xl font-semibold">Page Editor</h2>
         <p className="text-muted-foreground text-sm">
           Editing: {locale.toUpperCase()} / {pageData.slug}
         </p>
       </div>
 
-      {/* Page Settings */}
-      <div className="space-y-6 p-6">
+      {/* Page Settings - Scrollable with auto Y-axis (only when needed) */}
+      <div
+        className="scrollbar-admin-auto flex-1 space-y-6 px-6 pt-6"
+        style={{ paddingBottom: '32px' }}
+      >
         {/* Basic Info */}
         <div className="space-y-4">
           <h3 className="text-card-foreground text-lg font-medium">Basic Information</h3>
@@ -219,7 +225,7 @@ export function PageEditorPanel({
         </div>
 
         {/* Actions */}
-        <div className="border-border border-t pt-4">
+        <div className="border-border border-t pb-8 pt-4">
           <Button onClick={handleSave} disabled={isSaving} className="w-full">
             {isSaving ? 'Saving...' : 'Save Changes'}
           </Button>

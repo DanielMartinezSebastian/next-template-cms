@@ -7,25 +7,19 @@ import Link from 'next/link';
 
 export default function AdminPage() {
   return (
-    <div className="bg-background min-h-screen">
-      {/* Header */}
-      <div className="bg-card border-border border-b">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-foreground text-xl font-semibold">Panel de Administración</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/" className="text-muted-foreground hover:text-foreground text-sm">
-                ← Volver al sitio
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <div className="flex min-h-full items-center justify-center px-4 py-8">
       {/* Content */}
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="w-full max-w-6xl">
+        {/* Dashboard Header */}
+        <div className="mb-8 text-center">
+          <h1 className="text-foreground text-2xl font-bold md:text-3xl">
+            Panel de Administración
+          </h1>
+          <p className="text-muted-foreground mt-2 text-sm md:text-base">
+            Gestiona tu contenido y configuraciones desde aquí
+          </p>
+        </div>
+
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {/* Pages Management */}
           <div className="bg-card border-border rounded-lg border p-6">
@@ -164,7 +158,7 @@ export default function AdminPage() {
                     d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
                   />
                 </svg>
-                <span className="text-sm font-medium">Editor Demo</span>
+                <span className="text-xs font-medium md:text-sm">Editor Demo</span>
               </Link>
 
               <Link
@@ -184,7 +178,7 @@ export default function AdminPage() {
                     d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                   />
                 </svg>
-                <span className="text-sm font-medium">Stores Demo</span>
+                <span className="text-xs font-medium md:text-sm">Stores Demo</span>
               </Link>
 
               <Link
@@ -204,7 +198,7 @@ export default function AdminPage() {
                     d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"
                   />
                 </svg>
-                <span className="text-sm font-medium">Editar Home</span>
+                <span className="text-xs font-medium md:text-sm">Editar Home</span>
               </Link>
 
               <Link
@@ -230,7 +224,7 @@ export default function AdminPage() {
                     d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
                   />
                 </svg>
-                <span className="text-sm font-medium">Configuración</span>
+                <span className="text-xs font-medium md:text-sm">Configuración</span>
               </Link>
             </div>
           </div>

@@ -1,4 +1,8 @@
-import Header from '@/components/ui/Header';
+/**
+ * Layout para rutas del editor - Layout normal (sin HTML raíz)
+ * Este layout funciona dentro del sistema de layouts de Next.js
+ */
+
 import { routing } from '@/i18n/routing';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
@@ -6,14 +10,10 @@ import { notFound } from 'next/navigation';
 
 type Props = {
   children: React.ReactNode;
-  params: Promise<{ locale: string }>;
+  params: Promise<{ locale: string; lang: string; pageId: string }>;
 };
 
-export function generateStaticParams() {
-  return routing.locales.map(locale => ({ locale }));
-}
-
-export default async function LocaleLayout({ children, params }: Props) {
+export default async function EditorPageLayout({ children, params }: Props) {
   const { locale } = await params;
 
   // Ensure that the incoming `locale` is valid
@@ -25,15 +25,7 @@ export default async function LocaleLayout({ children, params }: Props) {
   setRequestLocale(locale);
 
   // Providing all messages to the client
-  // side is the easiest way to get started
   const messages = await getMessages();
 
-  return (
-    <NextIntlClientProvider messages={messages}>
-      <div className="bg-background min-h-screen">
-        <Header />
-        <main className="flex-1">{children}</main>
-      </div>
-    </NextIntlClientProvider>
-  );
+  return <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>;
 }
