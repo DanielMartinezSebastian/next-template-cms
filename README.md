@@ -400,8 +400,8 @@ npm run db:seed          # o ./scripts/database/seed.sh
 # Reset completo (DESTRUCTIVO)
 npm run db:reset         # o ./scripts/database/reset.sh
 
-# Abrir Prisma Studio
-npm run db:studio        # o npx prisma studio
+# Abrir Prisma Studio (automático)
+npm run db:studio        # Detecta .env.local y configura automáticamente
 ```
 
 ### 🎯 Demo y Verificación
@@ -576,7 +576,7 @@ Ver documentación completa: [README-DATABASE.md](./README-DATABASE.md)
    DATABASE_URL="postgresql://usuario:password@localhost:5432/db_name"
    ```
 2. **Migrar esquema**: `npm run db:push`
-3. **Explorar Prisma Studio**: `npm run db:studio`
+3. **Explorar Prisma Studio**: `npm run db:studio` (setup automático)
 4. **Migrar traducciones**: `node scripts/migrate-translations.ts --execute`
 
 ### Siguiente Fase de Desarrollo: Editor Visual Lexical 🚀

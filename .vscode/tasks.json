@@ -339,7 +339,7 @@
 		{
 			"label": "🗃️ Open Prisma Studio",
 			"type": "shell",
-			"command": "npx prisma studio",
+			"command": "npm run db:studio",
 			"group": "build",
 			"isBackground": true,
 			"presentation": {
