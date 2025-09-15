@@ -1,4 +1,4 @@
-import { TranslationSystemConfig, TranslationConfig } from '@/types/translations';
+import { TranslationConfig, TranslationSystemConfig } from '@/types/translations';
 
 // Default configuration for each namespace
 const defaultNamespaceConfig: TranslationConfig = {
@@ -85,7 +85,7 @@ export const translationSystemConfig: TranslationSystemConfig = {
   },
 
   database: {
-    enabled: false, // Will be enabled when Prisma is set up
+    enabled: process.env.TRANSLATIONS_DATABASE_ENABLED === 'true' || !!process.env.DATABASE_URL,
     connectionString: process.env.DATABASE_URL,
   },
 
