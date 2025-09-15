@@ -4,9 +4,9 @@
  */
 
 import { prisma } from '@/lib/db';
-import { NextRequest, NextResponse } from 'next/server';
+import { PageJsonConfig } from '@/types/pages';
 import type { Prisma } from '@prisma/client';
-import { PageJsonConfig, PrismaPageWithRelations, UpdatePageRequest } from '@/types/pages';
+import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 // =============================================================================
@@ -31,10 +31,7 @@ const UpdatePageSchema = z.object({
 // GET: FETCH SINGLE PAGE
 // =============================================================================
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
 
@@ -116,10 +113,7 @@ export async function GET(
 // PUT: UPDATE PAGE
 // =============================================================================
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const body = await request.json();
@@ -200,7 +194,7 @@ export async function PUT(
           slug: newSlug,
           fullPath: newFullPath,
           level: newLevel,
-          parentId: newParentId,
+          parentId: newParentId ?? null,
         };
       }
 
@@ -219,9 +213,12 @@ export async function PUT(
       // Update page content
       const contentUpdateData: Record<string, any> = {};
       if (validatedData.title) contentUpdateData.title = validatedData.title;
-      if (validatedData.description !== undefined) contentUpdateData.description = validatedData.description;
-      if (validatedData.metaTitle !== undefined) contentUpdateData.metaTitle = validatedData.metaTitle;
-      if (validatedData.metaDescription !== undefined) contentUpdateData.metaDescription = validatedData.metaDescription;
+      if (validatedData.description !== undefined)
+        contentUpdateData.description = validatedData.description;
+      if (validatedData.metaTitle !== undefined)
+        contentUpdateData.metaTitle = validatedData.metaTitle;
+      if (validatedData.metaDescription !== undefined)
+        contentUpdateData.metaDescription = validatedData.metaDescription;
       if (validatedData.keywords) contentUpdateData.keywords = validatedData.keywords;
       if (validatedData.isPublished !== undefined) {
         contentUpdateData.isPublished = validatedData.isPublished;
@@ -436,7 +433,7 @@ async function updatePageHierarchy(
   }
 }
 
-function transformPrismaPageToApi(page: PrismaPageWithRelations): PageJsonConfig {
+function transformPrismaPageToApi(page: any): PageJsonConfig {
   // Get the first content (primary locale content)
   const primaryContent = page.contents[0];
 
@@ -459,7 +456,7 @@ function transformPrismaPageToApi(page: PrismaPageWithRelations): PageJsonConfig
       metaDescription: primaryContent?.metaDescription || undefined,
       keywords: primaryContent?.keywords || [],
     },
-    components: page.components.map(comp => ({
+    components: page.components.map((comp: any) => ({
       id: comp.id,
       type: comp.component.name,
       props: (comp.config as Record<string, unknown>) || {},

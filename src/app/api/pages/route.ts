@@ -4,9 +4,9 @@
  */
 
 import { prisma } from '@/lib/db';
-import { NextRequest, NextResponse } from 'next/server';
+import { PageJsonConfig } from '@/types/pages';
 import type { Prisma } from '@prisma/client';
-import { CreatePageRequest, PageJsonConfig, PrismaPageWithRelations } from '@/types/pages';
+import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 // =============================================================================
@@ -212,10 +212,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingPage) {
-      return NextResponse.json(
-        { error: 'A page with this path already exists' },
-        { status: 409 }
-      );
+      return NextResponse.json({ error: 'A page with this path already exists' }, { status: 409 });
     }
 
     // Get or create locale
@@ -353,7 +350,7 @@ function getLocaleName(code: string): string {
   return localeNames[code] || code.toUpperCase();
 }
 
-function transformPrismaPageToApi(page: PrismaPageWithRelations): PageJsonConfig {
+function transformPrismaPageToApi(page: any): PageJsonConfig {
   // Get the first content (primary locale content)
   const primaryContent = page.contents[0];
 
@@ -376,7 +373,7 @@ function transformPrismaPageToApi(page: PrismaPageWithRelations): PageJsonConfig
       metaDescription: primaryContent?.metaDescription || undefined,
       keywords: primaryContent?.keywords || [],
     },
-    components: page.components.map(comp => ({
+    components: page.components.map((comp: any) => ({
       id: comp.id,
       type: comp.component.name,
       props: (comp.config as Record<string, unknown>) || {},

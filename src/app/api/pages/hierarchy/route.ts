@@ -4,8 +4,8 @@
  */
 
 import { prisma } from '@/lib/db';
-import { NextRequest, NextResponse } from 'next/server';
 import type { Prisma } from '@prisma/client';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
@@ -258,7 +258,7 @@ async function updatePageHierarchy(
     await tx.page.update({
       where: { id: pageId },
       data: {
-        parentId: newParentId,
+        parentId: newParentId ?? null,
         fullPath: newFullPath,
         level: newLevel,
       },

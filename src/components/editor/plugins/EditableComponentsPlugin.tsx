@@ -1,12 +1,19 @@
 /**
  * Editable Components Plugin for Lexical Editor
- * Handles insertion and management of custom components
+ * Handles insertion, updating, and deletion of custom components
  */
 'use client';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { mergeRegister } from '@lexical/utils';
-import { $getSelection, $insertNodes, $isRangeSelection, COMMAND_PRIORITY_EDITOR } from 'lexical';
+import {
+  $getNodeByKey,
+  $getSelection,
+  $insertNodes,
+  $isRangeSelection,
+  COMMAND_PRIORITY_EDITOR,
+  NodeKey,
+} from 'lexical';
 import { useEffect } from 'react';
 import {
   $createContainerNode,
@@ -16,6 +23,7 @@ import {
 } from '../nodes/ContainerNode';
 import {
   $createEditableComponentNode,
+  $isEditableComponentNode,
   ComponentConfig,
   EditableComponentNode,
   INSERT_EDITABLE_COMPONENT_COMMAND,
@@ -31,7 +39,34 @@ export function EditableComponentsPlugin(): null {
       );
     }
 
-    return mergeRegister(
+    // Component event handlers
+    const handleComponentUpdate = (event: CustomEvent) => {
+      const { nodeKey, newConfig } = event.detail;
+
+      editor.update(() => {
+        const node = $getNodeByKey(nodeKey as NodeKey);
+        if ($isEditableComponentNode(node)) {
+          node.setComponentConfig(newConfig);
+        }
+      });
+    };
+
+    const handleComponentDelete = (event: CustomEvent) => {
+      const { nodeKey } = event.detail;
+
+      editor.update(() => {
+        const node = $getNodeByKey(nodeKey as NodeKey);
+        if (node) {
+          node.remove();
+        }
+      });
+    };
+
+    // Register global event listeners
+    window.addEventListener('component-update', handleComponentUpdate as EventListener);
+    window.addEventListener('component-delete', handleComponentDelete as EventListener);
+
+    const unregisterCommands = mergeRegister(
       // Component insertion command
       editor.registerCommand<ComponentConfig>(
         INSERT_EDITABLE_COMPONENT_COMMAND,
@@ -60,6 +95,13 @@ export function EditableComponentsPlugin(): null {
         COMMAND_PRIORITY_EDITOR
       )
     );
+
+    // Cleanup function
+    return () => {
+      window.removeEventListener('component-update', handleComponentUpdate as EventListener);
+      window.removeEventListener('component-delete', handleComponentDelete as EventListener);
+      unregisterCommands();
+    };
   }, [editor]);
 
   return null;

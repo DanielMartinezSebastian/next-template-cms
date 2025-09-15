@@ -4,8 +4,8 @@
  */
 
 import { prisma } from '@/lib/db';
-import { NextRequest, NextResponse } from 'next/server';
 import type { Prisma } from '@prisma/client';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
@@ -155,7 +155,7 @@ async function handleBulkMove(pageIds: string[], newParentId: string | null) {
       const updatedPage = await tx.page.update({
         where: { id: pageId },
         data: {
-          parentId: newParentId,
+          parentId: newParentId ?? null,
           fullPath: newFullPath,
           level: newLevel,
         },

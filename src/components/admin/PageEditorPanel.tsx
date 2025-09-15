@@ -43,10 +43,28 @@ export function PageEditorPanel({
   const [contentString, setContentString] = useState<string>('');
   const [isSaving, setIsSaving] = useState(false);
 
+  // Debug effect on component mount
+  useEffect(() => {
+    console.warn('🚀 PageEditorPanel mounted for pageId:', pageId);
+    console.warn('📊 Initial state:', {
+      hasCurrentPage: !!currentPage,
+      currentPageTitle: currentPage?.title,
+      pageDataTitle: pageData.title,
+    });
+  }, [pageId, currentPage, pageData.title]);
+
   // Sync local state with store currentPage
   useEffect(() => {
+    console.warn('🔄 PageEditorPanel useEffect triggered', {
+      hasCurrentPage: !!currentPage,
+      currentPageTitle: currentPage?.title,
+      currentPageId: currentPage?.id,
+    });
+
     if (currentPage) {
-      setPageData({
+      console.warn('📋 Syncing currentPage to local state:', currentPage);
+
+      const newPageData = {
         title: currentPage.title,
         slug: currentPage.slug,
         metadata: {
@@ -57,13 +75,21 @@ export function PageEditorPanel({
         isPublished: currentPage.isPublished,
         locale: currentPage.locale,
         components: currentPage.components,
-      });
+      };
+
+      setPageData(newPageData);
+      console.warn('✅ Local pageData updated:', newPageData);
 
       // Extract content from components if available
       const contentComponent = currentPage.components?.find(c => c.type === 'content');
       if (contentComponent?.props?.content) {
         setContentString(contentComponent.props.content as string);
+        console.warn('📄 Content extracted from components:', contentComponent.props.content);
+      } else {
+        console.warn('ℹ️ No content component found in page');
       }
+    } else {
+      console.warn('⚠️ currentPage is null/undefined, keeping default values');
     }
   }, [currentPage]);
 

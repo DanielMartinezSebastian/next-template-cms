@@ -17,6 +17,8 @@ import {
 } from 'lexical';
 import Image from 'next/image';
 import type { ReactElement } from 'react';
+import { useState } from 'react';
+import { ComponentEditModal } from '../ComponentEditModal';
 
 export type ComponentType =
   | 'button'
@@ -162,6 +164,7 @@ interface EditableComponentComponentProps {
 }
 
 function EditableComponentComponent({ config, nodeKey }: EditableComponentComponentProps) {
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const componentId = nodeKey || config.id || `component-${config.type}-${Date.now()}`;
 
   const handleComponentClick = (e: React.MouseEvent) => {
@@ -172,6 +175,40 @@ function EditableComponentComponent({ config, nodeKey }: EditableComponentCompon
     });
     window.dispatchEvent(event);
   };
+
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsEditModalOpen(true);
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Emit delete event
+    const event = new CustomEvent('component-delete', {
+      detail: { componentId, nodeKey, type: config.type },
+    });
+    window.dispatchEvent(event);
+  };
+
+  const handleSaveProps = (newProps: Record<string, unknown>) => {
+    // Update component configuration
+    const updatedConfig: ComponentConfig = {
+      ...config,
+      props: newProps as Record<string, string | number | boolean>,
+    };
+
+    // Emit update event
+    const event = new CustomEvent('component-update', {
+      detail: {
+        componentId,
+        nodeKey,
+        type: config.type,
+        newConfig: updatedConfig,
+      },
+    });
+    window.dispatchEvent(event);
+  };
+
   const renderComponent = () => {
     switch (config.type) {
       case 'button':
@@ -250,29 +287,48 @@ function EditableComponentComponent({ config, nodeKey }: EditableComponentCompon
   };
 
   return (
-    <div
-      className="editable-component group relative cursor-pointer"
-      onClick={handleComponentClick}
-    >
-      {/* Edit overlay */}
-      <div className="bg-primary/10 border-primary pointer-events-none absolute inset-0 rounded border-2 opacity-0 transition-opacity group-hover:opacity-100">
-        <div className="bg-primary text-primary-foreground absolute -top-6 left-0 rounded px-2 py-1 text-xs">
-          {config.type}
+    <>
+      <div
+        className="editable-component group relative cursor-pointer"
+        onClick={handleComponentClick}
+      >
+        {/* Edit overlay */}
+        <div className="bg-primary/10 border-primary pointer-events-none absolute inset-0 rounded border-2 opacity-0 transition-opacity group-hover:opacity-100">
+          <div className="bg-primary text-primary-foreground absolute -top-6 left-0 rounded px-2 py-1 text-xs">
+            {config.type}
+          </div>
+
+          {/* Component controls */}
+          <div className="absolute -top-6 right-0 flex gap-1">
+            <button
+              className="bg-primary text-primary-foreground hover:bg-primary/80 pointer-events-auto rounded px-2 py-1 text-xs transition-colors"
+              onClick={handleEdit}
+              title={`Edit ${config.type} component`}
+            >
+              Edit
+            </button>
+            <button
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/80 pointer-events-auto rounded px-2 py-1 text-xs transition-colors"
+              onClick={handleDelete}
+              title={`Delete ${config.type} component`}
+            >
+              Delete
+            </button>
+          </div>
         </div>
 
-        {/* Component controls */}
-        <div className="absolute -top-6 right-0 flex gap-1">
-          <button className="bg-primary text-primary-foreground hover:bg-primary/80 pointer-events-auto rounded px-2 py-1 text-xs transition-colors">
-            Edit
-          </button>
-          <button className="bg-destructive text-destructive-foreground hover:bg-destructive/80 pointer-events-auto rounded px-2 py-1 text-xs transition-colors">
-            Delete
-          </button>
-        </div>
+        {/* Component content */}
+        {renderComponent()}
       </div>
 
-      {/* Component content */}
-      {renderComponent()}
-    </div>
+      {/* Generic Edit Modal */}
+      <ComponentEditModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        componentType={config.type}
+        currentProps={config.props}
+        onSave={handleSaveProps}
+      />
+    </>
   );
 }

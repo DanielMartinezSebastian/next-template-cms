@@ -4,8 +4,8 @@
  */
 
 import { prisma } from '@/lib/db';
-import { NextRequest, NextResponse } from 'next/server';
 import type { Prisma } from '@prisma/client';
+import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 // =============================================================================
@@ -33,10 +33,7 @@ const ReorderComponentsSchema = z.object({
 // GET: FETCH PAGE COMPONENTS
 // =============================================================================
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
 
@@ -113,10 +110,7 @@ export async function GET(
 // POST: ADD COMPONENT TO PAGE
 // =============================================================================
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const body = await request.json();
@@ -184,10 +178,14 @@ export async function POST(
           componentId: validatedData.componentId,
           order,
           isVisible: validatedData.isVisible,
-          config: {
-            ...component.defaultConfig,
-            ...validatedData.config,
-          },
+          config: JSON.parse(
+            JSON.stringify({
+              ...(component.defaultConfig && typeof component.defaultConfig === 'object'
+                ? component.defaultConfig
+                : {}),
+              ...validatedData.config,
+            })
+          ),
         },
         include: {
           component: {
@@ -214,7 +212,7 @@ export async function POST(
         component: {
           id: result.id,
           componentId: result.componentId,
-          component: result.component,
+          type: component.name, // Use component from earlier query
           order: result.order,
           isVisible: result.isVisible,
           config: result.config,
@@ -245,10 +243,7 @@ export async function POST(
 // PUT: UPDATE COMPONENT OR REORDER COMPONENTS
 // =============================================================================
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const body = await request.json();
@@ -263,7 +258,7 @@ export async function PUT(
     // Handle reorder action
     if (action === 'reorder') {
       const validatedData = ReorderComponentsSchema.parse(body);
-      
+
       const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
         // Update each component's order
         for (let i = 0; i < validatedData.componentIds.length; i++) {
@@ -323,6 +318,13 @@ export async function PUT(
         pageId: id,
         id: componentId,
       },
+      include: {
+        component: {
+          select: {
+            name: true,
+          },
+        },
+      },
     });
 
     if (!existingComponent) {
@@ -335,7 +337,9 @@ export async function PUT(
       data: {
         order: validatedData.order ?? existingComponent.order,
         isVisible: validatedData.isVisible ?? existingComponent.isVisible,
-        config: validatedData.config ?? existingComponent.config,
+        config: validatedData.config
+          ? JSON.parse(JSON.stringify(validatedData.config))
+          : existingComponent.config,
       },
       include: {
         component: {
@@ -358,7 +362,7 @@ export async function PUT(
       component: {
         id: updatedComponent.id,
         componentId: updatedComponent.componentId,
-        component: updatedComponent.component,
+        type: existingComponent.component.name,
         order: updatedComponent.order,
         isVisible: updatedComponent.isVisible,
         config: updatedComponent.config,

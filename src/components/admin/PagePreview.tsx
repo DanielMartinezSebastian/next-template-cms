@@ -334,7 +334,15 @@ export function PagePreview({
                 <span>•</span>
                 <span>{locale.toUpperCase()}</span>
                 <span>•</span>
-                <span>/{page.slug || 'new-page'}</span>
+                <a
+                  href={`/${locale}/${page.slug || 'new-page'}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-foreground text-primary underline-offset-4 transition-colors hover:underline"
+                  title={`Abrir /${page.slug || 'new-page'} en nueva pestaña`}
+                >
+                  /{page.slug || 'new-page'}
+                </a>
               </div>
             </div>
 

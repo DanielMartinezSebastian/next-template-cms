@@ -18,7 +18,7 @@ const UpdateContentSchema = z.object({
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
   keywords: z.array(z.string()).optional(),
-  content: z.record(z.unknown()).optional(),
+  content: z.record(z.any()).optional(),
   isPublished: z.boolean().optional(),
 });
 
@@ -28,10 +28,7 @@ const CreateContentSchema = UpdateContentSchema;
 // GET: FETCH PAGE CONTENT FOR ALL LOCALES
 // =============================================================================
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const { searchParams } = new URL(request.url);
@@ -110,10 +107,7 @@ export async function GET(
 // POST: CREATE CONTENT FOR NEW LOCALE
 // =============================================================================
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const body = await request.json();
@@ -171,7 +165,7 @@ export async function POST(
         metaTitle: validatedData.metaTitle || null,
         metaDescription: validatedData.metaDescription || null,
         keywords: validatedData.keywords || [],
-        content: validatedData.content || {},
+        content: validatedData.content ? JSON.parse(JSON.stringify(validatedData.content)) : {},
         isPublished: validatedData.isPublished || false,
         publishedAt: validatedData.isPublished ? new Date() : null,
       },
@@ -230,10 +224,7 @@ export async function POST(
 // PUT: UPDATE CONTENT FOR SPECIFIC LOCALE
 // =============================================================================
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const body = await request.json();
@@ -275,7 +266,9 @@ export async function PUT(
         metaTitle: validatedData.metaTitle ?? existingContent.metaTitle,
         metaDescription: validatedData.metaDescription ?? existingContent.metaDescription,
         keywords: validatedData.keywords ?? existingContent.keywords,
-        content: validatedData.content ?? existingContent.content,
+        content: validatedData.content
+          ? JSON.parse(JSON.stringify(validatedData.content))
+          : existingContent.content,
         isPublished: validatedData.isPublished ?? existingContent.isPublished,
         publishedAt:
           validatedData.isPublished !== undefined

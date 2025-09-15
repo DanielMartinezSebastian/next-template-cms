@@ -152,15 +152,9 @@ const createPageStoreSlice: StateCreator<
   },
 
   loadPageById: async (pageId: string) => {
-    // First check if page is already in store cache
-    const existingPage = usePageStore.getState().pages.find(p => p.id === pageId);
-    if (existingPage) {
-      // Page found in cache - set as current and return immediately
-      set({ currentPage: existingPage }, false, 'loadPageById:cache-hit');
-      return existingPage;
-    }
+    console.warn(`🔄 loadPageById called for: ${pageId}`);
 
-    // Page not in cache - fetch from API
+    // Always fetch from API to ensure fresh data and proper sync
     set({ isLoading: true, error: null }, false, 'loadPageById:fetch-start');
 
     try {
@@ -171,6 +165,7 @@ const createPageStoreSlice: StateCreator<
       }
 
       const data = await response.json();
+      console.warn(`✅ API response for page ${pageId}:`, data);
 
       if (data.success && data.page) {
         // Convert API format to store format
@@ -191,17 +186,31 @@ const createPageStoreSlice: StateCreator<
           routeType: 'dynamic' as const,
         };
 
+        console.warn('📊 Converted page for store:', pageForStore);
+
         // Add to store cache and set as current
         set(
-          state => ({
-            pages: [...state.pages.filter(p => p.id !== pageId), pageForStore],
-            currentPage: pageForStore,
-            isLoading: false,
-            error: null,
-          }),
+          state => {
+            const newState = {
+              pages: [...state.pages.filter(p => p.id !== pageId), pageForStore],
+              currentPage: pageForStore,
+              isLoading: false,
+              error: null,
+            };
+            console.warn('🎯 Setting new store state:', newState);
+            return newState;
+          },
           false,
           'loadPageById:success'
         );
+
+        // Double-check that currentPage was set
+        const finalState = usePageStore.getState();
+        console.warn('🔍 Final store state after setting:', {
+          currentPage: finalState.currentPage?.title,
+          pagesCount: finalState.pages.length,
+          isLoading: finalState.isLoading,
+        });
 
         return pageForStore;
       } else {

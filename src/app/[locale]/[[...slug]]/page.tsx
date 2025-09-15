@@ -1,11 +1,11 @@
-import { HomePage, generateStaticParamsForHome } from '@/components/pages';
 import { DynamicPageRenderer } from '@/components/dynamic';
+import { HomePage, generateStaticParamsForHome } from '@/components/pages';
 import { prisma } from '@/lib/db';
-import { PageJsonConfig, PrismaPageWithRelations } from '@/types/pages';
+import { PageJsonConfig } from '@/types/pages';
 import fs from 'fs';
+import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import path from 'path';
-import { Metadata } from 'next';
 
 // =============================================================================
 // CONFIGURACIÓN DE RUTAS ESTÁTICAS FALLBACK
@@ -185,9 +185,9 @@ export default async function GlobalCatchAllPage({ params }: Props) {
 }
 
 // Transform Prisma page data to API format
-function transformPrismaPageToApi(page: PrismaPageWithRelations, locale: string): PageJsonConfig {
+function transformPrismaPageToApi(page: any, locale: string): PageJsonConfig {
   // Get content for the specific locale or fallback to first available
-  const content = page.contents.find(c => c.locale.code === locale) || page.contents[0];
+  const content = page.contents.find((c: any) => c.locale.code === locale) || page.contents[0];
 
   return {
     id: page.id,
@@ -208,7 +208,7 @@ function transformPrismaPageToApi(page: PrismaPageWithRelations, locale: string)
       metaDescription: content?.metaDescription || undefined,
       keywords: content?.keywords || [],
     },
-    components: page.components.map(comp => ({
+    components: page.components.map((comp: any) => ({
       id: comp.id,
       type: comp.component.name,
       props: {
