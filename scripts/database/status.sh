@@ -87,13 +87,13 @@ if docker-compose -f docker-compose.dev.yml exec -T postgres-dev pg_isready -U d
         \echo '📊 Estadísticas de tablas:'
         SELECT 
             schemaname,
-            tablename,
+            relname as tablename,
             n_tup_ins as inserts,
             n_tup_upd as updates,
             n_tup_del as deletes,
             n_live_tup as live_rows
         FROM pg_stat_user_tables 
-        ORDER BY schemaname, tablename;
+        ORDER BY schemaname, relname;
         
         \echo ''
         \echo '💾 Tamaño de base de datos:'

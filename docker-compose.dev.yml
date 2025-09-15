@@ -1,8 +1,6 @@
 # Next.js Template - Desarrollo Local con PostgreSQL
 # Configuración optimizada para desarrollo con persistencia y performance
 
-version: '3.8'
-
 services:
   # Base de datos PostgreSQL para desarrollo
   postgres-dev:
