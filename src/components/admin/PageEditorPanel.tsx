@@ -132,14 +132,6 @@ export function PageEditorPanel({
         width: width ? `${width}px` : '384px', // Use dynamic width or default
       }}
     >
-      {/* Header - Fixed */}
-      <div className="border-border flex-shrink-0 border-b p-6">
-        <h2 className="text-card-foreground mb-2 text-xl font-semibold">Page Editor</h2>
-        <p className="text-muted-foreground text-sm">
-          Editing: {locale.toUpperCase()} / {pageData.slug}
-        </p>
-      </div>
-
       {/* Page Settings - Scrollable with auto Y-axis (only when needed) */}
       <div
         className="scrollbar-admin-auto flex-1 space-y-6 px-6 pt-6"

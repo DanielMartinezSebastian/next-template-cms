@@ -4,6 +4,7 @@
  */
 'use client';
 
+import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { PageEditorPanel } from '../../../../../../components/admin/PageEditorPanel';
@@ -232,7 +233,23 @@ export default function AdminPageEditor() {
       >
         {/* Sidebar Header */}
         <div className="bg-card border-border flex items-center justify-between border-b p-4">
-          <h2 className="text-foreground text-lg font-semibold">Editor</h2>
+          <div className="flex items-center space-x-3">
+            <Link
+              href={`/${locale}/admin/editor`}
+              className="hover:bg-muted text-muted-foreground hover:text-foreground flex h-8 w-8 items-center justify-center rounded-md transition-colors"
+              aria-label="Volver a la lista de páginas"
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </Link>
+            <h2 className="text-foreground text-lg font-semibold">Editor</h2>
+          </div>
           <div className="flex items-center space-x-2">
             {/* Size Toggle Button */}
             <button
