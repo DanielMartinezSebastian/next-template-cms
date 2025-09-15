@@ -5,6 +5,7 @@
 
 import { prisma } from '@/lib/db';
 import { NextRequest, NextResponse } from 'next/server';
+import type { Prisma } from '@prisma/client';
 
 export async function POST(request: NextRequest) {
   try {
@@ -48,7 +49,7 @@ export async function POST(request: NextRequest) {
 }
 
 async function handleBulkDelete(pageIds: string[]) {
-  const transaction = await prisma.$transaction(async tx => {
+  const transaction = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     // First, delete all page components
     await tx.pageComponent.deleteMany({
       where: { pageId: { in: pageIds } },
@@ -122,7 +123,7 @@ async function handleBulkUpdate(pageIds: string[], updateData: Record<string, un
 }
 
 async function handleBulkMove(pageIds: string[], newParentId: string | null) {
-  const transaction = await prisma.$transaction(async tx => {
+  const transaction = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     const movedPages = [];
 
     for (const pageId of pageIds) {

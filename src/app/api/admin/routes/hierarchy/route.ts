@@ -124,7 +124,7 @@ async function getDynamicRoutes(): Promise<RouteNode[]> {
       orderBy: { fullPath: 'asc' },
     });
 
-    return pages.map(page => ({
+    return pages.map((page: { fullPath: string }) => ({
       path: page.fullPath,
       type: 'dynamic' as const,
       isStatic: false,

@@ -5,6 +5,7 @@
 
 import { prisma } from '@/lib/db';
 import { NextRequest, NextResponse } from 'next/server';
+import type { Prisma } from '@prisma/client';
 
 export async function GET(request: NextRequest) {
   try {
@@ -123,7 +124,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Create page with content in transaction
-    const result = await prisma.$transaction(async tx => {
+    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const page = await tx.page.create({
         data: {
           slug,
@@ -252,7 +253,7 @@ async function updatePageHierarchy(
   newFullPath: string,
   newLevel: number
 ) {
-  await prisma.$transaction(async tx => {
+  await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     // Update the page itself
     await tx.page.update({
       where: { id: pageId },

@@ -1,8 +1,11 @@
 import { HomePage, generateStaticParamsForHome } from '@/components/pages';
+import { DynamicPageRenderer } from '@/components/dynamic';
 import { prisma } from '@/lib/db';
+import { PageJsonConfig, PrismaPageWithRelations } from '@/types/pages';
 import fs from 'fs';
 import { notFound } from 'next/navigation';
 import path from 'path';
+import { Metadata } from 'next';
 
 // =============================================================================
 // CONFIGURACIÓN DE RUTAS ESTÁTICAS FALLBACK
@@ -85,11 +88,11 @@ export async function generateStaticParams() {
   });
 
   const cmsParams = pages
-    .map(page => ({
+    .map((page: { fullPath: string }) => ({
       slug: page.fullPath.split('/').filter(Boolean),
     }))
-    .filter(({ slug }) => slug.length > 0) // Excluir homepage
-    .flatMap(({ slug }) =>
+    .filter(({ slug }: { slug: string[] }) => slug.length > 0) // Excluir homepage
+    .flatMap(({ slug }: { slug: string[] }) =>
       // Generar parámetros para cada locale
       ['en', 'es'].map(locale => ({
         locale,
@@ -110,11 +113,55 @@ export default async function GlobalCatchAllPage({ params }: Props) {
 
   const path = `/${slug.join('/')}`;
 
-  // Buscar página dinámica en CMS
+  // Buscar página dinámica en CMS con todas las relaciones
   const page = await prisma.page.findFirst({
     where: {
       fullPath: path,
       isActive: true,
+    },
+    include: {
+      contents: {
+        where: {
+          locale: {
+            code: locale,
+          },
+        },
+        include: {
+          locale: {
+            select: {
+              code: true,
+              name: true,
+            },
+          },
+        },
+      },
+      components: {
+        where: {
+          isVisible: true,
+        },
+        include: {
+          component: {
+            select: {
+              id: true,
+              name: true,
+              type: true,
+              category: true,
+              description: true,
+              defaultConfig: true,
+            },
+          },
+        },
+        orderBy: {
+          order: 'asc',
+        },
+      },
+      parent: {
+        select: {
+          id: true,
+          slug: true,
+          fullPath: true,
+        },
+      },
     },
   });
 
@@ -122,13 +169,113 @@ export default async function GlobalCatchAllPage({ params }: Props) {
     notFound();
   }
 
+  // Transform Prisma data to PageJsonConfig
+  const pageConfig = transformPrismaPageToApi(page, locale);
+
   return (
-    <div className="dynamic-page">
-      <h1>{page.slug}</h1>
-      <p>Página dinámica: {path}</p>
-      <p>Locale: {locale}</p>
+    <div className="dynamic-page min-h-screen">
+      <DynamicPageRenderer
+        pageConfig={pageConfig}
+        locale={locale}
+        editMode={false}
+        className="dynamic-page-content"
+      />
     </div>
   );
+}
+
+// Transform Prisma page data to API format
+function transformPrismaPageToApi(page: PrismaPageWithRelations, locale: string): PageJsonConfig {
+  // Get content for the specific locale or fallback to first available
+  const content = page.contents.find(c => c.locale.code === locale) || page.contents[0];
+
+  return {
+    id: page.id,
+    slug: page.slug,
+    locale: content?.locale.code || locale,
+    hierarchy: {
+      id: page.id,
+      slug: page.slug,
+      fullPath: page.fullPath,
+      level: page.level,
+      order: page.order,
+      parentId: page.parentId || undefined,
+    },
+    meta: {
+      title: content?.title || page.slug,
+      description: content?.description || undefined,
+      metaTitle: content?.metaTitle || undefined,
+      metaDescription: content?.metaDescription || undefined,
+      keywords: content?.keywords || [],
+    },
+    components: page.components.map(comp => ({
+      id: comp.id,
+      type: comp.component.name,
+      props: {
+        ...(comp.component.defaultConfig as Record<string, unknown>),
+        ...(comp.config as Record<string, unknown>),
+      },
+      order: comp.order,
+      isVisible: comp.isVisible,
+    })),
+    template: page.template || undefined,
+    isPublished: content?.isPublished || false,
+    publishedAt: content?.publishedAt?.toISOString(),
+    createdAt: page.createdAt.toISOString(),
+    updatedAt: page.updatedAt.toISOString(),
+  };
+}
+
+// Generate dynamic metadata for SEO
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale, slug = [] } = await params;
+
+  if (slug.length === 0) {
+    return {
+      title: 'Home',
+      description: 'Welcome to our website',
+    };
+  }
+
+  const path = `/${slug.join('/')}`;
+
+  const page = await prisma.page.findFirst({
+    where: {
+      fullPath: path,
+      isActive: true,
+    },
+    include: {
+      contents: {
+        where: {
+          locale: {
+            code: locale,
+          },
+        },
+        select: {
+          title: true,
+          description: true,
+          metaTitle: true,
+          metaDescription: true,
+          keywords: true,
+        },
+      },
+    },
+  });
+
+  if (!page || !page.contents[0]) {
+    return {
+      title: 'Page Not Found',
+      description: 'The requested page could not be found',
+    };
+  }
+
+  const content = page.contents[0];
+
+  return {
+    title: content.metaTitle || content.title,
+    description: content.metaDescription || content.description || undefined,
+    keywords: content.keywords?.join(', ') || undefined,
+  };
 }
 
 // Configuración para ISR

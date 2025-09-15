@@ -115,7 +115,7 @@ export class DatabaseTranslationProvider implements TranslationProvider {
 
       // Build the namespace object
       const namespaceData: Record<string, string> = {};
-      translations.forEach(translation => {
+      translations.forEach((translation: { key: string; value: string }) => {
         namespaceData[translation.key] = translation.value;
       });
 
@@ -166,9 +166,9 @@ export class DatabaseTranslationProvider implements TranslationProvider {
 
       // Build the result object
       const result: Record<string, Record<string, string>> = {};
-      namespaces.forEach(namespace => {
+      namespaces.forEach((namespace: { name: string; translations: Array<{ key: string; value: string }> }) => {
         const namespaceData: Record<string, string> = {};
-        namespace.translations.forEach(translation => {
+        namespace.translations.forEach((translation: { key: string; value: string }) => {
           namespaceData[translation.key] = translation.value;
         });
         result[namespace.name] = namespaceData;

@@ -77,7 +77,7 @@ export async function generateStaticParams() {
     select: { fullPath: true },
   });
 
-  return pages.map(page => ({
+  return pages.map((page: { fullPath: string }) => ({
     slug: page.fullPath.replace('/servicios/', '').split('/').filter(Boolean),
   }));
 }
