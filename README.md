@@ -3,10 +3,10 @@
 Una plantilla completa de Next.js 15 con capacidades de edición visual,
 internacionalización, y sistema de gestión de contenido.
 
-## 🎉 Estado del Proyecto: FASE 7 COMPLETADA
+## 🎉 Estado del Proyecto: FASE 8 COMPLETADA
 
-**✅ UI/UX Polish and Admin Panel Enhancement TERMINADA** - El proyecto cuenta
-con una **interfaz de usuario completamente pulida y optimizada** que incluye:
+**✅ Local Database Development Phase TERMINADA** - El proyecto cuenta con un
+**sistema completo de base de datos local automatizado** que incluye:
 
 - 🏗️ **Fundación técnica completa** (Next.js 15 + TypeScript + Tailwind CSS 4)
 - 🌐 **Sistema de traducciones híbrido** funcionando (JSON + PostgreSQL)
@@ -17,9 +17,12 @@ con una **interfaz de usuario completamente pulida y optimizada** que incluye:
 - 🎯 **Sistema de scrollbars avanzado** con navegación precisa y arrows
 - ⚡ **Animaciones fluidas** desde centro hacia extremos en breakpoints
 - 📱 **Responsive design perfecto** para monitores de 13" hasta ultra-wide
-- 🛠️ **Herramientas de desarrollo** profesionales (25+ tareas automatizadas)
+- 🛠️ **Herramientas de desarrollo** profesionales (35+ tareas automatizadas)
 - 🧪 **Testing verificado** con Playwright (español/inglés + múltiples
   resoluciones)
+- 🐳 **Base de datos local completa** (Docker PostgreSQL + Redis + pgAdmin)
+- 🌱 **Seeds automatizados** con datos de ejemplo en inglés y español
+- 📊 **Monitoreo y métricas** completos con scripts automatizados
 
 **🚀 LISTO PARA**: Editor visual con Lexical, panel de administración avanzado,
 y páginas dinámicas.
@@ -29,7 +32,7 @@ y páginas dinámicas.
 - **Next.js 15** con App Router y TypeScript
 - **Tailwind CSS 4** para estilos modernos
 - **Internacionalización Híbrida** con next-intl (ES/EN) + PostgreSQL
-- **Base de datos PostgreSQL** con Prisma ORM
+- **Base de datos PostgreSQL** con Prisma ORM + Docker local
 - **Gestión de estado Zustand** con stores especializados y persistencia
 - **Modo oscuro completo** con tokens semánticos y soporte Base UI
 - **Página de demostración** interactiva (/stores-demo) con explicaciones
@@ -40,6 +43,8 @@ y páginas dinámicas.
 - **Sistema de componentes** con Base UI (LLM-optimized) y CVA
 - **Sistema de traducciones escalable** -
   [Ver documentación](./README-TRANSLATIONS.md)
+- **Base de datos local automatizada** -
+  [Ver documentación](./README-DATABASE.md)
 
 ## 📋 Plan de Desarrollo Detallado
 
@@ -148,14 +153,38 @@ y páginas dinámicas.
   - [x] Optimización de cálculos de layout para mejor rendimiento
   - [x] Verificación completa con Playwright en múltiples resoluciones
 
-### Fase 8: Páginas Dinámicas 📄
+### Fase 8: Base de Datos Local de Desarrollo ✅ COMPLETADO
+
+- [x] **Docker PostgreSQL Setup con Automatización**:
+  - [x] PostgreSQL 16 + Redis + pgAdmin configurado
+  - [x] Scripts automatizados: setup.sh, reset.sh, seed.sh, status.sh
+  - [x] Configuración optimizada para desarrollo
+  - [x] Persistencia de datos con volúmenes Docker
+- [x] **Sistema completo de datos de desarrollo**:
+  - [x] Seeds automáticos con datos de ejemplo en inglés y español
+  - [x] Health checks y verificación automática de servicios
+  - [x] Interfaz visual con Prisma Studio (`http://localhost:5555`)
+  - [x] Administración con pgAdmin (`http://localhost:8080`)
+- [x] **Herramientas de gestión integradas**:
+  - [x] Setup script para configuración completa automatizada
+  - [x] Reset script para limpieza y reinicio de datos
+  - [x] Seed script para población con datos de ejemplo
+  - [x] Status script para verificación de estado y métricas
+  - [x] 8 nuevas tareas VS Code para gestión de base de datos
+- [x] **Integración con aplicación**:
+  - [x] Variables de entorno configuradas automáticamente
+  - [x] Cliente Prisma generado y funcionando
+  - [x] Datos de ejemplo: locales, traducciones, páginas, componentes
+  - [x] Compatibilidad total con sistema de traducciones existente
+
+### Fase 9: Páginas Dinámicas 📄
 
 - [ ] Crear sistema de páginas basado en JSON
 - [ ] Implementar tipos TypeScript para configuraciones
 - [ ] Crear API routes para CRUD de páginas
 - [ ] Implementar renderizado SSR de páginas dinámicas
 
-### Fase 9: Editor Visual 🖊️
+### Fase 10: Editor Visual 🖊️
 
 - [ ] Integrar Lexical editor
 - [ ] Crear modo de edición de páginas
@@ -163,7 +192,7 @@ y páginas dinámicas.
 - [ ] Crear toolbar de edición
 - [ ] Implementar preview mode
 
-### Fase 9: Panel de Administración 👨‍💼
+### Fase 11: Panel de Administración 👨‍💼
 
 - [ ] Crear rutas de admin protegidas
 - [ ] Formularios de gestión con React Hook Form + Zod
@@ -171,7 +200,7 @@ y páginas dinámicas.
 - [ ] Editor de traducciones
 - [ ] Configuración de tema y colores
 
-### Fase 10: SEO y Metadatos 🔍
+### Fase 12: SEO y Metadatos 🔍
 
 - [ ] Implementar generación automática de metadatos
 - [ ] Configurar robots.txt y sitemap dinámico
@@ -306,43 +335,85 @@ npm run test:e2e:ui          # Interfaz de Playwright para pruebas
 
 ## 🔧 Configuración Inicial
 
+### 🚀 Inicio Rápido (Recomendado)
+
 1. **Instalar dependencias**:
 
    ```bash
    npm install
    ```
 
-2. **Configurar variables de entorno**:
+2. **Configurar base de datos local automáticamente**:
 
    ```bash
-   # Copiar archivo de ejemplo con 150+ variables configuradas
-   cp .env.example .env.local
-
-   # Configurar base de datos (activa automáticamente sistema híbrido)
-   DATABASE_URL="postgresql://usuario:password@localhost:5432/nexteditor"
+   # Un solo comando configura todo: PostgreSQL + Redis + Seeds
+   ./scripts/database/setup.sh
    ```
 
-3. **Configurar base de datos**:
+   Este script hace automáticamente:
+   - ✅ Inicia PostgreSQL 16 + Redis con Docker
+   - ✅ Configura variables de entorno (.env.local)
+   - ✅ Aplica esquema de Prisma
+   - ✅ Pobla con datos de ejemplo (en/es)
+   - ✅ Genera cliente Prisma
 
-   ```bash
-   # Ejecutar migraciones (cuando Prisma esté configurado)
-   npm run db:push
-   ```
-
-4. **Ejecutar en desarrollo**:
+3. **Ejecutar aplicación**:
 
    ```bash
    npm run dev
    ```
 
-5. **Explorar demo de Zustand**:
+4. **Servicios disponibles**:
+   - 🌐 **Aplicación**: http://localhost:3000
+   - 🎨 **Prisma Studio**: http://localhost:5555 (automático)
+   - 🐘 **PostgreSQL**: localhost:5432
+   - 🔴 **Redis**: localhost:6379
+
+### 🛠️ Configuración Manual (Alternativa)
+
+1. **Configurar variables de entorno**:
+
+   ```bash
+   # Copiar archivo de ejemplo con 150+ variables configuradas
+   cp .env.example .env.local
+
+   # Configurar base de datos manualmente
+   DATABASE_URL="postgresql://usuario:password@localhost:5432/nexteditor"
+   ```
+
+2. **Configurar base de datos manualmente**:
+
+   ```bash
+   # Ejecutar migraciones
+   npm run db:push
+   ```
+
+### 📊 Comandos de Gestión de Base de Datos
+
+```bash
+# Ver estado completo del sistema
+npm run db:status         # o ./scripts/database/status.sh
+
+# Poblar con datos de ejemplo
+npm run db:seed          # o ./scripts/database/seed.sh
+
+# Reset completo (DESTRUCTIVO)
+npm run db:reset         # o ./scripts/database/reset.sh
+
+# Abrir Prisma Studio
+npm run db:studio        # o npx prisma studio
+```
+
+### 🎯 Demo y Verificación
+
+1. **Explorar demo de Zustand**:
 
    ```bash
    # Página de demostración interactiva de stores
    http://localhost:3000/stores-demo
    ```
 
-6. **Verificar sistema de traducciones**:
+2. **Verificar sistema de traducciones**:
 
    ```bash
    # Verificar estado del sistema híbrido
@@ -351,6 +422,14 @@ npm run test:e2e:ui          # Interfaz de Playwright para pruebas
    # Probar traducciones en diferentes idiomas
    curl http://localhost:3000/es
    curl http://localhost:3000/en
+   ```
+
+3. **Explorar base de datos**:
+
+   ```bash
+   # Abrir Prisma Studio para ver datos
+   npm run db:studio
+   # Navegar a: http://localhost:5555
    ```
 
 ## 🔄 Sistema Híbrido de Traducciones
@@ -393,6 +472,37 @@ Ver **[README-TRANSLATIONS.md](./README-TRANSLATIONS.md)** para:
 - **Composable patterns** con Base UI (LLM-optimized)
 - **CVA variants** para gestión de estilos consistente
 - **Barrel exports** para importaciones limpias
+
+### 🐳 Base de Datos Local de Desarrollo
+
+**Sistema completo automatizado con Docker:**
+
+- **PostgreSQL 16**: Base de datos principal optimizada para desarrollo
+- **Redis 7**: Cache de traducciones y sesiones
+- **Prisma Studio**: Interfaz visual en `http://localhost:5555`
+- **pgAdmin**: Administración avanzada en `http://localhost:8080`
+- **Scripts automatizados**: setup.sh, reset.sh, seed.sh, status.sh
+- **Datos persistentes**: Volúmenes Docker que sobreviven reinicios
+- **Seeds multiidioma**: Datos de ejemplo en inglés y español
+- **Health checks**: Verificación automática de servicios
+
+**Configuración de un comando:**
+
+```bash
+./scripts/database/setup.sh  # Configura todo automáticamente
+npm run dev                  # Listo para desarrollar
+```
+
+**Gestión diaria:**
+
+```bash
+npm run db:status   # Ver estado del sistema
+npm run db:seed     # Poblar con datos de ejemplo
+npm run db:studio   # Abrir interfaz visual
+npm run db:reset    # Reset completo (DESTRUCTIVO)
+```
+
+Ver documentación completa: [README-DATABASE.md](./README-DATABASE.md)
 
 ### Sistema de Componentes UI
 
@@ -567,6 +677,91 @@ curl http://localhost:3000/api/translations/metrics  # Debe estar "healthy"
 - Status debe ser "healthy" o "degraded" (nunca "unhealthy")
 - Cache hit rate debe mantenerse > 80%
 - Fallback a JSON debe estar garantizado
+
+## 🚨 Solución de Problemas
+
+### Base de Datos Local
+
+**Error: "Docker not found"**
+
+```bash
+# Manjaro/Arch Linux
+sudo pacman -S docker docker-compose
+sudo systemctl enable --now docker
+sudo usermod -aG docker $USER
+# Reiniciar sesión
+```
+
+**Error: "Port already in use"**
+
+```bash
+# Ver qué proceso usa el puerto
+sudo lsof -i :5432  # PostgreSQL
+sudo lsof -i :6379  # Redis
+
+# Detener servicios nativos si existen
+sudo systemctl stop postgresql
+sudo systemctl stop redis
+sudo systemctl stop valkey
+```
+
+**Error: "Database connection failed"**
+
+```bash
+# Verificar estado completo
+./scripts/database/status.sh
+
+# Reiniciar servicios Docker
+docker-compose -f docker-compose.dev.yml restart
+
+# Reset completo si es necesario
+./scripts/database/reset.sh
+```
+
+**Error: "Prisma CLIENT_VERSION mismatch"**
+
+```bash
+# Regenerar cliente Prisma
+npm run db:generate
+
+# Si persiste, limpiar completamente
+rm -rf node_modules/.prisma
+npm run db:generate
+```
+
+### Aplicación Next.js
+
+**Error: "Environment variable not found"**
+
+```bash
+# Verificar archivo .env.local existe
+ls -la .env.local
+
+# Ejecutar setup para crear/actualizar
+./scripts/database/setup.sh
+```
+
+**Error: "Module not found"**
+
+```bash
+# Limpiar cache y reinstalar
+rm -rf .next node_modules/.cache
+npm install
+npm run build
+```
+
+### Contacto y Contribución
+
+Este es un proyecto en desarrollo activo. Para reportar issues o contribuir:
+
+1. 🐛 **Issues**: Abre un issue con detalles completos
+2. 🔧 **PRs**: Fork → Branch → PR con tests
+3. 📖 **Docs**: Mejoras en documentación siempre bienvenidas
+4. 💬 **Discussiones**: Para preguntas técnicas y propuestas
+
+---
+
+**⭐ Si este proyecto te resulta útil, considera darle una estrella en GitHub!**
 
 ---
 

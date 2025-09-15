@@ -352,6 +352,137 @@
 		},
 
 		// =============================================================================
+		// LOCAL DATABASE DEVELOPMENT TASKS
+		// =============================================================================
+		{
+			"label": "🐳 Database: Setup Local Environment",
+			"type": "shell",
+			"command": "./scripts/database/setup.sh",
+			"group": "build",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared",
+				"clear": true
+			},
+			"problemMatcher": [],
+			"options": {
+				"statusbar": {
+					"label": "$(database) Setup DB"
+				}
+			}
+		},
+		{
+			"label": "🔄 Database: Reset (DESTRUCTIVE)",
+			"type": "shell",
+			"command": "./scripts/database/reset.sh",
+			"group": "build",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared",
+				"clear": true
+			},
+			"problemMatcher": [],
+			"options": {
+				"statusbar": {
+					"label": "$(trash) Reset DB"
+				}
+			}
+		},
+		{
+			"label": "🌱 Database: Seed Development Data",
+			"type": "shell",
+			"command": "./scripts/database/seed.sh",
+			"group": "build",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared"
+			},
+			"problemMatcher": [],
+			"options": {
+				"statusbar": {
+					"label": "$(symbol-misc) Seed DB"
+				}
+			}
+		},
+		{
+			"label": "📊 Database: Check Status",
+			"type": "shell",
+			"command": "./scripts/database/status.sh",
+			"group": "build",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared"
+			},
+			"problemMatcher": [],
+			"options": {
+				"statusbar": {
+					"label": "$(pulse) DB Status"
+				}
+			}
+		},
+		{
+			"label": "🔧 Database: Start Services",
+			"type": "shell",
+			"command": "docker-compose -f docker-compose.dev.yml up -d",
+			"group": "build",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "🛑 Database: Stop Services",
+			"type": "shell",
+			"command": "docker-compose -f docker-compose.dev.yml down",
+			"group": "build",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "📝 Database: View Logs",
+			"type": "shell",
+			"command": "docker-compose -f docker-compose.dev.yml logs -f",
+			"group": "build",
+			"isBackground": true,
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "new"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "🌐 Database: Open pgAdmin",
+			"type": "shell",
+			"command": "open http://localhost:8080 || xdg-open http://localhost:8080",
+			"group": "build",
+			"presentation": {
+				"echo": true,
+				"reveal": "silent",
+				"focus": false,
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+
+		// =============================================================================
 		// MAINTENANCE TASKS
 		// =============================================================================
 		{
