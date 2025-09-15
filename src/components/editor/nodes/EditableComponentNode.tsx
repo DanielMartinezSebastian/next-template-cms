@@ -126,7 +126,7 @@ export class EditableComponentNode extends DecoratorNode<ReactElement> {
   }
 
   decorate(): ReactElement {
-    return <EditableComponentComponent config={this.__componentConfig} />;
+    return <EditableComponentComponent config={this.__componentConfig} nodeKey={this.__key} />;
   }
 
   isInline(): boolean {
@@ -158,9 +158,20 @@ export function $isEditableComponentNode(
 // Component renderer
 interface EditableComponentComponentProps {
   config: ComponentConfig;
+  nodeKey?: NodeKey;
 }
 
-function EditableComponentComponent({ config }: EditableComponentComponentProps) {
+function EditableComponentComponent({ config, nodeKey }: EditableComponentComponentProps) {
+  const componentId = nodeKey || config.id || `component-${config.type}-${Date.now()}`;
+
+  const handleComponentClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Component click will be handled by parent editor
+    const event = new CustomEvent('component-selected', {
+      detail: { componentId, type: config.type },
+    });
+    window.dispatchEvent(event);
+  };
   const renderComponent = () => {
     switch (config.type) {
       case 'button':
@@ -239,11 +250,24 @@ function EditableComponentComponent({ config }: EditableComponentComponentProps)
   };
 
   return (
-    <div className="editable-component group relative">
+    <div
+      className="editable-component group relative cursor-pointer"
+      onClick={handleComponentClick}
+    >
       {/* Edit overlay */}
       <div className="bg-primary/10 border-primary pointer-events-none absolute inset-0 rounded border-2 opacity-0 transition-opacity group-hover:opacity-100">
         <div className="bg-primary text-primary-foreground absolute -top-6 left-0 rounded px-2 py-1 text-xs">
           {config.type}
+        </div>
+
+        {/* Component controls */}
+        <div className="absolute -top-6 right-0 flex gap-1">
+          <button className="bg-primary text-primary-foreground hover:bg-primary/80 pointer-events-auto rounded px-2 py-1 text-xs transition-colors">
+            Edit
+          </button>
+          <button className="bg-destructive text-destructive-foreground hover:bg-destructive/80 pointer-events-auto rounded px-2 py-1 text-xs transition-colors">
+            Delete
+          </button>
         </div>
       </div>
 

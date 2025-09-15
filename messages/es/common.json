@@ -13,7 +13,10 @@
     "home": "Inicio",
     "admin": "Admin",
     "docs": "Docs",
-    "language_switcher": "Idioma"
+    "language_switcher": "Idioma",
+    "visual-editor-demo": "Demo Editor Visual",
+    "stores-demo": "Demo Stores",
+    "scrollbar-demo": "Demo Scrollbar"
   },
   "theme": "Tema",
   "toggleTheme": "Alternar entre modo claro y oscuro",

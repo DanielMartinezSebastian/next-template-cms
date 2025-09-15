@@ -21,17 +21,19 @@ import { CodeHighlightNode, CodeNode } from '@lexical/code';
 import { LinkNode } from '@lexical/link';
 import { ListItemNode, ListNode } from '@lexical/list';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
+import { ContainerNode } from './nodes/ContainerNode';
 import { EditableComponentNode } from './nodes/EditableComponentNode';
 
 // Plugins
 import { EditableComponentsPlugin } from './plugins/EditableComponentsPlugin';
+import { StoreSyncPlugin } from './plugins/StoreSyncPlugin';
 import { ToolbarPlugin } from './plugins/ToolbarPlugin';
 
 // Theme
 import editorTheme from './themes/editor-theme';
 
-// TODO: Import stores when component selection is implemented
-// import { useEditModeActions } from '../../stores';
+// Store integration
+import { useEditModeActions, useEditModeEnabled, useSelectedComponent } from '../../stores';
 
 import type { EditorState } from 'lexical';
 
@@ -83,12 +85,37 @@ export function VisualEditor({
 }: Omit<VisualEditorProps, 'initialContent'>) {
   const [isClient, setIsClient] = useState(false);
 
-  // TODO: Implement handleComponentClick when component selection is needed
-  // const { setSelectedComponent } = useEditModeActions();
+  // Store integration
+  const { setSelectedComponent, addHistoryAction } = useEditModeActions();
+  const selectedComponentId = useSelectedComponent();
+  const isEditMode = useEditModeEnabled();
 
   useEffect(() => {
     setIsClient(true);
-  }, []);
+
+    // Listen for component selection events
+    const handleComponentSelected = (event: CustomEvent) => {
+      const { componentId } = event.detail;
+      if (isEditMode) {
+        setSelectedComponent(componentId);
+      }
+    };
+
+    const handleContainerSelected = (event: CustomEvent) => {
+      const { containerId } = event.detail;
+      if (isEditMode) {
+        setSelectedComponent(containerId);
+      }
+    };
+
+    window.addEventListener('component-selected', handleComponentSelected as EventListener);
+    window.addEventListener('container-selected', handleContainerSelected as EventListener);
+
+    return () => {
+      window.removeEventListener('component-selected', handleComponentSelected as EventListener);
+      window.removeEventListener('container-selected', handleContainerSelected as EventListener);
+    };
+  }, [isEditMode, setSelectedComponent]);
 
   const initialConfig = {
     namespace: 'VisualEditor',
@@ -105,6 +132,7 @@ export function VisualEditor({
       CodeHighlightNode,
       LinkNode,
       EditableComponentNode,
+      ContainerNode,
     ],
     editable: !readOnly,
   };
@@ -113,14 +141,30 @@ export function VisualEditor({
     const content = JSON.stringify(editorState.toJSON());
     onChange?.(content);
 
-    // TODO: Clear component selection when editor content changes
-    // setSelectedComponent(null);
+    // Clear component selection when editor content changes
+    if (selectedComponentId) {
+      setSelectedComponent(null);
+    }
+
+    // Add to history if in edit mode
+    if (isEditMode) {
+      addHistoryAction({
+        type: 'update',
+        componentId: 'editor-content',
+        newValue: { content },
+      });
+    }
   };
 
-  // TODO: Implement when component selection is needed
-  // const handleComponentClick = (componentId: string) => {
-  //   setSelectedComponent(componentId);
-  // };
+  const handleComponentClick = (componentId: string) => {
+    if (isEditMode) {
+      setSelectedComponent(componentId);
+    }
+  };
+
+  // Component click handler for future use
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _handleComponentInteraction = handleComponentClick;
 
   // Hydration guard
   if (!isClient) {
@@ -135,10 +179,25 @@ export function VisualEditor({
 
   return (
     <div
-      className={`bg-card border-border overflow-hidden rounded-lg border ${className}`}
+      className={`bg-card border-border overflow-hidden rounded-lg border ${className} ${
+        isEditMode ? 'ring-primary/20 ring-2' : ''
+      }`}
       style={{ width: width ? `${width - 32}px` : '100%' }} // Responsive container width
     >
       <LexicalComposer initialConfig={initialConfig}>
+        {/* Edit Mode Indicator */}
+        {isEditMode && (
+          <div className="bg-primary text-primary-foreground border-border flex items-center gap-2 border-b px-4 py-2 text-sm">
+            <div className="bg-primary-foreground/20 h-2 w-2 rounded-full"></div>
+            Edit Mode Active
+            {selectedComponentId && (
+              <span className="bg-primary-foreground/20 rounded px-2 py-1 text-xs">
+                Selected: {selectedComponentId}
+              </span>
+            )}
+          </div>
+        )}
+
         {/* Toolbar */}
         {!readOnly && <ToolbarPlugin width={width} />}
 
@@ -170,6 +229,7 @@ export function VisualEditor({
           <ListPlugin />
           <LinkPlugin />
           <EditableComponentsPlugin />
+          <StoreSyncPlugin />
           <AutoSavePlugin onChange={onChange} />
           <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
           <OnChangePlugin onChange={handleEditorChange} />

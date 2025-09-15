@@ -18,11 +18,13 @@ import {
 } from 'lexical';
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '../../ui/button';
+import { ContainerConfig, ContainerType, INSERT_CONTAINER_COMMAND } from '../nodes/ContainerNode';
 import {
   ComponentConfig,
   ComponentType,
   INSERT_EDITABLE_COMPONENT_COMMAND,
 } from '../nodes/EditableComponentNode';
+import { HistoryControlsPlugin } from './HistoryControlsPlugin';
 
 interface ToolbarPluginProps {
   className?: string;
@@ -104,6 +106,16 @@ export function ToolbarPlugin({ className = '', width }: ToolbarPluginProps) {
     editor.dispatchCommand(INSERT_EDITABLE_COMPONENT_COMMAND, componentConfig);
   };
 
+  const insertContainer = (type: ContainerType) => {
+    const containerConfig: ContainerConfig = {
+      type,
+      props: getDefaultPropsForContainer(type),
+      children: [],
+    };
+
+    editor.dispatchCommand(INSERT_CONTAINER_COMMAND, containerConfig);
+  };
+
   const getDefaultPropsForComponent = (
     type: ComponentType
   ): Record<string, string | number | boolean> => {
@@ -140,6 +152,25 @@ export function ToolbarPlugin({ className = '', width }: ToolbarPluginProps) {
     }
   };
 
+  const getDefaultPropsForContainer = (
+    type: ContainerType
+  ): Record<string, string | number | boolean> => {
+    switch (type) {
+      case 'row':
+        return { gap: '1rem', align: 'start' };
+      case 'column':
+        return { gap: '1rem', align: 'start' };
+      case 'grid':
+        return { columns: 2, gap: '1rem' };
+      case 'section':
+        return { title: 'New Section', padding: '2rem' };
+      case 'card-container':
+        return { padding: '1.5rem', shadow: true };
+      default:
+        return {};
+    }
+  };
+
   if (!isEditable) {
     return null;
   }
@@ -149,6 +180,9 @@ export function ToolbarPlugin({ className = '', width }: ToolbarPluginProps) {
       className={`border-border bg-card flex flex-wrap gap-2 border-b p-4 ${className}`}
       style={{ width: width ? `${width - 32}px` : '100%' }} // Match parent width with padding
     >
+      {/* History Controls */}
+      <HistoryControlsPlugin className="border-border border-r pr-2" />
+
       {/* Text Formatting */}
       <div className="border-border flex gap-1 border-r pr-2">
         <Button
@@ -225,7 +259,7 @@ export function ToolbarPlugin({ className = '', width }: ToolbarPluginProps) {
       </div>
 
       {/* Components */}
-      <div className="flex gap-1">
+      <div className="border-border flex gap-1 border-r pr-2">
         <Button
           variant="outline"
           size="sm"
@@ -273,6 +307,50 @@ export function ToolbarPlugin({ className = '', width }: ToolbarPluginProps) {
           title="Insert Spacer"
         >
           ⬜
+        </Button>
+      </div>
+
+      {/* Containers */}
+      <div className="flex gap-1">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => insertContainer('row')}
+          title="Insert Row Container"
+        >
+          ↔️
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => insertContainer('column')}
+          title="Insert Column Container"
+        >
+          ↕️
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => insertContainer('grid')}
+          title="Insert Grid Container"
+        >
+          #️⃣
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => insertContainer('section')}
+          title="Insert Section Container"
+        >
+          📦
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => insertContainer('card-container')}
+          title="Insert Card Container"
+        >
+          🗃️
         </Button>
       </div>
     </div>
