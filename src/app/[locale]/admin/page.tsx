@@ -46,13 +46,13 @@ export default function AdminPage() {
             </p>
             <div className="space-y-2">
               <Link
-                href="/admin/editor/es/new"
+                href="/admin/editor"
                 className="bg-primary text-primary-foreground hover:bg-primary/90 block w-full rounded-md px-4 py-2 text-center"
               >
-                Nueva Página
+                Gestionar Páginas
               </Link>
               <Link
-                href="/admin/pages"
+                href="/admin/editor"
                 className="border-border text-foreground hover:bg-muted block w-full rounded-md border px-4 py-2 text-center"
               >
                 Ver Todas las Páginas
@@ -142,7 +142,7 @@ export default function AdminPage() {
           <div className="bg-card border-border rounded-lg border p-6">
             <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
               <Link
-                href="/editor-demo"
+                href="/admin/editor"
                 className="border-border hover:bg-muted flex flex-col items-center rounded-lg border p-4"
               >
                 <svg
@@ -158,7 +158,7 @@ export default function AdminPage() {
                     d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
                   />
                 </svg>
-                <span className="text-xs font-medium md:text-sm">Editor Demo</span>
+                <span className="text-xs font-medium md:text-sm">Editor de Páginas</span>
               </Link>
 
               <Link
@@ -182,7 +182,7 @@ export default function AdminPage() {
               </Link>
 
               <Link
-                href="/admin/editor/es/home"
+                href="/editor-demo"
                 className="border-border hover:bg-muted flex flex-col items-center rounded-lg border p-4"
               >
                 <svg
@@ -198,7 +198,7 @@ export default function AdminPage() {
                     d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"
                   />
                 </svg>
-                <span className="text-xs font-medium md:text-sm">Editar Home</span>
+                <span className="text-xs font-medium md:text-sm">Editor Demo</span>
               </Link>
 
               <Link

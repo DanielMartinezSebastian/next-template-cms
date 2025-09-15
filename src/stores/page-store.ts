@@ -50,8 +50,11 @@ export interface PageStoreState {
   currentPage: PageConfig | null;
   isLoading: boolean;
   error: string | null;
+  lastLoaded: Date | null; // Track when pages were last loaded
 
   // Actions
+  loadPages: () => Promise<void>;
+  loadPageById: (pageId: string) => Promise<PageConfig | null>;
   setCurrentPage: (page: PageConfig | null) => void;
   addPage: (page: Omit<PageConfig, 'id' | 'createdAt' | 'updatedAt'>) => void;
   updatePage: (id: string, updates: Partial<PageConfig>) => void;
@@ -77,8 +80,145 @@ const createPageStoreSlice: StateCreator<
   currentPage: null,
   isLoading: false,
   error: null,
+  lastLoaded: null,
 
   // Actions
+  loadPages: async () => {
+    set({ isLoading: true, error: null }, false, 'loadPages:start');
+
+    try {
+      const response = await fetch('/api/pages');
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      if (data.success && Array.isArray(data.pages)) {
+        // Convert API format to store format
+        const pagesForStore: PageConfig[] = data.pages.map(
+          (apiPage: {
+            id: string;
+            slug: string;
+            locale: string;
+            components?: PageComponent[];
+            meta?: {
+              title?: string;
+              description?: string;
+              keywords?: string[];
+              image?: string;
+            };
+            isPublished: boolean;
+            createdAt: string;
+            updatedAt: string;
+          }) => ({
+            id: apiPage.id,
+            title: apiPage.meta?.title || 'Untitled',
+            slug: apiPage.slug,
+            locale: apiPage.locale,
+            components: apiPage.components || [],
+            metadata: {
+              description: apiPage.meta?.description,
+              keywords: apiPage.meta?.keywords || [],
+              image: apiPage.meta?.image,
+            },
+            isPublished: apiPage.isPublished,
+            createdAt: new Date(apiPage.createdAt),
+            updatedAt: new Date(apiPage.updatedAt),
+            // Additional fields
+            routeType: 'dynamic' as const,
+          })
+        );
+
+        set(
+          {
+            pages: pagesForStore,
+            isLoading: false,
+            error: null,
+            lastLoaded: new Date(),
+          },
+          false,
+          'loadPages:success'
+        );
+      } else {
+        throw new Error('Invalid API response format');
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error('❌ Failed to load pages from API:', errorMessage);
+      set({ isLoading: false, error: errorMessage }, false, 'loadPages:error');
+    }
+  },
+
+  loadPageById: async (pageId: string) => {
+    // First check if page is already in store cache
+    const existingPage = usePageStore.getState().pages.find(p => p.id === pageId);
+    if (existingPage) {
+      // Page found in cache - set as current and return immediately
+      set({ currentPage: existingPage }, false, 'loadPageById:cache-hit');
+      return existingPage;
+    }
+
+    // Page not in cache - fetch from API
+    set({ isLoading: true, error: null }, false, 'loadPageById:fetch-start');
+
+    try {
+      const response = await fetch(`/api/pages/${pageId}`);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      if (data.success && data.page) {
+        // Convert API format to store format
+        const pageForStore: PageConfig = {
+          id: data.page.id,
+          title: data.page.meta?.title || 'Untitled',
+          slug: data.page.slug,
+          locale: data.page.locale,
+          components: data.page.components || [],
+          metadata: {
+            description: data.page.meta?.description,
+            keywords: data.page.meta?.keywords || [],
+            image: data.page.meta?.image,
+          },
+          isPublished: data.page.isPublished,
+          createdAt: new Date(data.page.createdAt),
+          updatedAt: new Date(data.page.updatedAt),
+          routeType: 'dynamic' as const,
+        };
+
+        // Add to store cache and set as current
+        set(
+          state => ({
+            pages: [...state.pages.filter(p => p.id !== pageId), pageForStore],
+            currentPage: pageForStore,
+            isLoading: false,
+            error: null,
+          }),
+          false,
+          'loadPageById:success'
+        );
+
+        return pageForStore;
+      } else {
+        throw new Error('Page not found');
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error(`❌ Failed to load page ${pageId}:`, errorMessage);
+      set(
+        { isLoading: false, error: errorMessage, currentPage: null },
+        false,
+        'loadPageById:error'
+      );
+      return null;
+    }
+  },
+
   setCurrentPage: page => set({ currentPage: page }, false, 'setCurrentPage'),
 
   addPage: pageData => {
@@ -274,9 +414,12 @@ export const useCurrentPage = () => usePageStore(state => state.currentPage);
 export const usePages = () => usePageStore(state => state.pages);
 export const usePageLoading = () => usePageStore(state => state.isLoading);
 export const usePageError = () => usePageStore(state => state.error);
+export const usePageLastLoaded = () => usePageStore(state => state.lastLoaded);
 
 // Action hooks - using store directly to avoid infinite loops
 export const usePageActions = () => {
+  const loadPages = usePageStore(state => state.loadPages);
+  const loadPageById = usePageStore(state => state.loadPageById);
   const setCurrentPage = usePageStore(state => state.setCurrentPage);
   const addPage = usePageStore(state => state.addPage);
   const updatePage = usePageStore(state => state.updatePage);
@@ -290,6 +433,8 @@ export const usePageActions = () => {
   const clearError = usePageStore(state => state.clearError);
 
   return {
+    loadPages,
+    loadPageById,
     setCurrentPage,
     addPage,
     updatePage,

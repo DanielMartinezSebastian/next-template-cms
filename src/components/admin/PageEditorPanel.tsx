@@ -4,8 +4,8 @@
  */
 'use client';
 
-import { useCallback, useState } from 'react';
-import { PageConfig, usePageActions, usePageStore } from '../../stores';
+import { useCallback, useEffect, useState } from 'react';
+import { PageConfig, useCurrentPage, usePageActions } from '../../stores';
 import { VisualEditor } from '../editor';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -25,26 +25,47 @@ export function PageEditorPanel({
   onPageUpdate,
   width,
 }: PageEditorPanelProps) {
-  const { pages } = usePageStore();
+  const currentPage = useCurrentPage();
   const { updatePage } = usePageActions();
 
-  // Find the current page
-  const currentPage = pages.find(p => p.id === pageId);
-
   const [pageData, setPageData] = useState<Partial<PageConfig>>({
-    title: currentPage?.title || 'New Page',
-    slug: currentPage?.slug || 'new-page',
+    title: 'New Page',
+    slug: 'new-page',
     metadata: {
-      description: currentPage?.metadata?.description || '',
-      keywords: currentPage?.metadata?.keywords || [],
-      image: currentPage?.metadata?.image || '',
+      description: '',
+      keywords: [],
+      image: '',
     },
-    isPublished: currentPage?.isPublished || false,
+    isPublished: false,
     locale,
   });
 
   const [contentString, setContentString] = useState<string>('');
   const [isSaving, setIsSaving] = useState(false);
+
+  // Sync local state with store currentPage
+  useEffect(() => {
+    if (currentPage) {
+      setPageData({
+        title: currentPage.title,
+        slug: currentPage.slug,
+        metadata: {
+          description: currentPage.metadata?.description || '',
+          keywords: currentPage.metadata?.keywords || [],
+          image: currentPage.metadata?.image || '',
+        },
+        isPublished: currentPage.isPublished,
+        locale: currentPage.locale,
+        components: currentPage.components,
+      });
+
+      // Extract content from components if available
+      const contentComponent = currentPage.components?.find(c => c.type === 'content');
+      if (contentComponent?.props?.content) {
+        setContentString(contentComponent.props.content as string);
+      }
+    }
+  }, [currentPage]);
 
   const handleFieldChange = useCallback(
     (field: keyof PageConfig, value: string | boolean | object) => {

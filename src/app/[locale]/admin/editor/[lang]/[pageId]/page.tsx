@@ -9,7 +9,12 @@ import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { PageEditorPanel } from '../../../../../../components/admin/PageEditorPanel';
 import { PagePreview, TailwindBreakpoint } from '../../../../../../components/admin/PagePreview';
-import { useEditModeActions, useEditModeStore, usePageStore } from '../../../../../../stores';
+import {
+  useEditModeActions,
+  useEditModeStore,
+  usePageActions,
+  usePageStore,
+} from '../../../../../../stores';
 
 interface PageEditorParams {
   locale: string;
@@ -24,6 +29,7 @@ export default function AdminPageEditor() {
   const { currentPage, isLoading, error } = usePageStore();
   const { enabled: isEditMode, selectedComponentId } = useEditModeStore();
   const { enableEditMode } = useEditModeActions();
+  const { loadPageById, setCurrentPage } = usePageActions();
 
   // Local state - Start with small default that will be adjusted to respect new dvw values
   const [content, setContent] = useState<string>('');
@@ -64,17 +70,16 @@ export default function AdminPageEditor() {
   useEffect(() => {
     const loadPageData = async () => {
       if (pageId === 'new') {
-        // Create new page - In real implementation, call API or store method
-        // For now, just set some mock data
-        // Development: Creating new page
+        // Create new page mode
+        setCurrentPage(null);
       } else {
-        // Load existing page - In real implementation, call API
-        // Development: Loading page
+        // Load existing page using store-first approach
+        await loadPageById(pageId);
       }
     };
 
     loadPageData();
-  }, [pageId, locale]);
+  }, [pageId, loadPageById, setCurrentPage]);
 
   const handleContentChange = (newContent: string) => {
     setContent(newContent);
