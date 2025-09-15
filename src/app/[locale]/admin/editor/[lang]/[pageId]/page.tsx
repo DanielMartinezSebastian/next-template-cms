@@ -28,6 +28,12 @@ export default function AdminPageEditor() {
   const [content, setContent] = useState<string>('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [breakpoint, setBreakpoint] = useState<TailwindBreakpoint>('lg');
+  const [sidebarWidth, setSidebarWidth] = useState(384); // Default 24rem = 384px
+  const [isResizing, setIsResizing] = useState(false);
+
+  // Constants for resizing constraints
+  const MIN_SIDEBAR_WIDTH = 280; // Minimum width (17.5rem)
+  const MAX_SIDEBAR_WIDTH = 600; // Maximum width (37.5rem)
 
   useEffect(() => {
     if (!isEditMode) {
@@ -61,6 +67,39 @@ export default function AdminPageEditor() {
   const handleBreakpointChange = (newBreakpoint: TailwindBreakpoint) => {
     setBreakpoint(newBreakpoint);
   };
+
+  // Resizing handlers
+  const startResize = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  };
+
+  // Effect for handling mouse events during resize
+  useEffect(() => {
+    const handleResize = (e: MouseEvent) => {
+      if (!isResizing) return;
+
+      const newWidth = Math.min(Math.max(e.clientX, MIN_SIDEBAR_WIDTH), MAX_SIDEBAR_WIDTH);
+      setSidebarWidth(newWidth);
+    };
+
+    const stopResize = () => {
+      setIsResizing(false);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+
+    if (isResizing) {
+      document.addEventListener('mousemove', handleResize);
+      document.addEventListener('mouseup', stopResize);
+      return () => {
+        document.removeEventListener('mousemove', handleResize);
+        document.removeEventListener('mouseup', stopResize);
+      };
+    }
+  }, [isResizing, MIN_SIDEBAR_WIDTH, MAX_SIDEBAR_WIDTH]);
 
   if (isLoading) {
     return (
@@ -122,9 +161,12 @@ export default function AdminPageEditor() {
 
       {/* Sidebar - Editor Panel */}
       <div
-        className={`bg-card border-border relative border-r transition-all duration-300 ease-in-out ${
-          isSidebarOpen ? 'w-96 translate-x-0' : 'w-0 -translate-x-full'
+        className={`bg-card border-border relative transition-all duration-300 ease-in-out ${
+          isSidebarOpen ? 'translate-x-0 border-r' : 'w-0 -translate-x-full'
         }`}
+        style={{
+          width: isSidebarOpen ? `${sidebarWidth}px` : '0px',
+        }}
       >
         {/* Sidebar Header */}
         <div className="bg-card border-border flex items-center justify-between border-b p-4">
@@ -152,6 +194,18 @@ export default function AdminPageEditor() {
         <div className="h-[calc(100%-4rem)] overflow-hidden">
           <PageEditorPanel locale={locale} pageId={pageId} onContentChange={handleContentChange} />
         </div>
+
+        {/* Resizable Divider */}
+        {isSidebarOpen && (
+          <div
+            className="bg-border hover:bg-primary/20 absolute right-0 top-0 h-full w-1 cursor-col-resize transition-colors"
+            onMouseDown={startResize}
+            title="Arrastra para redimensionar"
+          >
+            {/* Visual indicator for better UX */}
+            <div className="bg-muted-foreground/30 absolute left-1/2 top-1/2 h-8 w-0.5 -translate-x-1/2 -translate-y-1/2 rounded-full"></div>
+          </div>
+        )}
       </div>
 
       {/* Main Content - Preview Area */}
