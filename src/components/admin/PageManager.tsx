@@ -10,14 +10,23 @@ import { usePageStore } from '@/stores';
 import { useTranslations } from 'next-intl';
 import { useMemo, useState } from 'react';
 import { CreatePageModal } from './CreatePageModal';
+import { PageTreeView } from './PageTreeView';
 
 export function PageManager() {
   const t = useTranslations('Admin');
   const { pages, isLoading, error, deletePage, updatePage, setLoading, setError } = usePageStore();
 
+  // Selection and filtering state
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLocale, setSelectedLocale] = useState<string>('all');
+  const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [selectedPages, setSelectedPages] = useState<Set<string>>(new Set());
+  const [sortBy, setSortBy] = useState<'updated' | 'created' | 'title'>('updated');
+  const [viewMode, setViewMode] = useState<'list' | 'grid' | 'tree'>('list');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  // Bulk actions state
+  const [isBulkActionLoading, setIsBulkActionLoading] = useState(false);
 
   // Filter and search pages
   const filteredPages = useMemo(() => {
@@ -28,7 +37,16 @@ export function PageManager() {
       result = result.filter(page => page.locale === selectedLocale);
     }
 
-    // Search by title and slug
+    // Filter by status
+    if (selectedStatus !== 'all') {
+      if (selectedStatus === 'published') {
+        result = result.filter(page => page.isPublished);
+      } else if (selectedStatus === 'draft') {
+        result = result.filter(page => !page.isPublished);
+      }
+    }
+
+    // Search by title, slug, and metadata
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
       result = result.filter(
@@ -39,8 +57,21 @@ export function PageManager() {
       );
     }
 
-    return result.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
-  }, [pages, selectedLocale, searchTerm]);
+    // Sort results
+    result.sort((a, b) => {
+      switch (sortBy) {
+        case 'title':
+          return a.title.localeCompare(b.title);
+        case 'created':
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        case 'updated':
+        default:
+          return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+      }
+    });
+
+    return result;
+  }, [pages, selectedLocale, selectedStatus, searchTerm, sortBy]);
 
   const handleDeletePage = async (pageId: string) => {
     // eslint-disable-next-line no-alert
@@ -74,6 +105,65 @@ export function PageManager() {
     }
   };
 
+  // Selection handlers
+  const handleSelectPage = (pageId: string, checked: boolean) => {
+    const newSelection = new Set(selectedPages);
+    if (checked) {
+      newSelection.add(pageId);
+    } else {
+      newSelection.delete(pageId);
+    }
+    setSelectedPages(newSelection);
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedPages(new Set(filteredPages.map(page => page.id)));
+    } else {
+      setSelectedPages(new Set());
+    }
+  };
+
+  // Bulk actions
+  const handleBulkDelete = async () => {
+    if (selectedPages.size === 0) return;
+
+    // eslint-disable-next-line no-alert
+    if (window.confirm(t('editor.confirmBulkDelete', { count: selectedPages.size }))) {
+      try {
+        setIsBulkActionLoading(true);
+        for (const pageId of selectedPages) {
+          deletePage(pageId);
+        }
+        setSelectedPages(new Set());
+        setError(null);
+      } catch (error) {
+        console.error('Error bulk deleting pages:', error);
+        setError('Failed to delete pages');
+      } finally {
+        setIsBulkActionLoading(false);
+      }
+    }
+  };
+
+  const handleBulkPublish = async (publish: boolean) => {
+    if (selectedPages.size === 0) return;
+
+    try {
+      setIsBulkActionLoading(true);
+      for (const pageId of selectedPages) {
+        updatePage(pageId, { isPublished: publish });
+      }
+      setSelectedPages(new Set());
+      setError(null);
+    } catch (error) {
+      console.error('Error bulk updating pages:', error);
+      setError('Failed to update pages');
+    } finally {
+      setIsBulkActionLoading(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -100,39 +190,147 @@ export function PageManager() {
 
   return (
     <div className="space-y-6">
-      {/* Controls */}
-      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-        <div className="flex w-full flex-1 gap-4 sm:w-auto">
-          {/* Search */}
-          <Input
-            placeholder={t('editor.searchPlaceholder')}
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            className="min-w-0 flex-1"
-          />
+      {/* Enhanced Controls */}
+      <div className="space-y-4">
+        {/* Top Row: Search, Filters and Create Button */}
+        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+          <div className="flex w-full flex-1 gap-4 sm:w-auto">
+            {/* Search */}
+            <Input
+              placeholder={t('editor.searchPlaceholder')}
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="min-w-0 flex-1"
+            />
 
-          {/* Locale Filter */}
-          <select
-            value={selectedLocale}
-            onChange={e => setSelectedLocale(e.target.value)}
-            className="bg-background border-input focus:ring-ring text-foreground rounded-md border px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-1"
-          >
-            <option value="all" className="bg-background text-foreground">
-              {t('editor.allLocales')}
-            </option>
-            <option value="en" className="bg-background text-foreground">
-              {t('editor.localeEn')}
-            </option>
-            <option value="es" className="bg-background text-foreground">
-              {t('editor.localeEs')}
-            </option>
-          </select>
+            {/* Locale Filter */}
+            <select
+              value={selectedLocale}
+              onChange={e => setSelectedLocale(e.target.value)}
+              className="bg-background border-input focus:ring-ring text-foreground rounded-md border px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-1"
+            >
+              <option value="all" className="bg-background text-foreground">
+                {t('editor.allLocales')}
+              </option>
+              <option value="en" className="bg-background text-foreground">
+                {t('editor.localeEn')}
+              </option>
+              <option value="es" className="bg-background text-foreground">
+                {t('editor.localeEs')}
+              </option>
+            </select>
+
+            {/* Status Filter */}
+            <select
+              value={selectedStatus}
+              onChange={e => setSelectedStatus(e.target.value)}
+              className="bg-background border-input focus:ring-ring text-foreground rounded-md border px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-1"
+            >
+              <option value="all" className="bg-background text-foreground">
+                {t('editor.allStatuses')}
+              </option>
+              <option value="published" className="bg-background text-foreground">
+                {t('editor.published')}
+              </option>
+              <option value="draft" className="bg-background text-foreground">
+                {t('editor.draft')}
+              </option>
+            </select>
+
+            {/* Sort Options */}
+            <select
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value as typeof sortBy)}
+              className="bg-background border-input focus:ring-ring text-foreground rounded-md border px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-1"
+            >
+              <option value="updated" className="bg-background text-foreground">
+                {t('editor.sortByUpdated')}
+              </option>
+              <option value="created" className="bg-background text-foreground">
+                {t('editor.sortByCreated')}
+              </option>
+              <option value="title" className="bg-background text-foreground">
+                {t('editor.sortByTitle')}
+              </option>
+            </select>
+          </div>
+
+          {/* View Mode and Create Button */}
+          <div className="flex shrink-0 items-center gap-2">
+            {/* View Mode Toggle */}
+            <div className="flex overflow-hidden rounded-md border">
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+                className="rounded-none border-0"
+              >
+                📋
+              </Button>
+              <Button
+                variant={viewMode === 'grid' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('grid')}
+                className="rounded-none border-0 border-l"
+              >
+                ⊞
+              </Button>
+              <Button
+                variant={viewMode === 'tree' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('tree')}
+                className="rounded-none border-0 border-l"
+              >
+                🌳
+              </Button>
+            </div>
+
+            {/* Create Button */}
+            <Button onClick={() => setIsCreateModalOpen(true)}>{t('editor.createPage')}</Button>
+          </div>
         </div>
 
-        {/* Create Button */}
-        <Button onClick={() => setIsCreateModalOpen(true)} className="shrink-0">
-          {t('editor.createPage')}
-        </Button>
+        {/* Bulk Actions Row */}
+        {selectedPages.size > 0 && (
+          <div className="bg-accent/50 border-accent rounded-lg border p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <span className="text-sm font-medium">
+                  {t('editor.selectedCount', { count: selectedPages.size })}
+                </span>
+                <Button variant="outline" size="sm" onClick={() => setSelectedPages(new Set())}>
+                  {t('editor.clearSelection')}
+                </Button>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleBulkPublish(true)}
+                  disabled={isBulkActionLoading}
+                >
+                  {t('editor.bulkPublish')}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleBulkPublish(false)}
+                  disabled={isBulkActionLoading}
+                >
+                  {t('editor.bulkUnpublish')}
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleBulkDelete}
+                  disabled={isBulkActionLoading}
+                >
+                  {t('editor.bulkDelete')}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Statistics */}
@@ -169,11 +367,91 @@ export function PageManager() {
               : t('editor.createFirstPage')}
           </p>
         </div>
+      ) : viewMode === 'tree' ? (
+        /* Tree View */
+        <PageTreeView selectedPages={selectedPages} onSelectPage={handleSelectPage} />
+      ) : viewMode === 'grid' ? (
+        /* Grid View */
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {filteredPages.map(page => (
+            <div key={page.id} className="bg-card rounded-lg border p-4">
+              <div className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  checked={selectedPages.has(page.id)}
+                  onChange={e => handleSelectPage(page.id, e.target.checked)}
+                  className="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="mb-2 flex items-center gap-2">
+                    <h3 className="text-foreground truncate text-sm font-semibold">{page.title}</h3>
+                    <span className="bg-muted rounded px-1 py-0.5 text-xs">
+                      {page.locale.toUpperCase()}
+                    </span>
+                  </div>
+                  <span
+                    className={`mb-2 inline-block rounded px-2 py-1 text-xs ${
+                      page.isPublished
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                        : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                    }`}
+                  >
+                    {page.isPublished ? t('editor.published') : t('editor.draft')}
+                  </span>
+                  <p className="text-muted-foreground mb-2 text-xs">/{page.slug}</p>
+                  <div className="flex gap-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleTogglePublish(page.id)}
+                    >
+                      {page.isPublished ? '👁️' : '👀'}
+                    </Button>
+                    <Button variant="outline" size="sm" asChild>
+                      <a href={`/admin/editor/${page.locale}/${page.id}`}>✏️</a>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       ) : (
+        /* List View */
         <div className="space-y-4">
+          {/* Select All Header */}
+          <div className="bg-muted/50 rounded-lg border p-4">
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                checked={filteredPages.length > 0 && selectedPages.size === filteredPages.length}
+                onChange={e => handleSelectAll(e.target.checked)}
+                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-sm font-medium">
+                {selectedPages.size === filteredPages.length
+                  ? t('editor.allPagesSelected')
+                  : t('editor.selectAllPages')}
+              </span>
+              <span className="text-muted-foreground text-sm">
+                ({filteredPages.length} {t('editor.pagesTotal')})
+              </span>
+            </div>
+          </div>
+
+          {/* Pages List */}
           {filteredPages.map(page => (
             <div key={page.id} className="bg-card rounded-lg border p-6">
-              <div className="flex items-start justify-between">
+              <div className="flex items-start gap-4">
+                {/* Checkbox */}
+                <input
+                  type="checkbox"
+                  checked={selectedPages.has(page.id)}
+                  onChange={e => handleSelectPage(page.id, e.target.checked)}
+                  className="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+
+                {/* Page Content */}
                 <div className="flex-1">
                   <div className="mb-2 flex items-center gap-2">
                     <h3 className="text-foreground text-lg font-semibold">{page.title}</h3>
@@ -205,7 +483,9 @@ export function PageManager() {
                     </span>
                   </div>
                 </div>
-                <div className="ml-4 flex items-center gap-2">
+
+                {/* Action Buttons */}
+                <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" onClick={() => handleTogglePublish(page.id)}>
                     {page.isPublished ? t('editor.unpublish') : t('editor.publish')}
                   </Button>

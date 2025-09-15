@@ -83,8 +83,21 @@ model Translation {
 
 model Page {
   id       String  @id @default(cuid())
-  slug     String  @unique // e.g., "home", "about", "contact"
+  slug     String // e.g., "home", "about", "servicio1"
   isActive Boolean @default(true)
+
+  // Hierarchical structure for nested routes
+  parentId String? // Reference to parent page for nested routes
+  fullPath String  @unique // Full computed path: /servicios/servicio1/oferta
+  level    Int     @default(0) // Depth level in hierarchy (0 = root)
+  order    Int     @default(0) // Order within same parent
+
+  // Route type management for hybrid system
+  routeType String @default("dynamic") // "static", "dynamic", "hybrid"
+
+  // Static route integration
+  staticRoute    String? // Next.js static route if hybrid: /app/terminos-y-condiciones
+  isStaticPrefix Boolean @default(false) // true if this handles a static prefix
 
   // SEO & Meta
   template String? // Template type for rendering
@@ -92,10 +105,19 @@ model Page {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Self-referencing relation for hierarchy
+  parent   Page?  @relation("PageHierarchy", fields: [parentId], references: [id])
+  children Page[] @relation("PageHierarchy")
+
   // Relations
   contents   PageContent[]
   components PageComponent[]
 
+  // Constraints for route uniqueness
+  @@unique([slug, parentId]) // Slug unique within same parent
+  @@index([parentId, order]) // Optimize hierarchy queries
+  @@index([routeType]) // Filter by route type
+  @@index([fullPath]) // Fast path lookups
   @@map("pages")
 }
 

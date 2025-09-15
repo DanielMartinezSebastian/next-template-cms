@@ -178,12 +178,16 @@ async function main() {
 
   // Create pages
   const homePage = await prisma.page.upsert({
-    where: { slug: 'home' },
+    where: { fullPath: '/' },
     update: {},
     create: {
       slug: 'home',
+      fullPath: '/',
       isActive: true,
       template: 'homepage',
+      routeType: 'dynamic',
+      level: 0,
+      order: 0,
     },
   });
 

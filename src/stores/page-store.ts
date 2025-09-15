@@ -30,6 +30,17 @@ export interface PageConfig {
   isPublished: boolean;
   createdAt: Date;
   updatedAt: Date;
+
+  // Hierarchical structure for nested routes
+  parentId?: string;
+  fullPath?: string;
+  level?: number;
+  order?: number;
+
+  // Route type management for hybrid system
+  routeType?: 'static' | 'dynamic' | 'hybrid';
+  staticRoute?: string;
+  isStaticPrefix?: boolean;
 }
 
 // Page store state interface

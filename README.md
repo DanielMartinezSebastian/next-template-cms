@@ -47,6 +47,107 @@ y páginas dinámicas.
   [Ver documentación](./README-TRANSLATIONS.md)
 - **Base de datos local automatizada** -
   [Ver documentación](./README-DATABASE.md)
+- **Sistema de routing híbrido** para páginas estáticas y dinámicas -
+  [Ver documentación](./PAGES-ROUTING-GUIDE.md)
+
+## 🗺️ Sistema de Routing y Páginas
+
+Este proyecto utiliza un **sistema de routing híbrido** basado en Next.js App
+Router que combina páginas estáticas de alto rendimiento con páginas dinámicas
+gestionadas por CMS.
+
+### 🏗️ Arquitectura de Routing
+
+```
+src/app/[locale]/
+├── [[...slug]]/         # ✨ Catch-all global (Homepage + páginas CMS dinámicas)
+├── admin/               # 🔧 Panel de administración (páginas estáticas)
+├── stores-demo/         # 📦 Demo de Zustand (página estática)
+├── editor-demo/         # ✏️ Demo del editor Lexical (página estática)
+├── visual-editor-demo/  # 🎨 Demo del editor visual (página estática)
+├── scrollbar-demo/      # 📜 Demo de scrollbars (página estática)
+└── servicios/           # 🔀 Sección híbrida (estática + dinámicas)
+    └── [[...slug]]/     # Maneja sub-páginas dinámicas
+```
+
+### 🎯 Tipos de Páginas Disponibles
+
+1. **🏠 Homepage** - Componente especial renderizado en `/` y `/es`
+2. **📄 Páginas Estáticas** - Rendimiento óptimo para contenido fijo
+3. **🖊️ Páginas Dinámicas CMS** - Contenido editable desde el panel admin
+4. **🔀 Páginas Híbridas** - Combinan routing estático con contenido dinámico
+
+### 🚀 Crear Nuevas Páginas
+
+**📁 Página Estática Simple:**
+
+```bash
+# 1. Crear directorio
+mkdir src/app/[locale]/mi-pagina
+
+# 2. Crear componente
+# src/app/[locale]/mi-pagina/page.tsx
+export default function MiPagina() {
+  return <div>Mi contenido</div>;
+}
+
+# 3. ⚠️ IMPORTANTE: Añadir a configuración
+# En src/app/[locale]/[[...slug]]/page.tsx
+const STATIC_ROUTES_FALLBACK = [
+  'mi-pagina',  // ← Añadir aquí
+  // ... otras rutas
+];
+```
+
+**🖊️ Página Dinámica CMS:**
+
+- Se crean desde el panel de administración en `/admin`
+- No requieren código - se generan automáticamente
+- Totalmente editables con el editor visual
+
+**🔀 Sección Híbrida:**
+
+- Copia el patrón de `/servicios/` para tener página principal + sub-páginas
+  dinámicas
+- Ideal para catálogos, portfolios, etc.
+
+### 📚 Documentación Completa
+
+**👉 [Guía Completa de Routing](./PAGES-ROUTING-GUIDE.md)**
+
+Incluye:
+
+- ✅ Ejemplos paso a paso para cada tipo de página
+- ✅ Configuración de rutas estáticas vs dinámicas
+- ✅ Solución de problemas comunes
+- ✅ Internacionalización automática
+- ✅ Mejores prácticas para SEO
+
+### ⚙️ Configuración de Routing
+
+**Automática en desarrollo** - El sistema detecta páginas automáticamente
+**Manual en producción** - Usa `STATIC_ROUTES_FALLBACK` como respaldo
+
+```typescript
+// Configuración crítica en [[...slug]]/page.tsx
+const STATIC_ROUTES_FALLBACK = [
+  'admin',
+  'stores-demo',
+  'editor-demo',
+  'visual-editor-demo',
+  'servicios',
+  'scrollbar-demo',
+  // ⚠️ AÑADIR nuevas páginas estáticas aquí
+];
+```
+
+**🎯 Ventajas del Sistema:**
+
+- ✅ **Rendimiento óptimo** para páginas estáticas
+- ✅ **Flexibilidad total** para contenido dinámico
+- ✅ **SEO friendly** con SSR automático
+- ✅ **Multiidioma** integrado (ES/EN)
+- ✅ **Routing inteligente** con detección automática
 
 ## 📋 Plan de Desarrollo Detallado
 

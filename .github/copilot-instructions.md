@@ -396,12 +396,23 @@ src/app/api/
 
 ```
 src/app/[locale]/
-├── page.tsx             # Homepage
-├── stores-demo/         # Interactive Zustand demo
-│   └── page.tsx        # Complete store demonstration
-├── admin/              # Admin panel (future)
-└── [...slug]/          # Dynamic pages (future)
+├── [[...slug]]/          # ✨ Catch-all global (páginas dinámicas + homepage)
+│   └── page.tsx
+├── admin/                # 📁 Páginas estáticas (panel admin)
+│   ├── page.tsx
+│   └── editor/
+├── servicios/            # 🔀 Híbrido Catch-all propio (estático + dinámicas)
+│   └── [[...slug]]/
+└── stores-demo/          # 📁 Página estática (demo)
+    └── page.tsx
 ```
+
+**How to Create New Pages:**
+
+1. **Simple Static Page**: `mkdir src/app/[locale]/my-page` → Add `'my-page'` to
+   `STATIC_ROUTES_FALLBACK`
+2. **Dynamic CMS Page**: Use admin panel (auto-generated, no code needed)
+3. **Section with Sub-pages**: Copy `servicios/` pattern for hybrid routing
 
 ## Development Workflow
 
@@ -589,3 +600,97 @@ const MyComponent = forwardRef<HTMLElement, Props>(
 - Handle pluralization and date/time formatting
 - Test all locales with Playwright
 - Provide fallbacks for missing translations
+
+### Page Routing and Creation Guidelines
+
+This project uses **Next.js native App Router** with catch-all routing patterns.
+The hybrid routing system has been eliminated in favor of simpler, more
+maintainable patterns.
+
+#### Core Routing Architecture
+
+- **Global Catch-all**: `src/app/[locale]/[[...slug]]/page.tsx` handles all
+  routes
+- **Homepage Integration**: Empty slug array renders HomePage component
+- **Static Route Detection**: Automatic filesystem scanning with manual fallback
+- **CMS Integration**: Database-driven dynamic pages via Prisma
+
+#### Creating New Pages - Three Methods
+
+1. **Static Pages** (Recommended for most content):
+
+```bash
+# 1. Create directory structure
+mkdir -p src/app/[locale]/your-page-name
+
+# 2. Create page component
+# src/app/[locale]/your-page-name/page.tsx
+export default function YourPage({ params }: { params: { locale: string } }) {
+  return <div>Your content</div>;
+}
+
+# 3. Add to STATIC_ROUTES_FALLBACK in [[...slug]]/page.tsx
+const STATIC_ROUTES_FALLBACK = [
+  'your-page-name',
+  // ... existing routes
+];
+```
+
+2. **Dynamic CMS Pages** (For content-managed pages):
+
+- Use the admin panel (future implementation)
+- Pages automatically available via database integration
+- No code changes required
+
+3. **Hybrid Static + Dynamic** (For special cases):
+
+- Use catch-all pattern: `[locale]/section/[[...slug]]/page.tsx`
+- Handle both static routes and dynamic content
+- Example: servicios section
+
+#### Critical Configuration: STATIC_ROUTES_FALLBACK
+
+**ALWAYS update this array when adding static pages:**
+
+```typescript
+// In src/app/[locale]/[[...slug]]/page.tsx
+const STATIC_ROUTES_FALLBACK = [
+  'stores-demo',
+  'admin',
+  'editor-demo',
+  'visual-editor-demo',
+  'scrollbar-demo',
+  'not-found-redirect',
+  'servicios',
+  // ADD YOUR NEW STATIC ROUTES HERE
+];
+```
+
+#### Route Priority Order
+
+1. **Static directories** (highest priority)
+2. **Catch-all routes** with STATIC_ROUTES_FALLBACK
+3. **Database CMS pages** (dynamic)
+4. **404 localized pages** (lowest priority)
+
+#### Development Workflow
+
+1. **Check existing routes**: Review filesystem structure in `src/app/[locale]/`
+2. **Choose creation method**: Static vs Dynamic vs Hybrid
+3. **Update configuration**: Add to STATIC_ROUTES_FALLBACK if static
+4. **Test both locales**: Verify /es and /en routes work
+5. **Verify with Playwright**: Use browser automation for testing
+
+#### Common Routing Errors
+
+- **Missing STATIC_ROUTES_FALLBACK entry**: Static pages return 404
+- **Route conflicts**: Multiple page.tsx files for same path
+- **Locale handling**: Ensure params.locale is properly typed and used
+- **generateStaticParams**: Include new routes in static generation
+
+#### Reference Documentation
+
+See `PAGES-ROUTING-GUIDE.md` for comprehensive examples and troubleshooting.
+
+**CRITICAL**: Always update STATIC_ROUTES_FALLBACK when adding static pages to
+ensure production builds work correctly.

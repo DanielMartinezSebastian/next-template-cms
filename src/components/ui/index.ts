@@ -1,3 +1,4 @@
+export { Breadcrumb } from './breadcrumb';
 export { Button, buttonVariants } from './button';
 export { Input, inputVariants } from './input';
 export { Modal } from './modal';
