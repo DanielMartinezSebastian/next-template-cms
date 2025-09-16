@@ -26,7 +26,7 @@ export function PageEditorPanel({
   width,
 }: PageEditorPanelProps) {
   const currentPage = useCurrentPage();
-  const { updatePage } = usePageActions();
+  const { updatePage, savePageToDatabase } = usePageActions();
 
   const [pageData, setPageData] = useState<Partial<PageConfig>>({
     title: 'New Page',
@@ -80,18 +80,33 @@ export function PageEditorPanel({
       setPageData(newPageData);
       console.warn('✅ Local pageData updated:', newPageData);
 
-      // Extract content from components if available
-      const contentComponent = currentPage.components?.find(c => c.type === 'content');
-      if (contentComponent?.props?.content) {
-        setContentString(contentComponent.props.content as string);
-        console.warn('📄 Content extracted from components:', contentComponent.props.content);
+      // Extract Lexical content directly from page.content field
+      if (currentPage.content) {
+        const lexicalString = JSON.stringify(currentPage.content);
+        console.warn('📄 Lexical content loaded from page.content:', currentPage.content);
+
+        // Only update contentString if we don't already have valid content
+        // This prevents resetting editor content during re-mounts
+        if (!contentString || contentString === '' || contentString === '{}') {
+          setContentString(lexicalString);
+          console.warn('✅ Updating contentString from page.content');
+        } else {
+          console.warn('⚠️ Keeping existing contentString, not overriding editor content');
+        }
       } else {
-        console.warn('ℹ️ No content component found in page');
+        console.warn('ℹ️ No Lexical content found in page.content');
+        // Only reset contentString if we don't have editor content
+        if (!contentString || contentString === '' || contentString === '{}') {
+          setContentString('');
+          console.warn('✅ Resetting contentString to empty');
+        } else {
+          console.warn('⚠️ Keeping existing contentString, editor has content');
+        }
       }
     } else {
       console.warn('⚠️ currentPage is null/undefined, keeping default values');
     }
-  }, [currentPage]);
+  }, [currentPage, contentString]);
 
   const handleFieldChange = useCallback(
     (field: keyof PageConfig, value: string | boolean | object) => {
@@ -117,6 +132,27 @@ export function PageEditorPanel({
 
   const handleContentChange = useCallback(
     (content: string) => {
+      console.warn('🔍 [PageEditorPanel.handleContentChange] Received content from VisualEditor');
+      console.warn('📄 Raw content:', content);
+      console.warn('📏 Content length:', content?.length || 0);
+      console.warn('🧮 Content type:', typeof content);
+
+      // Try to parse and validate the content
+      try {
+        if (content) {
+          const parsed = JSON.parse(content);
+          console.warn('✅ Content is valid JSON:', {
+            hasRoot: !!parsed?.root,
+            rootType: parsed?.root?.type,
+            childrenCount: parsed?.root?.children?.length || 0,
+          });
+        } else {
+          console.warn('⚠️ Content is empty or null');
+        }
+      } catch (error) {
+        console.error('❌ Content is not valid JSON:', error);
+      }
+
       setContentString(content);
       onContentChange?.(content);
 
@@ -139,23 +175,58 @@ export function PageEditorPanel({
   );
 
   const handleSave = useCallback(async () => {
+    if (!currentPage) return;
+
     setIsSaving(true);
+
+    console.warn('🔍 [PageEditorPanel.handleSave] INICIO');
+    console.warn('📄 contentString raw:', contentString);
+    console.warn('📏 contentString length:', contentString?.length || 0);
+    console.warn('🧮 contentString type:', typeof contentString);
+
+    let parsedContent = null;
     try {
-      if (currentPage) {
-        // Here you would typically save to a database
-        if (process.env.NODE_ENV === 'development') {
-          // eslint-disable-next-line no-console
-          console.log('Saving page:', pageData);
-        }
-        // For now, just update the store
-        updatePage(currentPage.id, pageData);
+      if (contentString) {
+        parsedContent = JSON.parse(contentString);
+        console.warn('✅ Parsed content successfully:', {
+          type: typeof parsedContent,
+          hasRoot: !!parsedContent?.root,
+          rootType: parsedContent?.root?.type,
+          childrenCount: parsedContent?.root?.children?.length || 0,
+          preview: `${JSON.stringify(parsedContent).substring(0, 200)}...`,
+        });
+      } else {
+        console.warn('⚠️ contentString is empty, setting content to null');
       }
+    } catch (parseError) {
+      console.error('❌ Error parsing contentString:', parseError);
+      console.warn('🔍 Invalid JSON content:', contentString);
+    }
+
+    const updateData = {
+      title: pageData.title,
+      slug: pageData.slug,
+      metadata: {
+        description: pageData.metadata?.description || '',
+      },
+      isPublished: pageData.isPublished,
+      content: parsedContent,
+    };
+
+    console.warn('📦 Final updateData being sent to store:', {
+      ...updateData,
+      content: updateData.content ? 'JSON_OBJECT' : updateData.content,
+    });
+
+    try {
+      await savePageToDatabase(currentPage.id, updateData);
+      console.warn('✅ Page saved successfully via store');
     } catch (error) {
-      console.error('Error saving page:', error);
+      console.error('❌ Error saving page:', error);
     } finally {
       setIsSaving(false);
     }
-  }, [currentPage, pageData, updatePage]);
+  }, [currentPage, pageData, contentString, savePageToDatabase]);
 
   const handleSlugChange = useCallback(
     (title: string) => {
@@ -237,6 +308,7 @@ export function PageEditorPanel({
 
           <div className="border-border overflow-hidden rounded-lg border">
             <VisualEditor
+              initialContent={contentString}
               placeholder="Start creating your page content..."
               onChange={handleContentChange}
               className="min-h-[300px]"
