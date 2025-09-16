@@ -71,6 +71,32 @@ export function SimplePagePreview({
         updatedAt: new Date().toISOString(),
       };
 
+      // DEBUG: Log the page config to understand what's happening
+      console.warn('🔍 SimplePagePreview: Converting page to pageConfig', {
+        originalPage: {
+          id: page.id,
+          title: page.title,
+          componentsCount: page.components?.length || 0,
+          components: page.components?.map(c => ({
+            id: c.id,
+            type: c.type,
+            props: c.props,
+            order: c.order
+          })) || [],
+        },
+        pageConfig: {
+          id: config.id,
+          componentsCount: config.components.length,
+          components: config.components.map(c => ({
+            id: c.id,
+            type: c.type,
+            props: c.props,
+            order: c.order,
+            isVisible: c.isVisible
+          })),
+        }
+      });
+
       setPageConfig(config);
     } else {
       setPageConfig(null);

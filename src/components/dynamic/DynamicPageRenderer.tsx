@@ -125,6 +125,14 @@ function DynamicComponent({ config, locale, editMode = false, index }: DynamicCo
     componentOrder: config.order,
   };
 
+  // DEBUG: Log component props
+  console.warn(`🔍 Component Props for ${config.type}:`, {
+    configProps: config.props,
+    finalProps: componentProps,
+    componentType: config.type,
+    componentId: config.id
+  });
+
   return (
     <div
       className={`dynamic-component ${editMode ? 'edit-mode' : ''} ${
