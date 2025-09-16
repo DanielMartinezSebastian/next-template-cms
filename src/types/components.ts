@@ -69,11 +69,9 @@ export interface ComponentProps extends Record<string, unknown> {
   // Array props for lists/grids
   items?: Array<Record<string, unknown>>;
 
-  // Editor context props (added by DynamicComponentNode)
+  // Editor context props (only for backward compatibility during migration)
   nodeKey?: string;
   isInEditMode?: boolean;
-  lexicalEditor?: unknown; // LexicalEditor type
-  editorConfig?: unknown; // EditorConfig type
 }
 
 // =============================================================================

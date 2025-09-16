@@ -214,7 +214,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         contentUpdateData.isPublished = validatedData.isPublished;
         contentUpdateData.publishedAt = validatedData.isPublished ? new Date() : null;
       }
-      if (validatedData.content) contentUpdateData.content = validatedData.content;
+      // Note: We no longer save content - using page_components instead
 
       if (Object.keys(contentUpdateData).length > 0) {
         // Update content for the primary locale
@@ -224,6 +224,55 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             where: { id: primaryContent.id },
             data: contentUpdateData,
           });
+        }
+      }
+
+      // Handle component updates from content.root.children
+      if (validatedData.content && typeof validatedData.content === 'object') {
+        const contentData = validatedData.content as { root?: { children?: unknown[] } };
+        if (contentData.root && Array.isArray(contentData.root.children)) {
+          // First, delete existing page components
+          await tx.pageComponent.deleteMany({
+            where: { pageId: id },
+          });
+
+          // Then create new components from content.root.children
+          for (let index = 0; index < contentData.root.children.length; index++) {
+            const child = contentData.root.children[index] as {
+              componentType?: string;
+              type?: string;
+              componentProps?: Record<string, unknown>;
+              props?: Record<string, unknown>;
+              order?: number;
+            };
+
+            const componentType = child.componentType || child.type;
+            const componentProps = child.componentProps || child.props || {};
+
+            if (componentType) {
+              // Find the component definition by type/name (case-insensitive)
+              const componentDef = await tx.component.findFirst({
+                where: {
+                  OR: [
+                    { name: { equals: componentType, mode: 'insensitive' } },
+                    { type: { equals: componentType, mode: 'insensitive' } },
+                  ],
+                },
+              });
+
+              if (componentDef) {
+                await tx.pageComponent.create({
+                  data: {
+                    pageId: id,
+                    componentId: componentDef.id,
+                    config: componentProps as Prisma.InputJsonValue,
+                    order: child.order || index,
+                    isVisible: true,
+                  },
+                });
+              }
+            }
+          }
         }
       }
 
@@ -458,7 +507,7 @@ function transformPrismaPageToApi(page: any): PageJsonConfig {
     template: page.template || undefined,
     isPublished: primaryContent?.isPublished || false,
     publishedAt: primaryContent?.publishedAt?.toISOString(),
-    content: (primaryContent?.content as Record<string, unknown>) || null, // Include Lexical JSON content
+    // Note: content removed - using page_components structure instead
     createdAt: page.createdAt.toISOString(),
     updatedAt: page.updatedAt.toISOString(),
   };

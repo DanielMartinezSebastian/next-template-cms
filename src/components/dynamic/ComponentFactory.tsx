@@ -7,11 +7,16 @@ import { ComponentFactoryMapping } from '@/types/pages';
 import React from 'react';
 
 // Import available components
+import ButtonComponent from './components/Button';
 import { CallToAction } from './components/CallToAction';
+import Card from './components/Card';
 import { ContactForm } from './components/ContactForm';
 import { FeatureGrid } from './components/FeatureGrid';
 import { HeroSection } from './components/HeroSection';
+import Image from './components/Image';
 import { ImageGallery } from './components/ImageGallery';
+import Section from './components/Section';
+import Spacer from './components/Spacer';
 import { Newsletter, Testimonials } from './components/Testimonials';
 import { TextBlock } from './components/TextBlock';
 
@@ -28,6 +33,7 @@ export class ComponentFactory {
     // Layout Components
     hero: HeroSection,
     'hero-section': HeroSection,
+    section: Section,
 
     // Content Components
     text: TextBlock,
@@ -35,9 +41,14 @@ export class ComponentFactory {
     content: TextBlock,
 
     // Media Components
-    image: ImageGallery,
+    image: Image, // Single image component
     'image-gallery': ImageGallery,
     gallery: ImageGallery,
+
+    // UI Components
+    button: ButtonComponent,
+    card: Card,
+    spacer: Spacer,
 
     // Interactive Components
     form: ContactForm,
@@ -119,14 +130,20 @@ export class ComponentFactory {
       layout: [
         { type: 'hero', name: 'Hero Section', category: 'layout' },
         { type: 'hero-section', name: 'Hero Section', category: 'layout' },
+        { type: 'section', name: 'Section', category: 'layout' },
       ],
       content: [
         { type: 'text', name: 'Text Block', category: 'content' },
         { type: 'text-block', name: 'Text Block', category: 'content' },
       ],
       media: [
-        { type: 'image', name: 'Image Gallery', category: 'media' },
+        { type: 'image', name: 'Image', category: 'media' },
         { type: 'image-gallery', name: 'Image Gallery', category: 'media' },
+      ],
+      ui: [
+        { type: 'button', name: 'Button', category: 'ui' },
+        { type: 'card', name: 'Card', category: 'ui' },
+        { type: 'spacer', name: 'Spacer', category: 'ui' },
       ],
       interactive: [
         { type: 'form', name: 'Contact Form', category: 'interactive' },

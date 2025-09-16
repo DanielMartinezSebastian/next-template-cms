@@ -28,7 +28,6 @@ export interface PageConfig {
     image?: string;
   };
   isPublished: boolean;
-  content?: Record<string, unknown> | null; // Lexical JSON content
   createdAt: Date;
   updatedAt: Date;
 
@@ -105,6 +104,7 @@ const createPageStoreSlice: StateCreator<
             slug: string;
             locale: string;
             components?: PageComponent[];
+            content?: Record<string, unknown>;
             meta?: {
               title?: string;
               description?: string;
@@ -183,7 +183,6 @@ const createPageStoreSlice: StateCreator<
             image: data.page.meta?.image,
           },
           isPublished: data.page.isPublished,
-          content: data.page.content || null, // Include Lexical JSON content
           createdAt: new Date(data.page.createdAt),
           updatedAt: new Date(data.page.updatedAt),
           routeType: 'dynamic' as const,
@@ -267,9 +266,32 @@ const createPageStoreSlice: StateCreator<
       console.warn('🔄 Saving page to database:', {
         pageId: id,
         updates,
-        contentType: typeof updates.content,
-        contentPreview: updates.content ? JSON.stringify(updates.content).substring(0, 200) : null,
+        componentsCount: updates.components?.length || 0,
       });
+
+      // Convert PageConfig updates to API format
+      const apiData: Record<string, unknown> = {};
+
+      if (updates.title) apiData.title = updates.title;
+      if (updates.slug) apiData.slug = updates.slug;
+      if (updates.metadata?.description !== undefined)
+        apiData.description = updates.metadata.description;
+      if (updates.metadata?.keywords) apiData.keywords = updates.metadata.keywords;
+      if (updates.isPublished !== undefined) apiData.isPublished = updates.isPublished;
+
+      // Convert components to content.root.children format for API
+      if (updates.components) {
+        apiData.content = {
+          root: {
+            children: updates.components.map(component => ({
+              type: 'component',
+              componentType: component.type,
+              componentProps: component.props,
+              order: component.order,
+            })),
+          },
+        };
+      }
 
       // Make PUT request to save page
       const response = await fetch(`/api/pages/${id}`, {
@@ -277,7 +299,7 @@ const createPageStoreSlice: StateCreator<
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(updates),
+        body: JSON.stringify(apiData),
       });
 
       if (!response.ok) {
@@ -301,7 +323,6 @@ const createPageStoreSlice: StateCreator<
             image: result.page.meta?.image,
           },
           isPublished: result.page.isPublished,
-          content: result.page.content || null,
           createdAt: new Date(result.page.createdAt),
           updatedAt: new Date(result.page.updatedAt),
           routeType: 'dynamic' as const,

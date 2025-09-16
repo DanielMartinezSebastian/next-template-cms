@@ -356,6 +356,230 @@ async function main() {
     },
   });
 
+  await prisma.component.upsert({
+    where: { name: 'Image' },
+    update: {},
+    create: {
+      name: 'Image',
+      type: 'content',
+      category: 'media',
+      description: 'Display images with configurable properties',
+      configSchema: {
+        type: 'object',
+        properties: {
+          src: { type: 'string' },
+          alt: { type: 'string' },
+          width: { type: 'number' },
+          height: { type: 'number' },
+          fit: { type: 'string' },
+        },
+      },
+      defaultConfig: {
+        src: 'https://images.placeholders.dev/800x600?text=Image&bgColor=%236b7280&textColor=%23ffffff',
+        alt: 'Image description',
+        width: 800,
+        height: 600,
+        fit: 'cover',
+      },
+      isActive: true,
+    },
+  });
+
+  await prisma.component.upsert({
+    where: { name: 'CallToAction' },
+    update: {},
+    create: {
+      name: 'CallToAction',
+      type: 'marketing',
+      category: 'marketing',
+      description: 'Call-to-action section with title, description and button',
+      configSchema: {
+        type: 'object',
+        properties: {
+          title: { type: 'string' },
+          description: { type: 'string' },
+          buttonText: { type: 'string' },
+          buttonLink: { type: 'string' },
+          variant: { type: 'string' },
+        },
+      },
+      defaultConfig: {
+        title: 'Ready to Get Started?',
+        description: 'Join thousands of satisfied customers today',
+        buttonText: 'Get Started Now',
+        buttonLink: '/signup',
+        variant: 'primary',
+      },
+      isActive: true,
+    },
+  });
+
+  await prisma.component.upsert({
+    where: { name: 'ContactForm' },
+    update: {},
+    create: {
+      name: 'ContactForm',
+      type: 'interactive',
+      category: 'interactive',
+      description: 'Contact form with fields for name, email, and message',
+      configSchema: {
+        type: 'object',
+        properties: {
+          title: { type: 'string' },
+          description: { type: 'string' },
+          submitText: { type: 'string' },
+          fields: { type: 'array' },
+        },
+      },
+      defaultConfig: {
+        title: 'Contact Us',
+        description: 'Get in touch with our team',
+        submitText: 'Send Message',
+        fields: ['name', 'email', 'message'],
+      },
+      isActive: true,
+    },
+  });
+
+  await prisma.component.upsert({
+    where: { name: 'Testimonials' },
+    update: {},
+    create: {
+      name: 'Testimonials',
+      type: 'marketing',
+      category: 'marketing',
+      description: 'Customer testimonials section with reviews and ratings',
+      isActive: true,
+    },
+  });
+
+  await prisma.component.upsert({
+    where: { name: 'Newsletter' },
+    update: {},
+    create: {
+      name: 'Newsletter',
+      type: 'marketing',
+      category: 'marketing',
+      description: 'Newsletter signup form',
+      isActive: true,
+    },
+  });
+
+  await prisma.component.upsert({
+    where: { name: 'Spacer' },
+    update: {},
+    create: {
+      name: 'Spacer',
+      type: 'layout',
+      category: 'ui',
+      description: 'Add vertical or horizontal spacing',
+      configSchema: {
+        type: 'object',
+        properties: {
+          height: { type: 'number' },
+          width: { type: 'number' },
+          direction: { type: 'string' },
+        },
+      },
+      defaultConfig: {
+        height: 40,
+        direction: 'vertical',
+      },
+      isActive: true,
+    },
+  });
+
+  await prisma.component.upsert({
+    where: { name: 'Section' },
+    update: {},
+    create: {
+      name: 'Section',
+      type: 'layout',
+      category: 'layout',
+      description: 'Generic container section',
+      configSchema: {
+        type: 'object',
+        properties: {
+          title: { type: 'string' },
+          backgroundColor: { type: 'string' },
+          textColor: { type: 'string' },
+          padding: { type: 'string' },
+          fullWidth: { type: 'boolean' },
+          centerContent: { type: 'boolean' },
+        },
+      },
+      defaultConfig: {
+        padding: 'medium',
+        fullWidth: false,
+        centerContent: false,
+      },
+      isActive: true,
+    },
+  });
+
+  await prisma.component.upsert({
+    where: { name: 'Button' },
+    update: {},
+    create: {
+      name: 'Button',
+      type: 'ui',
+      category: 'ui',
+      description: 'Standalone button component',
+      configSchema: {
+        type: 'object',
+        properties: {
+          text: { type: 'string' },
+          href: { type: 'string' },
+          variant: { type: 'string' },
+          size: { type: 'string' },
+          disabled: { type: 'boolean' },
+          fullWidth: { type: 'boolean' },
+          centerAlign: { type: 'boolean' },
+        },
+      },
+      defaultConfig: {
+        text: 'Button',
+        variant: 'default',
+        size: 'default',
+        disabled: false,
+        fullWidth: false,
+        centerAlign: false,
+      },
+      isActive: true,
+    },
+  });
+
+  await prisma.component.upsert({
+    where: { name: 'Card' },
+    update: {},
+    create: {
+      name: 'Card',
+      type: 'ui',
+      category: 'ui',
+      description: 'Flexible card component with image and content',
+      configSchema: {
+        type: 'object',
+        properties: {
+          title: { type: 'string' },
+          description: { type: 'string' },
+          image: { type: 'string' },
+          imageAlt: { type: 'string' },
+          buttonText: { type: 'string' },
+          buttonLink: { type: 'string' },
+          variant: { type: 'string' },
+          imagePosition: { type: 'string' },
+        },
+      },
+      defaultConfig: {
+        title: 'Card Title',
+        description: 'Card description goes here...',
+        variant: 'default',
+        imagePosition: 'top',
+      },
+      isActive: true,
+    },
+  });
+
   console.log('✅ Components created');
 
   // Create sample dynamic pages

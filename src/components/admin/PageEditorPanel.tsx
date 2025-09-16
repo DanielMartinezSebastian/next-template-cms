@@ -1,12 +1,11 @@
 /**
- * Page Editor Panel
- * Panel lateral izquierdo para editar propiedades de la página
+ * Page Editor Panel (Legacy - Component-based version)
+ * Este componente está deprecado. Usar SimplePageEditor en su lugar.
  */
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
 import { PageConfig, useCurrentPage, usePageActions } from '../../stores';
-import { VisualEditor } from '../editor';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 
@@ -80,28 +79,16 @@ export function PageEditorPanel({
       setPageData(newPageData);
       console.warn('✅ Local pageData updated:', newPageData);
 
-      // Extract Lexical content directly from page.content field
-      if (currentPage.content) {
-        const lexicalString = JSON.stringify(currentPage.content);
-        console.warn('📄 Lexical content loaded from page.content:', currentPage.content);
+      // Note: Content field removed - using page_components structure
+      // Components are managed directly through the components array
+      console.warn('📄 Components loaded from page.components:', currentPage.components);
 
-        // Only update contentString if we don't already have valid content
-        // This prevents resetting editor content during re-mounts
-        if (!contentString || contentString === '' || contentString === '{}') {
-          setContentString(lexicalString);
-          console.warn('✅ Updating contentString from page.content');
-        } else {
-          console.warn('⚠️ Keeping existing contentString, not overriding editor content');
-        }
+      // Reset contentString since we're not using content field anymore
+      if (!contentString || contentString === '' || contentString === '{}') {
+        setContentString('');
+        console.warn('✅ Resetting contentString - using components structure');
       } else {
-        console.warn('ℹ️ No Lexical content found in page.content');
-        // Only reset contentString if we don't have editor content
-        if (!contentString || contentString === '' || contentString === '{}') {
-          setContentString('');
-          console.warn('✅ Resetting contentString to empty');
-        } else {
-          console.warn('⚠️ Keeping existing contentString, editor has content');
-        }
+        console.warn('⚠️ Keeping existing contentString for compatibility');
       }
     } else {
       console.warn('⚠️ currentPage is null/undefined, keeping default values');
@@ -302,18 +289,33 @@ export function PageEditorPanel({
           </div>
         </div>
 
-        {/* Content Editor */}
+        {/* Content Editor - Deprecated */}
         <div className="space-y-4">
-          <h3 className="text-card-foreground text-lg font-medium">Page Content</h3>
+          <h3 className="text-card-foreground text-lg font-medium">Page Content (Legacy)</h3>
 
-          <div className="border-border overflow-hidden rounded-lg border">
-            <VisualEditor
-              initialContent={contentString}
-              placeholder="Start creating your page content..."
-              onChange={handleContentChange}
-              className="min-h-[300px]"
-              width={width}
-            />
+          <div className="border-border rounded-lg border p-4">
+            <div className="text-center">
+              <div className="text-muted-foreground mb-4">
+                <svg
+                  className="mx-auto mb-4 h-12 w-12 opacity-50"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z"
+                  />
+                </svg>
+                <h4 className="text-foreground mb-2 text-lg font-medium">Legacy Editor</h4>
+                <p className="text-sm">
+                  Este editor está deprecado. Por favor use el SimplePageManager para editar
+                  páginas.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 

@@ -1,56 +1,53 @@
 /**
- * Admin Page Editor
- * Página completa del editor con panel izquierdo y vista previa en tiempo real
+ * Simple Page Manager - Full Screen Layout
+ * Gestiona páginas usando el nuevo sistema sin Lexical con diseño de pantalla completa
  */
 'use client';
 
+import { ArrowLeft, ChevronRight, Edit } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { PageEditorPanel } from '../../../../../../components/admin/PageEditorPanel';
-import { PagePreview } from '../../../../../../components/admin/PagePreview';
-import {
-  useEditModeActions,
-  useEditModeStore,
-  usePageActions,
-  usePageStore,
-} from '../../../../../../stores';
+import { useCallback, useEffect, useState } from 'react';
+import { PageConfig, useCurrentPage, usePageActions, usePages } from '../../stores';
+import { CreatePageModal } from './CreatePageModal';
+import { SimplePageEditor } from './SimplePageEditor';
+import { SimplePagePreview, TailwindBreakpoint } from './SimplePagePreview';
 
-interface PageEditorParams {
-  locale: string;
-  pageId: string;
+interface SimplePageManagerProps {
+  className?: string;
 }
 
-export default function AdminPageEditor() {
-  const params = useParams() as unknown as PageEditorParams;
-  const { locale, pageId } = params;
+export function SimplePageManagerNew({ className = '' }: SimplePageManagerProps) {
+  const params = useParams();
+  const locale = (params?.locale as string) || 'es';
 
-  // Store hooks
-  const { currentPage, isLoading, error } = usePageStore();
-  const { enabled: isEditMode, selectedComponentId } = useEditModeStore();
-  const { enableEditMode } = useEditModeActions();
-  const { loadPageById, setCurrentPage } = usePageActions();
+  const { loadPages, setCurrentPage, updatePage, savePageToDatabase } = usePageActions();
 
-  // Local state - Start with small default that will be adjusted to respect new dvw values
+  const pages = usePages();
+  const currentPage = useCurrentPage();
+
+  const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
+  const [previewBreakpoint, setPreviewBreakpoint] = useState<TailwindBreakpoint>('lg');
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Layout state - siguiendo el patrón del editor original
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [sidebarWidth, setSidebarWidth] = useState(384); // Start with 20dvw equivalent (will be adjusted)
+  const [sidebarWidth, setSidebarWidth] = useState(400); // Default 400px
   const [isResizing, setIsResizing] = useState(false);
-  const [maxSidebarWidth, setMaxSidebarWidth] = useState(1920); // Dynamic max width (100dvw)
-  const [sizeState, setSizeState] = useState<'default' | 'half' | 'full'>('default'); // Size toggle state
+  const [maxSidebarWidth, setMaxSidebarWidth] = useState(1920);
+  const [sizeState, setSizeState] = useState<'default' | 'half' | 'full'>('default');
 
   // Calculate different width sizes based on dvw values
-  const getDefaultWidth = () => Math.floor(window.innerWidth * 0.2); // 20dvw as default
-  const getHalfScreenWidth = () => Math.floor(window.innerWidth * 0.4); // 40dvw as half
-  const getFullScreenWidth = () => window.innerWidth; // 100dvw as full
+  const getDefaultWidth = useCallback(() => Math.floor(window.innerWidth * 0.2), []); // 20dvw as default
+  const getHalfScreenWidth = useCallback(() => Math.floor(window.innerWidth * 0.4), []); // 40dvw as half
+  const getFullScreenWidth = useCallback(() => window.innerWidth, []); // 100dvw as full
 
   // Update max width based on window size
   useEffect(() => {
     const updateMaxWidth = () => {
-      // Full screen width = 100dvw (entire viewport width)
       const newMaxWidth = window.innerWidth;
       setMaxSidebarWidth(newMaxWidth);
-
-      // Adjust current width if it exceeds new maximum
       setSidebarWidth(prevWidth => Math.min(prevWidth, newMaxWidth));
     };
 
@@ -59,25 +56,53 @@ export default function AdminPageEditor() {
     return () => window.removeEventListener('resize', updateMaxWidth);
   }, []);
 
+  // Load pages on mount
   useEffect(() => {
-    if (!isEditMode) {
-      enableEditMode();
-    }
-  }, [isEditMode, enableEditMode]);
+    loadPages();
+  }, [loadPages]);
 
+  // Set current page when selectedPageId changes
   useEffect(() => {
-    const loadPageData = async () => {
-      if (pageId === 'new') {
-        // Create new page mode
-        setCurrentPage(null);
-      } else {
-        // Load existing page using store-first approach
-        await loadPageById(pageId);
+    if (selectedPageId) {
+      const page = pages.find((p: PageConfig) => p.id === selectedPageId);
+      if (page) {
+        setCurrentPage(page);
       }
-    };
+    }
+  }, [selectedPageId, pages, setCurrentPage]);
 
-    loadPageData();
-  }, [pageId, loadPageById, setCurrentPage]);
+  const handlePageUpdate = useCallback(
+    async (pageData: Partial<PageConfig>) => {
+      if (!currentPage) return;
+
+      // Update local state immediately
+      updatePage(currentPage.id, pageData);
+    },
+    [currentPage, updatePage]
+  );
+
+  const handleSavePage = useCallback(async () => {
+    if (!currentPage) return;
+
+    setIsSaving(true);
+    try {
+      // Use PageConfig structure, store will handle API conversion
+      await savePageToDatabase(currentPage.id, {
+        title: currentPage.title,
+        slug: currentPage.slug,
+        metadata: {
+          description: currentPage.metadata?.description || '',
+        },
+        isPublished: currentPage.isPublished,
+        components: currentPage.components || [], // Pass components directly
+      });
+      console.warn('✅ Page saved successfully');
+    } catch (error) {
+      console.error('❌ Error saving page:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [currentPage, savePageToDatabase]);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -96,7 +121,6 @@ export default function AdminPageEditor() {
     const handleResize = (e: MouseEvent) => {
       if (!isResizing) return;
 
-      // Minimum 5dvw for usability, maximum 100dvw
       const dynamicMin = Math.floor(window.innerWidth * 0.05); // 5dvw as minimum
       const newWidth = Math.min(Math.max(e.clientX, dynamicMin), maxSidebarWidth);
       setSidebarWidth(newWidth);
@@ -145,7 +169,7 @@ export default function AdminPageEditor() {
 
   // Effect to update size state when width changes manually (by dragging)
   useEffect(() => {
-    const tolerance = 100; // Increased tolerance for larger widths
+    const tolerance = 100;
     const defaultWidth = Math.floor(window.innerWidth * 0.2); // 20dvw
     const halfScreenWidth = Math.floor(window.innerWidth * 0.4); // 40dvw
     const fullScreenWidth = window.innerWidth; // 100dvw
@@ -157,50 +181,7 @@ export default function AdminPageEditor() {
     } else if (Math.abs(sidebarWidth - fullScreenWidth) <= tolerance) {
       setSizeState('full');
     }
-  }, [sidebarWidth, maxSidebarWidth]);
-
-  if (isLoading) {
-    return (
-      <div className="flex h-full items-center justify-center">
-        <div className="flex items-center space-x-4">
-          <div className="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent"></div>
-          <span className="text-muted-foreground">Cargando página...</span>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex h-full items-center justify-center">
-        <div className="space-y-4 text-center">
-          <div className="text-destructive">
-            <svg
-              className="mx-auto mb-4 h-12 w-12"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <h2 className="text-lg font-semibold">Error al cargar la página</h2>
-            <p className="text-muted-foreground text-sm">{error}</p>
-          </div>
-          <button
-            onClick={() => window.location.reload()}
-            className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-4 py-2"
-          >
-            Intentar de nuevo
-          </button>
-        </div>
-      </div>
-    );
-  }
+  }, [sidebarWidth, maxSidebarWidth, getDefaultWidth, getHalfScreenWidth, getFullScreenWidth]);
 
   return (
     <div className="bg-background relative flex h-full overflow-hidden">
@@ -211,9 +192,7 @@ export default function AdminPageEditor() {
           className="bg-primary text-primary-foreground hover:bg-primary/90 fixed left-0 top-1/2 z-50 flex h-12 w-8 -translate-y-1/2 transform items-center justify-center rounded-r-lg shadow-lg transition-all duration-300"
           title="Abrir panel editor"
         >
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
+          <ChevronRight className="h-4 w-4" />
         </button>
       )}
 
@@ -228,22 +207,32 @@ export default function AdminPageEditor() {
       >
         {/* Sidebar Header */}
         <div className="bg-card border-border flex items-center justify-between border-b p-4">
-          <div className="flex items-center space-x-3">
+          <div className="flex flex-1 items-center space-x-3">
             <Link
               href={`/${locale}/admin/editor`}
-              className="hover:bg-muted text-muted-foreground hover:text-foreground flex h-8 w-8 items-center justify-center rounded-md transition-colors"
+              className="hover:bg-muted text-muted-foreground hover:text-foreground flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md transition-colors"
               aria-label="Volver a la lista de páginas"
             >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
+              <ArrowLeft className="h-4 w-4" />
             </Link>
-            <h2 className="text-foreground text-lg font-semibold">Editor</h2>
+            {/* Page Selector in Header */}
+            <select
+              value={selectedPageId || ''}
+              onChange={e => setSelectedPageId(e.target.value || null)}
+              className="border-border bg-background text-foreground focus:ring-primary min-w-0 flex-1 rounded-md border px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-1"
+              style={{
+                maxWidth: sidebarWidth < 300 ? `${sidebarWidth - 120}px` : 'none',
+              }}
+            >
+              <option value="">{sidebarWidth < 320 ? 'Select...' : 'Select a page...'}</option>
+              {pages.map((page: PageConfig) => (
+                <option key={page.id} value={page.id}>
+                  {sidebarWidth < 320
+                    ? `${page.title.substring(0, 15)}${page.title.length > 15 ? '...' : ''}`
+                    : `${page.title} (${page.locale})`}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="flex items-center space-x-2">
             {/* Size Toggle Button */}
@@ -289,26 +278,25 @@ export default function AdminPageEditor() {
               className="text-muted-foreground hover:text-foreground rounded-md p-2 transition-colors"
               title="Cerrar panel"
             >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
+              <ArrowLeft className="h-4 w-4" />
             </button>
           </div>
         </div>
 
-        {/* Sidebar Content */}
-        <div className="h-[calc(100%-4rem)] overflow-hidden">
-          <PageEditorPanel
-            locale={locale}
-            pageId={pageId}
-            onContentChange={() => {}}
-            width={sidebarWidth}
-          />
+        {/* Sidebar Content - Page Selection and Editor */}
+        {/* Sidebar Content - Page Editor */}
+        <div className="h-[calc(100%-4rem)]">
+          {/* Page Editor */}
+          {currentPage && (
+            <SimplePageEditor
+              onPageUpdate={handlePageUpdate}
+              width={sidebarWidth}
+              sidebarWidth={sidebarWidth}
+              onNewPage={() => setIsCreating(true)}
+              onSave={handleSavePage}
+              isSaving={isSaving}
+            />
+          )}
         </div>
 
         {/* Resizable Divider */}
@@ -318,7 +306,6 @@ export default function AdminPageEditor() {
             onMouseDown={startResize}
             title="Arrastra para redimensionar"
           >
-            {/* Visual indicator for better UX */}
             <div className="bg-muted-foreground/30 absolute left-1/2 top-1/2 h-8 w-0.5 -translate-x-1/2 -translate-y-1/2 rounded-full"></div>
           </div>
         )}
@@ -326,14 +313,37 @@ export default function AdminPageEditor() {
 
       {/* Main Content - Preview Area */}
       <div className="flex-1">
-        <PagePreview page={currentPage || {}} locale={locale} />
+        {currentPage ? (
+          <SimplePagePreview
+            page={currentPage}
+            locale={currentPage.locale}
+            breakpoint={previewBreakpoint}
+            onBreakpointChange={setPreviewBreakpoint}
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center">
+            <div className="space-y-4 text-center">
+              <Edit className="text-muted-foreground mx-auto h-12 w-12" />
+              <div>
+                <h3 className="text-foreground text-lg font-semibold">No Page Selected</h3>
+                <p className="text-muted-foreground">
+                  Select a page from the sidebar to start editing
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Component Selection Indicator */}
-      {selectedComponentId && (
-        <div className="bg-primary text-primary-foreground fixed right-4 top-4 z-50 rounded-md px-3 py-1 text-sm">
-          Componente seleccionado: {selectedComponentId}
-        </div>
+      {/* Create Page Modal */}
+      {isCreating && (
+        <CreatePageModal
+          isOpen={isCreating}
+          onClose={() => {
+            setIsCreating(false);
+            loadPages(); // Refresh the list when modal closes
+          }}
+        />
       )}
     </div>
   );

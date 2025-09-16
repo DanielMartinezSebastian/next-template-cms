@@ -22,11 +22,9 @@ interface TextBlockProps {
   editMode?: boolean;
   componentId?: string;
 
-  // Editor context props (from DynamicComponentNode)
+  // Editor context props (from component editing system)
   nodeKey?: string;
   isInEditMode?: boolean;
-  lexicalEditor?: unknown;
-  editorConfig?: unknown;
 }
 
 export function TextBlock({
@@ -42,15 +40,12 @@ export function TextBlock({
   margin = 'medium',
   maxWidth = 'prose',
   allowHtml = false,
-  locale = 'en',
   editMode = false,
   componentId,
 
   // Editor context props
   nodeKey,
   isInEditMode,
-  lexicalEditor,
-  editorConfig,
 }: TextBlockProps) {
   // Determinar si mostrar indicadores de edición
   const showEditIndicators = editMode || isInEditMode;
@@ -103,7 +98,7 @@ export function TextBlock({
       className={`text-block ${paddingClass} ${marginClass} ${showEditIndicators ? 'relative ring-2 ring-blue-500 ring-opacity-50' : ''}`}
       style={backgroundColor ? customStyles : undefined}
       data-component-id={componentId}
-      data-lexical-node-key={nodeKey}
+      data-node-key={nodeKey}
     >
       {/* Edit Mode Indicator */}
       {showEditIndicators && (

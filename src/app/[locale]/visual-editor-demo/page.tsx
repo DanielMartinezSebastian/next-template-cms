@@ -1,6 +1,6 @@
 /**
  * Visual Editor Demo Page
- * Demonstrates the Lexical visual editor with all features
+ * Demonstrates the component-based visual editor
  */
 
 import VisualEditorDemo from '@/components/examples/VisualEditorDemo';
@@ -17,7 +17,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: `${t('navigation.visual-editor-demo')} - Next.js Template`,
-    description: 'Demonstration of the Lexical visual editor with all features and components.',
+    description:
+      'Demonstration of the component-based visual editor with all features and components.',
   };
 }
 
