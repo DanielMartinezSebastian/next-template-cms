@@ -59,10 +59,14 @@ export class ComponentErrorBoundary extends Component<Props, State> {
             <div className="mb-2 font-semibold text-red-900 dark:text-red-100">
               Component Error: {this.props.componentConfig.type}
             </div>
-            
+
             <div className="mb-3 text-sm text-red-700 dark:text-red-300">
-              <div><strong>Component ID:</strong> {this.props.componentConfig.id}</div>
-              <div><strong>Order:</strong> {this.props.componentConfig.order}</div>
+              <div>
+                <strong>Component ID:</strong> {this.props.componentConfig.id}
+              </div>
+              <div>
+                <strong>Order:</strong> {this.props.componentConfig.order}
+              </div>
             </div>
 
             {this.state.error && (
@@ -70,7 +74,7 @@ export class ComponentErrorBoundary extends Component<Props, State> {
                 <div className="text-sm font-medium text-red-800 dark:text-red-200">
                   Error Message:
                 </div>
-                <div className="rounded bg-red-100 p-2 text-sm font-mono text-red-900 dark:bg-red-900 dark:text-red-100">
+                <div className="rounded bg-red-100 p-2 font-mono text-sm text-red-900 dark:bg-red-900 dark:text-red-100">
                   {this.state.error.message}
                 </div>
               </div>
@@ -98,7 +102,9 @@ export class ComponentErrorBoundary extends Component<Props, State> {
 
             <button
               className="mt-3 rounded bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600"
-              onClick={() => this.setState({ hasError: false, error: undefined, errorInfo: undefined })}
+              onClick={() =>
+                this.setState({ hasError: false, error: undefined, errorInfo: undefined })
+              }
             >
               Retry Component
             </button>

@@ -411,7 +411,8 @@ async function main() {
       title: 'Acerca de Nosotros',
       description: 'Conoce más sobre nuestra empresa y misión',
       metaTitle: 'Acerca de Nosotros - Plantilla Next.js',
-      metaDescription: 'Descubre nuestra historia, misión y el equipo detrás de nuestras soluciones innovadoras',
+      metaDescription:
+        'Descubre nuestra historia, misión y el equipo detrás de nuestras soluciones innovadoras',
       keywords: ['acerca', 'empresa', 'misión', 'equipo'],
       content: {},
       isPublished: true,
@@ -445,7 +446,8 @@ async function main() {
       isVisible: true,
       config: {
         title: 'Our Story',
-        content: 'Founded in 2024, we have been at the forefront of web technology innovation. Our team of passionate developers and designers work tirelessly to create solutions that make a difference.\n\nWe believe in the power of technology to transform businesses and improve lives. Our mission is to provide cutting-edge tools and templates that enable developers to build exceptional web applications quickly and efficiently.',
+        content:
+          'Founded in 2024, we have been at the forefront of web technology innovation. Our team of passionate developers and designers work tirelessly to create solutions that make a difference.\n\nWe believe in the power of technology to transform businesses and improve lives. Our mission is to provide cutting-edge tools and templates that enable developers to build exceptional web applications quickly and efficiently.',
         textAlign: 'left',
         maxWidth: 'prose',
       },
@@ -484,7 +486,8 @@ async function main() {
           },
           {
             title: 'Best Practices',
-            description: 'Following industry standards and best practices for security and performance',
+            description:
+              'Following industry standards and best practices for security and performance',
             icon: '✅',
           },
           {
@@ -527,7 +530,8 @@ async function main() {
       title: 'Our Services',
       description: 'Discover our comprehensive range of web development services',
       metaTitle: 'Services - Next.js Template',
-      metaDescription: 'Professional web development services including custom applications, consulting, and support',
+      metaDescription:
+        'Professional web development services including custom applications, consulting, and support',
       keywords: ['services', 'web development', 'consulting', 'support'],
       content: {},
       isPublished: true,

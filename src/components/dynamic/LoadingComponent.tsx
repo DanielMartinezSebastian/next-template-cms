@@ -11,10 +11,16 @@ interface LoadingComponentProps {
   className?: string;
 }
 
-export function LoadingComponent({ type, editMode = false, className = '' }: LoadingComponentProps) {
+export function LoadingComponent({
+  type,
+  editMode = false,
+  className = '',
+}: LoadingComponentProps) {
   if (editMode) {
     return (
-      <div className={`loading-component rounded border border-blue-300 bg-blue-50 p-4 dark:border-blue-600 dark:bg-blue-950 ${className}`}>
+      <div
+        className={`loading-component rounded border border-blue-300 bg-blue-50 p-4 dark:border-blue-600 dark:bg-blue-950 ${className}`}
+      >
         <div className="animate-pulse">
           <div className="mb-2 font-semibold text-blue-900 dark:text-blue-100">
             Loading {type} component...
@@ -44,7 +50,7 @@ export function LoadingComponent({ type, editMode = false, className = '' }: Loa
 export function HeroLoadingComponent({ className = '' }: { className?: string }) {
   return (
     <div className={`hero-loading animate-pulse ${className}`}>
-      <div className="h-64 w-full rounded bg-gray-200 dark:bg-gray-700 md:h-96">
+      <div className="h-64 w-full rounded bg-gray-200 md:h-96 dark:bg-gray-700">
         <div className="flex h-full items-center justify-center">
           <div className="space-y-4 text-center">
             <div className="h-8 w-64 rounded bg-gray-300 dark:bg-gray-600"></div>
@@ -91,17 +97,17 @@ export function getLoadingComponent(type: string, editMode: boolean = false) {
     case 'hero':
     case 'hero-section':
       return <HeroLoadingComponent />;
-    
+
     case 'image':
     case 'image-gallery':
     case 'gallery':
       return <ImageGalleryLoadingComponent />;
-    
+
     case 'form':
     case 'contact-form':
     case 'contact':
       return <FormLoadingComponent />;
-    
+
     default:
       return <LoadingComponent type={type} editMode={editMode} />;
   }

@@ -43,46 +43,28 @@ export function FeatureGrid({
   return (
     <div className="feature-grid py-12" data-component-id={componentId}>
       <div className="mx-auto max-w-6xl px-4">
-        {title && (
-          <h2 className="mb-4 text-center text-3xl font-bold text-foreground">
-            {title}
-          </h2>
-        )}
+        {title && <h2 className="text-foreground mb-4 text-center text-3xl font-bold">{title}</h2>}
 
-        {subtitle && (
-          <p className="mb-12 text-center text-lg text-muted-foreground">
-            {subtitle}
-          </p>
-        )}
+        {subtitle && <p className="text-muted-foreground mb-12 text-center text-lg">{subtitle}</p>}
 
         {features.length > 0 ? (
           <div className={`grid gap-8 ${columnsClass}`}>
             {features.map((feature, index) => (
-              <div
-                key={index}
-                className="feature-item text-center"
-              >
+              <div key={index} className="feature-item text-center">
                 {showIcons && feature.icon && (
                   <div className="mb-4 flex justify-center">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-2xl">
+                    <div className="bg-primary/10 flex h-16 w-16 items-center justify-center rounded-full text-2xl">
                       {feature.icon}
                     </div>
                   </div>
                 )}
 
-                <h3 className="mb-3 text-xl font-semibold text-foreground">
-                  {feature.title}
-                </h3>
+                <h3 className="text-foreground mb-3 text-xl font-semibold">{feature.title}</h3>
 
-                <p className="text-muted-foreground">
-                  {feature.description}
-                </p>
+                <p className="text-muted-foreground">{feature.description}</p>
 
                 {feature.link && (
-                  <a
-                    href={feature.link}
-                    className="mt-4 inline-block text-primary hover:underline"
-                  >
+                  <a href={feature.link} className="text-primary mt-4 inline-block hover:underline">
                     Learn more →
                   </a>
                 )}

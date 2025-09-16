@@ -43,7 +43,7 @@ export function PlaceholderComponent({
       <div className={`text-center ${textColor}`}>
         <div className="mb-2 text-xl font-semibold">{title}</div>
         <div className="text-sm">Component Type: {type}</div>
-        
+
         {editMode && (
           <div className="mt-4 text-xs">
             <div>ID: {componentId || 'N/A'}</div>

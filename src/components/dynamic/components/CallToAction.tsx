@@ -33,27 +33,18 @@ export function CallToAction({
   componentId,
 }: CallToActionProps) {
   return (
-    <div
-      className={`call-to-action py-16 ${backgroundColor}`}
-      data-component-id={componentId}
-    >
+    <div className={`call-to-action py-16 ${backgroundColor}`} data-component-id={componentId}>
       <div className={`mx-auto max-w-4xl px-4 ${centerAlign ? 'text-center' : ''}`}>
-        <h2 className={`mb-4 text-3xl font-bold ${textColor}`}>
-          {title}
-        </h2>
+        <h2 className={`mb-4 text-3xl font-bold ${textColor}`}>{title}</h2>
 
-        <p className={`mb-8 text-lg ${textColor} opacity-90`}>
-          {description}
-        </p>
+        <p className={`mb-8 text-lg ${textColor} opacity-90`}>{description}</p>
 
         <Button variant={buttonVariant} size="lg" asChild>
           <a href={buttonLink}>{buttonText}</a>
         </Button>
 
         {editMode && (
-          <div className="mt-4 rounded bg-black/20 p-2 text-sm text-white">
-            Call to Action
-          </div>
+          <div className="mt-4 rounded bg-black/20 p-2 text-sm text-white">Call to Action</div>
         )}
       </div>
     </div>

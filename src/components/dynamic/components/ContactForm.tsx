@@ -39,33 +39,25 @@ export function ContactForm({
 }: ContactFormProps) {
   return (
     <div className="contact-form mx-auto max-w-2xl py-8" data-component-id={componentId}>
-      {title && (
-        <h2 className="mb-4 text-center text-3xl font-bold text-foreground">
-          {title}
-        </h2>
-      )}
+      {title && <h2 className="text-foreground mb-4 text-center text-3xl font-bold">{title}</h2>}
 
-      {description && (
-        <p className="mb-8 text-center text-muted-foreground">
-          {description}
-        </p>
-      )}
+      {description && <p className="text-muted-foreground mb-8 text-center">{description}</p>}
 
       <form className="space-y-6">
         {fields.map((field, index) => (
           <div key={field.name || index}>
-            <label className="mb-2 block text-sm font-medium text-foreground">
+            <label className="text-foreground mb-2 block text-sm font-medium">
               {field.label}
               {field.required && <span className="text-red-500">*</span>}
             </label>
-            
+
             {field.type === 'textarea' ? (
               <textarea
                 name={field.name}
                 placeholder={field.placeholder}
                 required={field.required}
                 rows={4}
-                className="w-full rounded border border-border bg-background px-3 py-2 text-foreground placeholder-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                className="border-border bg-background text-foreground placeholder-muted-foreground focus:border-ring focus:ring-ring w-full rounded border px-3 py-2 focus:outline-none focus:ring-1"
               />
             ) : (
               <input
@@ -73,7 +65,7 @@ export function ContactForm({
                 name={field.name}
                 placeholder={field.placeholder}
                 required={field.required}
-                className="w-full rounded border border-border bg-background px-3 py-2 text-foreground placeholder-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                className="border-border bg-background text-foreground placeholder-muted-foreground focus:border-ring focus:ring-ring w-full rounded border px-3 py-2 focus:outline-none focus:ring-1"
               />
             )}
           </div>

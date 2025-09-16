@@ -33,9 +33,10 @@ export function UnknownComponent({
       <div className="mb-2 font-semibold text-orange-900 dark:text-orange-100">
         Unknown Component: {type}
       </div>
-      
+
       <div className="mb-3 text-sm text-orange-700 dark:text-orange-300">
-        This component type is not registered in the ComponentFactory. Available types can be viewed in the component library.
+        This component type is not registered in the ComponentFactory. Available types can be viewed
+        in the component library.
       </div>
 
       <div className="text-xs text-orange-600 dark:text-orange-400">
