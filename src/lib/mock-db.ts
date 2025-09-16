@@ -9,7 +9,7 @@ import { PageJsonConfig } from '@/types/pages';
 // MOCK DATA STORAGE
 // =============================================================================
 
-let mockPages: PageJsonConfig[] = [
+const mockPages: PageJsonConfig[] = [
   {
     id: 'mock-page-1',
     slug: 'test-page',
@@ -110,7 +110,7 @@ let mockPages: PageJsonConfig[] = [
   },
 ];
 
-let mockComponents = [
+const mockComponents = [
   {
     id: 'comp-type-1',
     name: 'HeroSection',
@@ -175,7 +175,7 @@ let mockComponents = [
 export const mockDb = {
   // Pages API
   pages: {
-    findMany: async (options?: { 
+    findMany: async (options?: {
       where?: Record<string, unknown>;
       include?: Record<string, unknown>;
       orderBy?: Record<string, unknown>;
@@ -183,7 +183,7 @@ export const mockDb = {
       skip?: number;
     }) => {
       console.log('🔧 Mock pages.findMany called with options:', JSON.stringify(options, null, 2));
-      
+
       // For mock purposes, return simplified structure that matches expected API response format
       return mockPages.map(page => ({
         id: page.id,
@@ -220,9 +220,10 @@ export const mockDb = {
           config: comp.props,
           component: {
             id: `comp-type-${comp.type}`,
-            name: comp.type.split('-').map(word => 
-              word.charAt(0).toUpperCase() + word.slice(1)
-            ).join(''),
+            name: comp.type
+              .split('-')
+              .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(''),
             type: comp.type, // Keep original type with hyphens
           },
         })),
@@ -294,13 +295,16 @@ export const mockDb = {
 
   // Components API
   component: {
-    findMany: async (options?: { 
+    findMany: async (options?: {
       where?: Record<string, unknown>;
       select?: Record<string, unknown>;
       orderBy?: Record<string, unknown>[];
     }) => {
-      console.log('🔧 Mock component.findMany called with options:', JSON.stringify(options, null, 2));
-      
+      console.log(
+        '🔧 Mock component.findMany called with options:',
+        JSON.stringify(options, null, 2)
+      );
+
       // Return available components matching the schema generation
       return [
         {
@@ -396,12 +400,14 @@ export const mockDb = {
     },
 
     findUnique: async (options: { where: { id?: string; name?: string } }) => {
-      return mockComponents.find(
-        comp => comp.id === options.where.id || comp.name === options.where.name
-      ) || null;
+      return (
+        mockComponents.find(
+          comp => comp.id === options.where.id || comp.name === options.where.name
+        ) || null
+      );
     },
 
-    create: async (data: { data: Partial<typeof mockComponents[0]> }) => {
+    create: async (data: { data: Partial<(typeof mockComponents)[0]> }) => {
       const newComponent = {
         id: `comp-${Date.now()}`,
         name: data.data.name || 'NewComponent',
@@ -432,5 +438,7 @@ export const mockPrisma = {
 
 // Export a function to check if we should use mock
 export const shouldUseMock = () => {
-  return !process.env.DATABASE_URL || process.env.NODE_ENV === 'development';
+  // Only use mock if DATABASE_URL is not configured
+  // We want to use the real database in development when it's available
+  return !process.env.DATABASE_URL;
 };

@@ -1,6 +1,6 @@
 // Load environment variables from .env.local
 import { config } from 'dotenv';
-import path from 'path';
+import * as path from 'path';
 
 // Load .env.local explicitly for scripts
 config({ path: path.join(process.cwd(), '.env.local') });
