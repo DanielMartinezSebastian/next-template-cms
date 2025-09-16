@@ -68,13 +68,23 @@ function PreviewComponent({ component }: PreviewComponentProps) {
       );
 
     case 'image':
+      const imageSrc =
+        component.props.src && component.props.src !== 'undefined'
+          ? String(component.props.src)
+          : 'https://images.placeholders.dev/400x300';
+
+      const imageAlt = String(component.props.alt) || 'Image placeholder';
+      const imageWidth = Number(component.props.width) || 400;
+      const imageHeight = Number(component.props.height) || 300;
+
       return (
         <Image
-          src={(component.props.src as string) || '/placeholder.svg'}
-          alt={(component.props.alt as string) || 'Image'}
-          width={500}
-          height={300}
           className="h-auto max-w-full rounded-lg"
+          src={imageSrc}
+          alt={imageAlt}
+          width={imageWidth}
+          height={imageHeight}
+          unoptimized={imageSrc.includes('placeholders.dev')}
         />
       );
 
@@ -211,9 +221,13 @@ function LexicalContentRenderer({ data }: { data: LexicalData }) {
         );
 
       case 'editable-component':
-        return (
-          <div key={index} className="my-4">
+        const isInlineComponent = ['button', 'image'].includes(node.componentConfig?.type || '');
+
+        if (isInlineComponent) {
+          // Para componentes inline, renderizamos directamente el componente sin div wrapper
+          return (
             <PreviewComponent
+              key={index}
               component={{
                 id: `preview-${index}`,
                 type: node.componentConfig?.type || 'unknown',
@@ -221,8 +235,22 @@ function LexicalContentRenderer({ data }: { data: LexicalData }) {
                 order: index,
               }}
             />
-          </div>
-        );
+          );
+        } else {
+          // Para componentes block, usamos div wrapper
+          return (
+            <div key={index} className="my-4">
+              <PreviewComponent
+                component={{
+                  id: `preview-${index}`,
+                  type: node.componentConfig?.type || 'unknown',
+                  props: node.componentConfig?.props || {},
+                  order: index,
+                }}
+              />
+            </div>
+          );
+        }
 
       default:
         if (node.children) {

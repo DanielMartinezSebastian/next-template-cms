@@ -2,17 +2,10 @@
  * Component Field Definitions
  * Defines editable fields and their types for each component type
  * This enables dynamic form generation for component editing
- */
+// TODO: Necesario automatizar la creacion o uso de COMPONENT_DEFINITIONS que infiera de las interfaces de los componentes que puede usar y que data rellenar. Plantear estrategia de que informacion debe vivir en el componente que vamos a usar
+  */ //
 
-export type FieldType =
-  | 'text'
-  | 'textarea'
-  | 'number'
-  | 'boolean'
-  | 'select'
-  | 'color'
-  | 'url'
-  | 'image';
+export type FieldType = 'text' | 'textarea' | 'number' | 'boolean' | 'select' | 'color' | 'image';
 
 export interface FieldDefinition {
   name: string;
@@ -88,11 +81,15 @@ export const COMPONENT_DEFINITIONS: Record<string, ComponentDefinition> = {
       },
       {
         name: 'ctaLink',
-        type: 'url',
+        type: 'text',
         label: 'Button Link',
         description: 'URL for the call-to-action button',
         defaultValue: '#',
         placeholder: 'https://example.com',
+        validation: {
+          pattern: '^(https?:\\/\\/|mailto:|tel:|\\/|\\.\\/|\\.\\.\\/$|#|[a-zA-Z0-9])',
+          message: 'Must be a valid URL, relative path, or anchor link',
+        },
       },
       {
         name: 'ctaType',
@@ -262,12 +259,16 @@ export const COMPONENT_DEFINITIONS: Record<string, ComponentDefinition> = {
     fields: [
       {
         name: 'src',
-        type: 'url',
+        type: 'text',
         label: 'Image URL',
         description: 'URL of the image to display',
         required: true,
-        defaultValue: '/placeholder.svg',
+        defaultValue: 'https://images.placeholders.dev/400x300',
         placeholder: 'https://example.com/image.jpg',
+        validation: {
+          pattern: '^(https?:\\/\\/|mailto:|tel:|\\/|\\.\\/|\\.\\.\\/$|#|[a-zA-Z0-9])',
+          message: 'Must be a valid URL, relative path, or file path',
+        },
       },
       {
         name: 'alt',
@@ -275,7 +276,7 @@ export const COMPONENT_DEFINITIONS: Record<string, ComponentDefinition> = {
         label: 'Alt Text',
         description: 'Alternative text for accessibility',
         required: true,
-        defaultValue: 'Placeholder image',
+        defaultValue: 'Image placeholder',
         placeholder: 'Describe the image...',
       },
       {
@@ -300,7 +301,7 @@ export const COMPONENT_DEFINITIONS: Record<string, ComponentDefinition> = {
       },
     ],
     previewProps: {
-      src: '/placeholder.svg',
+      src: 'https://images.placeholders.dev/400x300',
       alt: 'Preview image',
       width: 400,
       height: 300,
@@ -385,6 +386,217 @@ export const COMPONENT_DEFINITIONS: Record<string, ComponentDefinition> = {
     ],
     previewProps: {
       content: 'This is a sample text block content.',
+    },
+  },
+
+  // Container Components (Layout)
+  'card-container': {
+    type: 'card-container',
+    name: 'Card Container',
+    description: 'Container with card styling for grouping content',
+    category: 'layout',
+    fields: [
+      {
+        name: 'padding',
+        type: 'select',
+        label: 'Padding',
+        description: 'Internal spacing of the container',
+        defaultValue: '1.5rem',
+        options: [
+          { value: '0.5rem', label: 'Small (8px)' },
+          { value: '1rem', label: 'Medium (16px)' },
+          { value: '1.5rem', label: 'Large (24px)' },
+          { value: '2rem', label: 'Extra Large (32px)' },
+        ],
+      },
+      {
+        name: 'shadow',
+        type: 'boolean',
+        label: 'Drop Shadow',
+        description: 'Add shadow effect to the container',
+        defaultValue: true,
+      },
+      {
+        name: 'border',
+        type: 'boolean',
+        label: 'Border',
+        description: 'Add border around the container',
+        defaultValue: true,
+      },
+      {
+        name: 'borderRadius',
+        type: 'select',
+        label: 'Border Radius',
+        description: 'Corner rounding of the container',
+        defaultValue: '0.5rem',
+        options: [
+          { value: '0', label: 'None' },
+          { value: '0.25rem', label: 'Small (4px)' },
+          { value: '0.5rem', label: 'Medium (8px)' },
+          { value: '1rem', label: 'Large (16px)' },
+          { value: '9999px', label: 'Full (pill)' },
+        ],
+      },
+    ],
+    previewProps: {
+      padding: '1.5rem',
+      shadow: true,
+      border: true,
+      borderRadius: '0.5rem',
+    },
+  },
+
+  row: {
+    type: 'row',
+    name: 'Row Container',
+    description: 'Horizontal layout container for arranging items in a row',
+    category: 'layout',
+    fields: [
+      {
+        name: 'gap',
+        type: 'select',
+        label: 'Gap',
+        description: 'Space between items in the row',
+        defaultValue: '1rem',
+        options: [
+          { value: '0', label: 'None' },
+          { value: '0.5rem', label: 'Small (8px)' },
+          { value: '1rem', label: 'Medium (16px)' },
+          { value: '1.5rem', label: 'Large (24px)' },
+          { value: '2rem', label: 'Extra Large (32px)' },
+        ],
+      },
+      {
+        name: 'align',
+        type: 'select',
+        label: 'Vertical Alignment',
+        description: 'How items align vertically in the row',
+        defaultValue: 'start',
+        options: [
+          { value: 'start', label: 'Top' },
+          { value: 'center', label: 'Center' },
+          { value: 'end', label: 'Bottom' },
+          { value: 'stretch', label: 'Stretch' },
+        ],
+      },
+      {
+        name: 'justify',
+        type: 'select',
+        label: 'Horizontal Alignment',
+        description: 'How items align horizontally in the row',
+        defaultValue: 'start',
+        options: [
+          { value: 'start', label: 'Left' },
+          { value: 'center', label: 'Center' },
+          { value: 'end', label: 'Right' },
+          { value: 'space-between', label: 'Space Between' },
+          { value: 'space-around', label: 'Space Around' },
+          { value: 'space-evenly', label: 'Space Evenly' },
+        ],
+      },
+    ],
+    previewProps: {
+      gap: '1rem',
+      align: 'start',
+      justify: 'start',
+    },
+  },
+
+  column: {
+    type: 'column',
+    name: 'Column Container',
+    description: 'Vertical layout container for arranging items in a column',
+    category: 'layout',
+    fields: [
+      {
+        name: 'gap',
+        type: 'select',
+        label: 'Gap',
+        description: 'Space between items in the column',
+        defaultValue: '1rem',
+        options: [
+          { value: '0', label: 'None' },
+          { value: '0.5rem', label: 'Small (8px)' },
+          { value: '1rem', label: 'Medium (16px)' },
+          { value: '1.5rem', label: 'Large (24px)' },
+          { value: '2rem', label: 'Extra Large (32px)' },
+        ],
+      },
+      {
+        name: 'align',
+        type: 'select',
+        label: 'Horizontal Alignment',
+        description: 'How items align horizontally in the column',
+        defaultValue: 'start',
+        options: [
+          { value: 'start', label: 'Left' },
+          { value: 'center', label: 'Center' },
+          { value: 'end', label: 'Right' },
+          { value: 'stretch', label: 'Stretch' },
+        ],
+      },
+    ],
+    previewProps: {
+      gap: '1rem',
+      align: 'start',
+    },
+  },
+
+  grid: {
+    type: 'grid',
+    name: 'Grid Container',
+    description: 'Grid layout container for arranging items in rows and columns',
+    category: 'layout',
+    fields: [
+      {
+        name: 'columns',
+        type: 'number',
+        label: 'Columns',
+        description: 'Number of columns in the grid',
+        defaultValue: 2,
+        min: 1,
+        max: 12,
+      },
+      {
+        name: 'gap',
+        type: 'select',
+        label: 'Gap',
+        description: 'Space between grid items',
+        defaultValue: '1rem',
+        options: [
+          { value: '0', label: 'None' },
+          { value: '0.5rem', label: 'Small (8px)' },
+          { value: '1rem', label: 'Medium (16px)' },
+          { value: '1.5rem', label: 'Large (24px)' },
+          { value: '2rem', label: 'Extra Large (32px)' },
+        ],
+      },
+      {
+        name: 'autoFit',
+        type: 'boolean',
+        label: 'Auto Fit',
+        description: 'Automatically fit columns to available space',
+        defaultValue: false,
+      },
+      {
+        name: 'minColumnWidth',
+        type: 'select',
+        label: 'Min Column Width',
+        description: 'Minimum width for auto-fit columns',
+        defaultValue: '200px',
+        options: [
+          { value: '150px', label: '150px' },
+          { value: '200px', label: '200px' },
+          { value: '250px', label: '250px' },
+          { value: '300px', label: '300px' },
+        ],
+      },
+    ],
+    previewProps: {
+      columns: 2,
+      gap: '1rem',
+      autoFit: false,
+      minColumnWidth: '200px',
     },
   },
 };
@@ -489,17 +701,19 @@ export function validateComponentProps(
         }
         break;
 
-      case 'url':
-        const urlValue = String(value);
-        if (urlValue && !urlValue.match(/^(https?:\/\/|\/|#)/)) {
-          errors.push(`${field.label} must be a valid URL`);
-        }
-        sanitizedProps[field.name] = urlValue;
-        break;
-
       default:
         // text, textarea, color, image
-        sanitizedProps[field.name] = String(value);
+        const strValue = String(value);
+
+        // Check custom validation pattern if provided
+        if (field.validation?.pattern && strValue) {
+          const pattern = new RegExp(field.validation.pattern);
+          if (!pattern.test(strValue)) {
+            errors.push(field.validation.message || `${field.label} format is invalid`);
+          }
+        }
+
+        sanitizedProps[field.name] = strValue;
         break;
     }
   });

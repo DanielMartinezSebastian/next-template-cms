@@ -222,13 +222,23 @@ function EditableComponentComponent({ config, nodeKey }: EditableComponentCompon
         );
 
       case 'image':
+        const imageSrc =
+          config.props.src && config.props.src !== 'undefined'
+            ? String(config.props.src)
+            : 'https://images.placeholders.dev/400x300';
+
+        const imageAlt = String(config.props.alt) || 'Image placeholder';
+        const imageWidth = Number(config.props.width) || 400;
+        const imageHeight = Number(config.props.height) || 300;
+
         return (
           <Image
             className={`h-auto max-w-full rounded-lg ${config.className || ''}`}
-            src={String(config.props.src) || '/placeholder.svg'}
-            alt={String(config.props.alt) || 'Image'}
-            width={Number(config.props.width) || 400}
-            height={Number(config.props.height) || 300}
+            src={imageSrc}
+            alt={imageAlt}
+            width={imageWidth}
+            height={imageHeight}
+            unoptimized={imageSrc.includes('placeholders.dev')}
           />
         );
 
