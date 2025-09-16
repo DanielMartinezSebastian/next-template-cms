@@ -3,15 +3,16 @@
  * GET /api/components - Get all available components from database
  */
 
-import { PrismaClient } from '@prisma/client';
+import { getDbClient } from '@/lib/db';
 import { NextResponse } from 'next/server';
-
-const prisma = new PrismaClient();
 
 export async function GET() {
   try {
+    // Get database client (real or mock)
+    const db = getDbClient();
+    
     // Get components from database
-    const components = await prisma.component.findMany({
+    const components = await db.component.findMany({
       where: {
         isActive: true,
       },
@@ -53,7 +54,5 @@ export async function GET() {
       },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

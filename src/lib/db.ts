@@ -1,16 +1,40 @@
 import { PrismaClient } from '@prisma/client';
+import { mockPrisma, shouldUseMock } from './mock-db';
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log: ['query'],
-  });
+// Only initialize real Prisma client if not using mock
+let realPrisma: PrismaClient | undefined;
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+if (!shouldUseMock()) {
+  try {
+    realPrisma = globalForPrisma.prisma ?? new PrismaClient({
+      log: ['query'],
+    });
+    
+    if (process.env.NODE_ENV !== 'production') {
+      globalForPrisma.prisma = realPrisma;
+    }
+  } catch (error) {
+    console.warn('Failed to initialize Prisma client, falling back to mock:', error);
+    realPrisma = undefined;
+  }
+}
+
+export const prisma = realPrisma as PrismaClient;
+
+/**
+ * Get database client (real or mock based on availability)
+ */
+export function getDbClient() {
+  if (shouldUseMock() || !realPrisma) {
+    console.log('🔧 Using mock database for development');
+    return mockPrisma as unknown as PrismaClient;
+  }
+  return realPrisma;
+}
 
 /**
  * Verificar si la base de datos está disponible y configurada
@@ -18,6 +42,12 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
  */
 export async function isDatabaseAvailable(): Promise<boolean> {
   try {
+    // Use mock if no DATABASE_URL
+    if (shouldUseMock()) {
+      console.log('🔧 Mock database is always available');
+      return true;
+    }
+
     // Verificar que la URL de la base de datos esté configurada
     if (!process.env.DATABASE_URL) {
       console.warn('DATABASE_URL no está configurada');
@@ -39,6 +69,11 @@ export async function isDatabaseAvailable(): Promise<boolean> {
  */
 export async function isPagesTableAvailable(): Promise<boolean> {
   try {
+    if (shouldUseMock()) {
+      console.log('🔧 Mock pages table is always available');
+      return true;
+    }
+
     if (!(await isDatabaseAvailable())) {
       return false;
     }

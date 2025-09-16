@@ -3,8 +3,8 @@
   "componentDir": "src/components/dynamic/components",
   "outputDir": "src/lib/generated",
   "database": {
-    "enabled": true,
-    "syncOnConfigure": true
+    "enabled": false,
+    "syncOnConfigure": false
   },
   "typeScript": {
     "parseInterfaces": true,

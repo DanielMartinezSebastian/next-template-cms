@@ -3,7 +3,7 @@
  * Handles GET (list all pages) and POST (create new page) operations
  */
 
-import { prisma } from '@/lib/db';
+import { getDbClient } from '@/lib/db';
 import { PageJsonConfig } from '@/types/pages';
 import type { Prisma } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
@@ -92,8 +92,11 @@ export async function GET(request: NextRequest) {
     const limit = query.limit ? parseInt(query.limit, 10) : 50;
     const offset = query.offset ? parseInt(query.offset, 10) : 0;
 
+    // Get database client (real or mock)
+    const db = getDbClient();
+
     // Fetch pages with all relations
-    const pages = await prisma.page.findMany({
+    const pages = await db.page.findMany({
       where: whereClause,
       include: {
         contents: {
@@ -144,7 +147,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Get total count for pagination
-    const totalCount = await prisma.page.count({ where: whereClause });
+    const totalCount = await db.page.count({ where: whereClause });
 
     // Transform to API format
     const formattedPages: PageJsonConfig[] = pages.map(transformPrismaPageToApi);

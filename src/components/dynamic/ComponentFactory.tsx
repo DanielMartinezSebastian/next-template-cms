@@ -38,16 +38,19 @@ export class ComponentFactory {
     // Layout Components
     hero: HeroSection,
     'hero-section': HeroSection,
+    herosection: HeroSection, // ✨ Added for compatibility
     section: Section,
 
     // Content Components
     text: TextBlock,
     'text-block': TextBlock,
+    textblock: TextBlock, // ✨ Added for compatibility
     content: TextBlock,
 
     // Media Components
     image: Image, // Single image component
     'image-gallery': ImageGallery,
+    imagegallery: ImageGallery, // ✨ Added for compatibility
     gallery: ImageGallery,
 
     // UI Components
@@ -58,15 +61,18 @@ export class ComponentFactory {
     // Interactive Components
     form: ContactForm,
     'contact-form': ContactForm,
+    contactform: ContactForm, // ✨ Added for compatibility
     contact: ContactForm,
 
     // Marketing Components
     features: FeatureGrid,
     'feature-grid': FeatureGrid,
+    featuregrid: FeatureGrid, // ✨ Added for compatibility
     'feature-list': FeatureGrid,
 
     cta: CallToAction,
     'call-to-action': CallToAction,
+    calltoaction: CallToAction, // ✨ Added for compatibility
 
     testimonials: Testimonials,
     reviews: Testimonials,
