@@ -68,10 +68,9 @@ function DynamicField({ field, value, onChange, error, disabled }: DynamicFieldP
 
   switch (field.type) {
     case 'text':
-    case 'url':
       return (
         <input
-          type={field.type === 'url' ? 'url' : 'text'}
+          type="text"
           className={baseClasses}
           value={String(value || '')}
           onChange={handleChange}

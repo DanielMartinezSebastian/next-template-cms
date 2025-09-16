@@ -15,6 +15,9 @@ import {
   createCommand,
 } from 'lexical';
 import type { ReactElement } from 'react';
+import { useState } from 'react';
+
+import { ComponentEditModal } from '../ComponentEditModal';
 
 export type ContainerType = 'row' | 'column' | 'grid' | 'section' | 'card-container';
 
@@ -145,6 +148,7 @@ interface ContainerComponentProps {
 }
 
 function ContainerComponent({ config, nodeKey }: ContainerComponentProps) {
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const containerId = nodeKey || `container-${config.type}-${Date.now()}`;
 
   const handleContainerClick = (e: React.MouseEvent) => {
@@ -153,6 +157,34 @@ function ContainerComponent({ config, nodeKey }: ContainerComponentProps) {
       detail: { containerId, type: config.type },
     });
     window.dispatchEvent(event);
+  };
+
+  const handleConfigure = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsEditModalOpen(true);
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Emit delete event
+    const event = new CustomEvent('container-delete', {
+      detail: { containerId, nodeKey, type: config.type },
+    });
+    window.dispatchEvent(event);
+  };
+
+  const handleSaveProps = (newProps: Record<string, unknown>) => {
+    // Update container configuration
+    const event = new CustomEvent('container-update', {
+      detail: {
+        containerId,
+        nodeKey,
+        type: config.type,
+        props: newProps,
+      },
+    });
+    window.dispatchEvent(event);
+    setIsEditModalOpen(false);
   };
 
   const renderContainer = () => {
@@ -225,27 +257,46 @@ function ContainerComponent({ config, nodeKey }: ContainerComponentProps) {
   };
 
   return (
-    <div className="container-node group relative cursor-pointer" onClick={handleContainerClick}>
-      {/* Edit overlay */}
-      <div className="pointer-events-none absolute inset-0 rounded border-2 border-blue-500 bg-blue-500/10 opacity-0 transition-opacity group-hover:opacity-100">
-        <div className="absolute -top-6 left-0 rounded bg-blue-500 px-2 py-1 text-xs text-white">
-          {config.type} container
+    <>
+      <div className="container-node group relative cursor-pointer" onClick={handleContainerClick}>
+        {/* Edit overlay */}
+        <div className="pointer-events-none absolute inset-0 rounded border-2 border-blue-500 bg-blue-500/10 opacity-0 transition-opacity group-hover:opacity-100">
+          <div className="absolute -top-6 left-0 rounded bg-blue-500 px-2 py-1 text-xs text-white">
+            {config.type} container
+          </div>
+
+          {/* Container controls */}
+          <div className="absolute -top-6 right-0 flex gap-1">
+            <button
+              className="pointer-events-auto rounded bg-blue-500 px-2 py-1 text-xs text-white transition-colors hover:bg-blue-600"
+              onClick={handleConfigure}
+              title={`Configure ${config.type} container`}
+            >
+              Configure
+            </button>
+            <button
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/80 pointer-events-auto rounded px-2 py-1 text-xs transition-colors"
+              onClick={handleDelete}
+              title={`Delete ${config.type} container`}
+            >
+              Delete
+            </button>
+          </div>
         </div>
 
-        {/* Container controls */}
-        <div className="absolute -top-6 right-0 flex gap-1">
-          <button className="pointer-events-auto rounded bg-blue-500 px-2 py-1 text-xs text-white transition-colors hover:bg-blue-600">
-            Configure
-          </button>
-          <button className="bg-destructive text-destructive-foreground hover:bg-destructive/80 pointer-events-auto rounded px-2 py-1 text-xs transition-colors">
-            Delete
-          </button>
-        </div>
+        {/* Container content */}
+        {renderContainer()}
       </div>
 
-      {/* Container content */}
-      {renderContainer()}
-    </div>
+      {/* Edit Modal */}
+      <ComponentEditModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        componentType={config.type}
+        currentProps={config.props}
+        onSave={handleSaveProps}
+      />
+    </>
   );
 }
 

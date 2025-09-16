@@ -22,6 +22,7 @@ import { LinkNode } from '@lexical/link';
 import { ListItemNode, ListNode } from '@lexical/list';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import { ContainerNode } from './nodes/ContainerNode';
+import { DynamicComponentNode } from './nodes/DynamicComponentNode';
 import { EditableComponentNode } from './nodes/EditableComponentNode';
 
 // Plugins
@@ -58,7 +59,14 @@ function AutoSavePlugin({ onChange }: { onChange?: (content: string) => void }) 
   useEffect(() => {
     return editor.registerUpdateListener(({ editorState }) => {
       editor.read(() => {
-        const content = JSON.stringify(editorState.toJSON());
+        const editorJson = editorState.toJSON();
+        const content = JSON.stringify(editorJson);
+
+        console.warn('🔍 [AutoSavePlugin] Editor state changed');
+        console.warn('📄 Editor JSON:', editorJson);
+        console.warn('📏 JSON content length:', content.length);
+        console.warn('🔍 Content preview:', content.substring(0, 200));
+
         onChange?.(content);
       });
     });
@@ -77,12 +85,13 @@ function Placeholder({ text }: { text: string }) {
 }
 
 export function VisualEditor({
+  initialContent,
   placeholder = 'Start writing...',
   onChange,
   className = '',
   readOnly = false,
   width,
-}: Omit<VisualEditorProps, 'initialContent'>) {
+}: VisualEditorProps) {
   const [isClient, setIsClient] = useState(false);
 
   // Store integration
@@ -117,6 +126,28 @@ export function VisualEditor({
     };
   }, [isEditMode, setSelectedComponent]);
 
+  // Parse initial content if provided
+  const getInitialEditorState = () => {
+    if (initialContent && initialContent.trim() !== '') {
+      try {
+        const parsedContent = JSON.parse(initialContent);
+        console.warn('🎯 Parsed initial content:', parsedContent);
+
+        // Validate that parsed content has Lexical structure
+        if (parsedContent && parsedContent.root && parsedContent.root.children) {
+          return parsedContent;
+        } else {
+          console.warn('⚠️ Parsed content does not have valid Lexical structure, using default');
+          return null;
+        }
+      } catch (error) {
+        console.warn('Failed to parse initialContent as JSON, treating as plain text:', error);
+        return null;
+      }
+    }
+    return null;
+  };
+
   const initialConfig = {
     namespace: 'VisualEditor',
     theme: editorTheme,
@@ -133,12 +164,22 @@ export function VisualEditor({
       LinkNode,
       EditableComponentNode,
       ContainerNode,
+      DynamicComponentNode,
     ],
+    // Use editorState for initial content instead of JSON
+    ...(getInitialEditorState() && { editorState: JSON.stringify(getInitialEditorState()) }),
     editable: !readOnly,
   };
 
   const handleEditorChange = (editorState: EditorState) => {
-    const content = JSON.stringify(editorState.toJSON());
+    const editorJson = editorState.toJSON();
+    const content = JSON.stringify(editorJson);
+
+    console.warn('🔍 [VisualEditor.handleEditorChange] OnChangePlugin triggered');
+    console.warn('📄 Editor JSON:', editorJson);
+    console.warn('📏 JSON content length:', content.length);
+    console.warn('🔍 Content preview:', content.substring(0, 200));
+
     onChange?.(content);
 
     // Clear component selection when editor content changes

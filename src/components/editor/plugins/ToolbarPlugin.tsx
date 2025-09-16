@@ -24,6 +24,11 @@ import {
   ComponentType,
   INSERT_EDITABLE_COMPONENT_COMMAND,
 } from '../nodes/EditableComponentNode';
+import {
+  COMMON_COMPONENT_CONFIGS,
+  createDynamicComponentPayload,
+  INSERT_DYNAMIC_COMPONENT_COMMAND,
+} from '../utils/dynamic-component-utils';
 import { HistoryControlsPlugin } from './HistoryControlsPlugin';
 
 interface ToolbarPluginProps {
@@ -99,11 +104,21 @@ export function ToolbarPlugin({ className = '', width }: ToolbarPluginProps) {
 
   const insertComponent = (type: ComponentType) => {
     const componentConfig: ComponentConfig = {
+      id: `${type}-${Date.now()}`,
       type,
-      props: getDefaultPropsForComponent(type),
+      props: {},
     };
-
     editor.dispatchCommand(INSERT_EDITABLE_COMPONENT_COMMAND, componentConfig);
+  };
+
+  const insertDynamicComponent = (configKey: keyof typeof COMMON_COMPONENT_CONFIGS) => {
+    const config = COMMON_COMPONENT_CONFIGS[configKey];
+    const payload = createDynamicComponentPayload(
+      config.componentType,
+      config.componentProps,
+      true
+    );
+    editor.dispatchCommand(INSERT_DYNAMIC_COMPONENT_COMMAND, payload);
   };
 
   const insertContainer = (type: ContainerType) => {
@@ -307,6 +322,58 @@ export function ToolbarPlugin({ className = '', width }: ToolbarPluginProps) {
           title="Insert Spacer"
         >
           ⬜
+        </Button>
+      </div>
+
+      {/* Dynamic Components */}
+      <div className="border-border flex gap-1 border-r pr-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => insertDynamicComponent('heroSection')}
+          title="Insert Hero Section (Dynamic)"
+        >
+          🏠
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => insertDynamicComponent('textBlock')}
+          title="Insert Text Block (Dynamic)"
+        >
+          📝
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => insertDynamicComponent('featureGrid')}
+          title="Insert Feature Grid (Dynamic)"
+        >
+          🔧
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => insertDynamicComponent('callToAction')}
+          title="Insert CTA (Dynamic)"
+        >
+          📢
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => insertDynamicComponent('contactForm')}
+          title="Insert Contact Form (Dynamic)"
+        >
+          📧
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => insertDynamicComponent('imageGallery')}
+          title="Insert Image Gallery (Dynamic)"
+        >
+          🖼️
         </Button>
       </div>
 

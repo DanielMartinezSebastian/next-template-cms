@@ -22,6 +22,13 @@ import {
   INSERT_CONTAINER_COMMAND,
 } from '../nodes/ContainerNode';
 import {
+  $createDynamicComponentNode,
+  $isDynamicComponentNode,
+  DynamicComponentNode,
+  INSERT_DYNAMIC_COMPONENT_COMMAND,
+  type DynamicComponentPayload,
+} from '../nodes/DynamicComponentNode';
+import {
   $createEditableComponentNode,
   $isEditableComponentNode,
   ComponentConfig,
@@ -29,13 +36,15 @@ import {
   INSERT_EDITABLE_COMPONENT_COMMAND,
 } from '../nodes/EditableComponentNode';
 
+// Command para insertar DynamicComponentNode está ahora en DynamicComponentNode.tsx
+
 export function EditableComponentsPlugin(): null {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
-    if (!editor.hasNodes([EditableComponentNode, ContainerNode])) {
+    if (!editor.hasNodes([EditableComponentNode, ContainerNode, DynamicComponentNode])) {
       throw new Error(
-        'EditableComponentsPlugin: EditableComponentNode or ContainerNode not registered on editor'
+        'EditableComponentsPlugin: EditableComponentNode, ContainerNode or DynamicComponentNode not registered on editor'
       );
     }
 
@@ -47,6 +56,14 @@ export function EditableComponentsPlugin(): null {
         const node = $getNodeByKey(nodeKey as NodeKey);
         if ($isEditableComponentNode(node)) {
           node.setComponentConfig(newConfig);
+        } else if ($isDynamicComponentNode(node)) {
+          // Update DynamicComponentNode props
+          if (newConfig.componentType) {
+            node.setComponentType(newConfig.componentType);
+          }
+          if (newConfig.componentProps) {
+            node.setComponentProps(newConfig.componentProps);
+          }
         }
       });
     };
@@ -89,6 +106,24 @@ export function EditableComponentsPlugin(): null {
           if ($isRangeSelection(selection)) {
             const containerNode = $createContainerNode(payload);
             $insertNodes([containerNode]);
+          }
+          return true;
+        },
+        COMMAND_PRIORITY_EDITOR
+      ),
+
+      // Dynamic component insertion command
+      editor.registerCommand<DynamicComponentPayload>(
+        INSERT_DYNAMIC_COMPONENT_COMMAND,
+        payload => {
+          const selection = $getSelection();
+          if ($isRangeSelection(selection)) {
+            const dynamicComponentNode = $createDynamicComponentNode(
+              payload.componentType,
+              payload.componentProps || {},
+              payload.isEditable ?? true
+            );
+            $insertNodes([dynamicComponentNode]);
           }
           return true;
         },
