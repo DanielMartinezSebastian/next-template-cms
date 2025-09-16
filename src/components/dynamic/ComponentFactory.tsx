@@ -23,6 +23,8 @@ import { ImageGallery } from './components/ImageGallery';
 import Section from './components/Section';
 import Spacer from './components/Spacer';
 import { Newsletter, Testimonials } from './components/Testimonials';
+import { Testimonial } from './components/Testimonial';
+import { Pricing } from './components/Pricing';
 import { TextBlock } from './components/TextBlock';
 
 // Demo/Fallback components
@@ -76,6 +78,13 @@ export class ComponentFactory {
 
     testimonials: Testimonials,
     reviews: Testimonials,
+
+    testimonial: Testimonial,
+    'testimonial-single': Testimonial,
+
+    pricing: Pricing,
+    'pricing-plan': Pricing,
+    plan: Pricing,
 
     newsletter: Newsletter,
     'newsletter-signup': Newsletter,

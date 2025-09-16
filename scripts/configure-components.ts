@@ -161,7 +161,7 @@ function isValidComponentName(name: string): boolean {
     /^[A-Z]\w+Gallery$/, // Termina en Gallery
     /^[A-Z]\w+Block$/, // Termina en Block
     /^[A-Z]\w+Action$/, // Termina en Action
-    /^(Button|Card|Image|Section|Spacer|TextBlock|HeroSection|CallToAction|FeatureGrid|Testimonials|Newsletter|ContactForm|ImageGallery)$/,
+    /^(Button|Card|Image|Section|Spacer|TextBlock|HeroSection|CallToAction|FeatureGrid|Testimonials|Testimonial|Pricing|Newsletter|ContactForm|ImageGallery)$/,
   ];
 
   return componentPatterns.some(pattern => pattern.test(name));

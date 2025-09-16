@@ -159,7 +159,8 @@ function PropertyField({
 }
 
 function ComponentEditor({ component, onUpdate, onDelete }: ComponentEditorProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+  // Auto-expand newly added components for better UX
+  const [isExpanded, setIsExpanded] = useState(true);
   const [formData, setFormData] = useState(component.props);
 
   // Get component schema for structured editing

@@ -18,9 +18,11 @@ export { HeroSection } from './components/HeroSection';
 export { default as Image } from './components/Image';
 export { ImageGallery } from './components/ImageGallery';
 export { PlaceholderComponent } from './components/PlaceholderComponent';
+export { Pricing } from './components/Pricing';
 export { default as Section } from './components/Section';
 export { default as Spacer } from './components/Spacer';
 export { Newsletter, Testimonials } from './components/Testimonials';
+export { Testimonial } from './components/Testimonial';
 export { TextBlock } from './components/TextBlock';
 export { UnknownComponent } from './components/UnknownComponent';
 

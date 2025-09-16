@@ -1,8 +1,8 @@
 # Component Configuration Summary
 
-Generated on: 2025-09-16T18:18:34.759Z
+Generated on: 2025-09-16T18:47:10.163Z
 
-## Components Found: 11
+## Components Found: 13
 
 - **Button** (`button`) 🔘
   - Category: ui
@@ -44,6 +44,14 @@ Generated on: 2025-09-16T18:18:34.759Z
   - Category: media
   - Has Interface: ✅
   - File: ImageGallery.tsx
+- **Pricing** (`pricing`) 💰
+  - Category: marketing
+  - Has Interface: ✅
+  - File: Pricing.tsx
+- **Testimonial** (`testimonial`) ⭐
+  - Category: marketing
+  - Has Interface: ✅
+  - File: Testimonial.tsx
 - **TextBlock** (`text-block`) 📝
   - Category: content
   - Has Interface: ✅

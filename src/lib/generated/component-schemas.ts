@@ -1,6 +1,6 @@
 /**
  * AUTO-GENERATED COMPONENT SCHEMAS
- * Generated on: 2025-09-16T18:18:34.758Z
+ * Generated on: 2025-09-16T18:47:10.162Z
  * 
  * DO NOT EDIT MANUALLY - Run 'npm run configure' to regenerate
  */
@@ -816,6 +816,213 @@ export const AUTO_GENERATED_SCHEMAS = {
       "componentId": ""
     }
   },
+  "pricing": {
+    "type": "pricing",
+    "name": "Pricing",
+    "description": "Pricing component for dynamic content rendering (Auto-generated from PricingProps)",
+    "category": "marketing",
+    "icon": "💰",
+    "properties": {
+      "planName": {
+        "required": false,
+        "description": "planName property",
+        "type": "string",
+        "label": "Plan Name"
+      },
+      "price": {
+        "required": false,
+        "description": "price property",
+        "type": "string",
+        "label": "Price"
+      },
+      "currency": {
+        "required": false,
+        "description": "currency property",
+        "type": "string",
+        "label": "Currency"
+      },
+      "period": {
+        "required": false,
+        "description": "period property",
+        "type": "string",
+        "label": "Period"
+      },
+      "description": {
+        "required": false,
+        "description": "description property",
+        "type": "string",
+        "label": "Description"
+      },
+      "features": {
+        "required": false,
+        "description": "features property",
+        "type": "string",
+        "label": "Features"
+      },
+      "buttonText": {
+        "required": false,
+        "description": "buttonText property",
+        "type": "string",
+        "label": "Button Text"
+      },
+      "buttonLink": {
+        "required": false,
+        "description": "buttonLink property",
+        "type": "string",
+        "label": "Button Link"
+      },
+      "highlighted": {
+        "required": false,
+        "description": "highlighted property",
+        "type": "boolean",
+        "label": "Highlighted",
+        "default": false
+      },
+      "backgroundColor": {
+        "required": false,
+        "description": "backgroundColor property",
+        "type": "string",
+        "label": "Background Color"
+      },
+      "textColor": {
+        "required": false,
+        "description": "textColor property",
+        "type": "string",
+        "label": "Text Color"
+      },
+      "accentColor": {
+        "required": false,
+        "description": "accentColor property",
+        "type": "string",
+        "label": "Accent Color"
+      },
+      "locale": {
+        "required": false,
+        "description": "locale property",
+        "type": "string",
+        "label": "Locale"
+      },
+      "editMode": {
+        "required": false,
+        "description": "editMode property",
+        "type": "boolean",
+        "label": "Edit Mode",
+        "default": false
+      },
+      "componentId": {
+        "required": false,
+        "description": "componentId property",
+        "type": "string",
+        "label": "Component Id"
+      }
+    },
+    "defaults": {
+      "planName": "",
+      "price": "",
+      "currency": "",
+      "period": "",
+      "description": "",
+      "features": "",
+      "buttonText": "",
+      "buttonLink": "",
+      "highlighted": false,
+      "backgroundColor": "",
+      "textColor": "",
+      "accentColor": "",
+      "locale": "",
+      "editMode": false,
+      "componentId": ""
+    }
+  },
+  "testimonial": {
+    "type": "testimonial",
+    "name": "Testimonial",
+    "description": "Testimonial component for dynamic content rendering (Auto-generated from TestimonialProps)",
+    "category": "marketing",
+    "icon": "⭐",
+    "properties": {
+      "quote": {
+        "required": false,
+        "description": "quote property",
+        "type": "string",
+        "label": "Quote"
+      },
+      "author": {
+        "required": false,
+        "description": "author property",
+        "type": "string",
+        "label": "Author"
+      },
+      "title": {
+        "required": false,
+        "description": "title property",
+        "type": "string",
+        "label": "Title"
+      },
+      "company": {
+        "required": false,
+        "description": "company property",
+        "type": "string",
+        "label": "Company"
+      },
+      "avatar": {
+        "required": false,
+        "description": "avatar property",
+        "type": "string",
+        "label": "Avatar"
+      },
+      "rating": {
+        "required": false,
+        "description": "rating property",
+        "type": "number",
+        "label": "Rating"
+      },
+      "backgroundColor": {
+        "required": false,
+        "description": "backgroundColor property",
+        "type": "string",
+        "label": "Background Color"
+      },
+      "textColor": {
+        "required": false,
+        "description": "textColor property",
+        "type": "string",
+        "label": "Text Color"
+      },
+      "locale": {
+        "required": false,
+        "description": "locale property",
+        "type": "string",
+        "label": "Locale"
+      },
+      "editMode": {
+        "required": false,
+        "description": "editMode property",
+        "type": "boolean",
+        "label": "Edit Mode",
+        "default": false
+      },
+      "componentId": {
+        "required": false,
+        "description": "componentId property",
+        "type": "string",
+        "label": "Component Id"
+      }
+    },
+    "defaults": {
+      "quote": "",
+      "author": "",
+      "title": "",
+      "company": "",
+      "avatar": "",
+      "rating": 0,
+      "backgroundColor": "",
+      "textColor": "",
+      "locale": "",
+      "editMode": false,
+      "componentId": ""
+    }
+  },
   "text-block": {
     "type": "text-block",
     "name": "TextBlock",
@@ -1047,6 +1254,20 @@ export const COMPONENT_LIST = [
     "type": "image-gallery",
     "category": "media",
     "icon": "🖼️",
+    "hasInterface": true
+  },
+  {
+    "name": "Pricing",
+    "type": "pricing",
+    "category": "marketing",
+    "icon": "💰",
+    "hasInterface": true
+  },
+  {
+    "name": "Testimonial",
+    "type": "testimonial",
+    "category": "marketing",
+    "icon": "⭐",
     "hasInterface": true
   },
   {
