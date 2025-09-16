@@ -2,8 +2,6 @@
  * Simple implementations for remaining components
  */
 
-import React from 'react';
-
 // Testimonials Component
 interface TestimonialItem {
   content: string;
@@ -30,17 +28,13 @@ export function Testimonials({
   return (
     <div className="testimonials py-12" data-component-id={componentId}>
       <div className="mx-auto max-w-6xl px-4">
-        {title && (
-          <h2 className="mb-12 text-center text-3xl font-bold text-foreground">
-            {title}
-          </h2>
-        )}
+        {title && <h2 className="text-foreground mb-12 text-center text-3xl font-bold">{title}</h2>}
 
         {testimonials.length > 0 ? (
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {testimonials.map((testimonial, index) => (
-              <div key={index} className="rounded-lg bg-card p-6 shadow-sm">
-                <p className="mb-4 text-muted-foreground">"{testimonial.content}"</p>
+              <div key={index} className="bg-card rounded-lg p-6 shadow-sm">
+                <p className="text-muted-foreground mb-4">&quot;{testimonial.content}&quot;</p>
                 <div className="flex items-center">
                   {testimonial.avatar && (
                     <img
@@ -52,7 +46,7 @@ export function Testimonials({
                   <div>
                     <div className="font-semibold">{testimonial.author}</div>
                     {testimonial.role && (
-                      <div className="text-sm text-muted-foreground">{testimonial.role}</div>
+                      <div className="text-muted-foreground text-sm">{testimonial.role}</div>
                     )}
                   </div>
                 </div>
@@ -92,23 +86,21 @@ export function Newsletter({
   return (
     <div className="newsletter bg-muted py-12" data-component-id={componentId}>
       <div className="mx-auto max-w-2xl px-4 text-center">
-        <h2 className="mb-4 text-3xl font-bold text-foreground">{title}</h2>
-        <p className="mb-8 text-muted-foreground">{description}</p>
-        
+        <h2 className="text-foreground mb-4 text-3xl font-bold">{title}</h2>
+        <p className="text-muted-foreground mb-8">{description}</p>
+
         <div className="flex flex-col gap-4 sm:flex-row">
           <input
             type="email"
             placeholder={placeholder}
-            className="flex-1 rounded border border-border bg-background px-4 py-2"
+            className="border-border bg-background flex-1 rounded border px-4 py-2"
           />
-          <button className="rounded bg-primary px-6 py-2 text-primary-foreground">
+          <button className="bg-primary text-primary-foreground rounded px-6 py-2">
             {buttonText}
           </button>
         </div>
 
-        {editMode && (
-          <div className="mt-4 text-sm text-muted-foreground">Newsletter Signup</div>
-        )}
+        {editMode && <div className="text-muted-foreground mt-4 text-sm">Newsletter Signup</div>}
       </div>
     </div>
   );

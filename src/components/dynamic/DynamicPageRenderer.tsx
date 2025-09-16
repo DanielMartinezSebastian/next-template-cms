@@ -5,10 +5,10 @@
 
 'use client';
 
-import React, { Suspense } from 'react';
 import { ComponentConfig, PageJsonConfig } from '@/types/pages';
-import { ComponentFactory } from './ComponentFactory';
+import { Suspense } from 'react';
 import { ComponentErrorBoundary } from './ComponentErrorBoundary';
+import { ComponentFactory } from './ComponentFactory';
 import { LoadingComponent } from './LoadingComponent';
 
 interface DynamicPageRendererProps {
@@ -27,7 +27,7 @@ export function DynamicPageRenderer({
   if (!pageConfig || !pageConfig.components) {
     return (
       <div className={`dynamic-page-renderer ${className}`}>
-        <div className="flex min-h-64 items-center justify-center text-muted-foreground">
+        <div className="text-muted-foreground flex min-h-64 items-center justify-center">
           No components configured for this page
         </div>
       </div>
@@ -61,12 +61,7 @@ export function DynamicPageRenderer({
               editMode={editMode}
             >
               <Suspense
-                fallback={
-                  <LoadingComponent
-                    type={componentConfig.type}
-                    editMode={editMode}
-                  />
-                }
+                fallback={<LoadingComponent type={componentConfig.type} editMode={editMode} />}
               >
                 <DynamicComponent
                   config={componentConfig}
@@ -81,7 +76,7 @@ export function DynamicPageRenderer({
 
       {/* Empty State for Edit Mode */}
       {editMode && pageConfig.components.length === 0 && (
-        <div className="flex min-h-64 items-center justify-center rounded border-2 border-dashed border-gray-300 text-muted-foreground dark:border-gray-600">
+        <div className="text-muted-foreground flex min-h-64 items-center justify-center rounded border-2 border-dashed border-gray-300 dark:border-gray-600">
           <div className="text-center">
             <div className="text-lg font-medium">No components added yet</div>
             <div className="text-sm">Start building your page by adding components</div>
@@ -111,7 +106,7 @@ function DynamicComponent({ config, locale, editMode = false, index }: DynamicCo
             Unknown Component: {config.type}
           </div>
           <div className="text-sm text-red-700 dark:text-red-300">
-            Component type "{config.type}" is not registered in the ComponentFactory
+            Component type &quot;{config.type}&quot; is not registered in the ComponentFactory
           </div>
         </div>
       );
@@ -147,7 +142,7 @@ function DynamicComponent({ config, locale, editMode = false, index }: DynamicCo
           )}
         </div>
       )}
-      
+
       <Component {...componentProps} />
 
       {/* Render Children Components */}
@@ -163,12 +158,7 @@ function DynamicComponent({ config, locale, editMode = false, index }: DynamicCo
                 editMode={editMode}
               >
                 <Suspense
-                  fallback={
-                    <LoadingComponent
-                      type={childConfig.type}
-                      editMode={editMode}
-                    />
-                  }
+                  fallback={<LoadingComponent type={childConfig.type} editMode={editMode} />}
                 >
                   <DynamicComponent
                     config={childConfig}
@@ -192,7 +182,7 @@ export async function renderDynamicPageSSR(pageConfig: PageJsonConfig, locale: s
   // - Data fetching for components
   // - SEO optimization
   // - Performance improvements
-  
+
   return {
     pageConfig,
     locale,

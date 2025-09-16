@@ -185,8 +185,10 @@ export default async function GlobalCatchAllPage({ params }: Props) {
 }
 
 // Transform Prisma page data to API format
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function transformPrismaPageToApi(page: any, locale: string): PageJsonConfig {
   // Get content for the specific locale or fallback to first available
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const content = page.contents.find((c: any) => c.locale.code === locale) || page.contents[0];
 
   return {
@@ -208,6 +210,7 @@ function transformPrismaPageToApi(page: any, locale: string): PageJsonConfig {
       metaDescription: content?.metaDescription || undefined,
       keywords: content?.keywords || [],
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     components: page.components.map((comp: any) => ({
       id: comp.id,
       type: comp.component.name,

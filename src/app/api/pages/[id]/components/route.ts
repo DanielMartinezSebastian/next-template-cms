@@ -71,6 +71,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     });
 
     // Transform to API format
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const formattedComponents = components.map((comp: any) => ({
       id: comp.id,
       componentId: comp.componentId,
@@ -292,6 +293,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({
         success: true,
         message: 'Components reordered successfully',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         components: result.map((comp: any) => ({
           id: comp.id,
           componentId: comp.componentId,

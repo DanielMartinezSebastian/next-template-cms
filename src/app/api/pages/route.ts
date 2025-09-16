@@ -42,6 +42,7 @@ export async function GET(request: NextRequest) {
     const query = ListPagesQuerySchema.parse(Object.fromEntries(searchParams));
 
     // Build where clause
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const whereClause: Record<string, any> = {
       isActive: true,
     };
@@ -243,7 +244,7 @@ export async function POST(request: NextRequest) {
       });
 
       // Create the page content
-      const content = await tx.pageContent.create({
+      await tx.pageContent.create({
         data: {
           pageId: page.id,
           localeId: localeRecord.id,
@@ -350,6 +351,7 @@ function getLocaleName(code: string): string {
   return localeNames[code] || code.toUpperCase();
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function transformPrismaPageToApi(page: any): PageJsonConfig {
   // Get the first content (primary locale content)
   const primaryContent = page.contents[0];
@@ -373,6 +375,7 @@ function transformPrismaPageToApi(page: any): PageJsonConfig {
       metaDescription: primaryContent?.metaDescription || undefined,
       keywords: primaryContent?.keywords || [],
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     components: page.components.map((comp: any) => ({
       id: comp.id,
       type: comp.component.name,

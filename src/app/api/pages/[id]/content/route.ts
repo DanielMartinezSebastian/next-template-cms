@@ -49,6 +49,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // Build where clause for content
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const whereClause: any = { pageId: id };
     if (locale) {
       whereClause.locale = { code: locale };
@@ -70,6 +71,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     });
 
     // Transform to API format
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const formattedContents = contents.map((content: any) => ({
       id: content.id,
       locale: content.locale.code,

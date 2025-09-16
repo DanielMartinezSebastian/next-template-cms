@@ -3,17 +3,17 @@
  * Maps component types to React components for dynamic rendering
  */
 
-import React from 'react';
 import { ComponentFactoryMapping } from '@/types/pages';
+import React from 'react';
 
 // Import available components
-import { HeroSection } from './components/HeroSection';
-import { TextBlock } from './components/TextBlock';
-import { ImageGallery } from './components/ImageGallery';
+import { CallToAction } from './components/CallToAction';
 import { ContactForm } from './components/ContactForm';
 import { FeatureGrid } from './components/FeatureGrid';
-import { CallToAction } from './components/CallToAction';
-import { Testimonials, Newsletter } from './components/Testimonials';
+import { HeroSection } from './components/HeroSection';
+import { ImageGallery } from './components/ImageGallery';
+import { Newsletter, Testimonials } from './components/Testimonials';
+import { TextBlock } from './components/TextBlock';
 
 // Demo/Fallback components
 import { PlaceholderComponent } from './components/PlaceholderComponent';
@@ -66,6 +66,7 @@ export class ComponentFactory {
   /**
    * Get a component by type
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getComponent(type: string): React.ComponentType<any> | null {
     const normalizedType = type.toLowerCase().trim();
     return this.componentMap[normalizedType] || null;
@@ -74,6 +75,7 @@ export class ComponentFactory {
   /**
    * Register a new component type
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static registerComponent(type: string, component: React.ComponentType<any>): void {
     const normalizedType = type.toLowerCase().trim();
     this.componentMap[normalizedType] = component;
@@ -142,14 +144,17 @@ export class ComponentFactory {
   /**
    * Validate component props against expected schema
    */
-  static validateProps(type: string, props: Record<string, unknown>): {
+  static validateProps(
+    type: string,
+    props: Record<string, unknown>
+  ): {
     isValid: boolean;
     errors: string[];
     sanitizedProps: Record<string, unknown>;
   } {
     // Basic validation - can be extended with Zod schemas
     const normalizedType = type.toLowerCase().trim();
-    
+
     if (!this.hasComponent(normalizedType)) {
       return {
         isValid: false,
@@ -161,7 +166,7 @@ export class ComponentFactory {
     // TODO: Implement per-component validation schemas
     // For now, just sanitize basic props
     const sanitizedProps = { ...props };
-    
+
     // Remove potentially dangerous props
     delete sanitizedProps.dangerouslySetInnerHTML;
     delete sanitizedProps.ref;

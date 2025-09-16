@@ -146,8 +146,6 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-      let updatedPage = existingPage;
-
       // Handle hierarchy changes (slug or parent change)
       if (validatedData.slug || validatedData.parentId !== undefined) {
         const newSlug = validatedData.slug || existingPage.slug;
@@ -188,18 +186,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
         // Update page hierarchy
         await updatePageHierarchy(tx, id, newParentId, newFullPath, newLevel, newSlug);
-
-        updatedPage = {
-          ...updatedPage,
-          slug: newSlug,
-          fullPath: newFullPath,
-          level: newLevel,
-          parentId: newParentId ?? null,
-        };
       }
 
       // Update page fields
-      const pageUpdateData: Record<string, any> = {};
+      const pageUpdateData: Prisma.PageUpdateInput = {};
       if (validatedData.template !== undefined) pageUpdateData.template = validatedData.template;
       if (validatedData.order !== undefined) pageUpdateData.order = validatedData.order;
 
@@ -211,7 +201,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       }
 
       // Update page content
-      const contentUpdateData: Record<string, any> = {};
+      const contentUpdateData: Record<string, unknown> = {};
       if (validatedData.title) contentUpdateData.title = validatedData.title;
       if (validatedData.description !== undefined)
         contentUpdateData.description = validatedData.description;
@@ -433,6 +423,7 @@ async function updatePageHierarchy(
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function transformPrismaPageToApi(page: any): PageJsonConfig {
   // Get the first content (primary locale content)
   const primaryContent = page.contents[0];
@@ -456,6 +447,7 @@ function transformPrismaPageToApi(page: any): PageJsonConfig {
       metaDescription: primaryContent?.metaDescription || undefined,
       keywords: primaryContent?.keywords || [],
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     components: page.components.map((comp: any) => ({
       id: comp.id,
       type: comp.component.name,
@@ -466,7 +458,7 @@ function transformPrismaPageToApi(page: any): PageJsonConfig {
     template: page.template || undefined,
     isPublished: primaryContent?.isPublished || false,
     publishedAt: primaryContent?.publishedAt?.toISOString(),
-    content: primaryContent?.content || null, // Include Lexical JSON content
+    content: (primaryContent?.content as Record<string, unknown>) || null, // Include Lexical JSON content
     createdAt: page.createdAt.toISOString(),
     updatedAt: page.updatedAt.toISOString(),
   };
