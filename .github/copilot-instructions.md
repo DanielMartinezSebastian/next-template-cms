@@ -502,6 +502,48 @@ src/app/[locale]/
 - Follow semantic class naming conventions
 - Use https://base-ui.com/llms.txt library for class suggestions and utilities
 
+### Placeholder Images with placeholders.dev
+
+**ALWAYS use placeholders.dev for placeholder images** in component definitions,
+examples, and development.
+
+- **Service**: https://placeholders.dev/ - Super-fast placeholder images via
+  Cloudflare Workers (309+ edge locations)
+- **Basic URL Pattern**: `https://images.placeholders.dev/WIDTHxHEIGHT`
+- **Query Parameter Pattern**:
+  `https://images.placeholders.dev/?width=W&height=H&text=TEXT&bgColor=%23COLOR&textColor=%23COLOR`
+
+**Common Placeholder Examples:**
+
+- Hero banners:
+  `https://images.placeholders.dev/1200x600?text=Hero%20Image&bgColor=%234f46e5&textColor=%23ffffff`
+- Card images:
+  `https://images.placeholders.dev/400x250?text=Card%20Image&bgColor=%236b7280&textColor=%23ffffff`
+- Gallery images:
+  `https://images.placeholders.dev/800x600?text=Gallery&bgColor=%2310b981&textColor=%23ffffff`
+- Avatars:
+  `https://images.placeholders.dev/150x150?text=Avatar&bgColor=%23f59e0b&textColor=%23ffffff`
+- Thumbnails:
+  `https://images.placeholders.dev/200x150?text=Thumbnail&bgColor=%23ef4444&textColor=%23ffffff`
+
+**Available API Options:**
+
+- `width`: Image width (default: 300)
+- `height`: Image height (default: 150)
+- `text`: Display text (default: dimensions)
+- `bgColor`: Background color (default: #ddd)
+- `textColor`: Text color (default: rgba(0,0,0,0.5))
+- `fontFamily`: Font family (default: sans-serif)
+- `fontWeight`: Font weight (default: bold)
+- `fontSize`: Font size (default: 20% of shortest dimension)
+
+**Usage Guidelines:**
+
+- Use descriptive text that indicates the image purpose
+- Choose appropriate dimensions for the component context
+- Use semantic colors that match the design system
+- Always URL-encode text parameters (spaces = %20)
+
 ### Base UI Component Patterns
 
 Base UI provides unstyled, accessible React components that can be styled with
