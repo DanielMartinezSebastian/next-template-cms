@@ -8,28 +8,25 @@ import { ArrowLeft, ChevronRight, Edit } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
-import { PageConfig, useCurrentPage, usePageActions, usePages } from '../../stores';
+import { useEditorParams, useFindPageFromParams } from '../../hooks/useEditorParams';
+import { PageConfig, usePageActions, usePages } from '../../stores';
 import { CreatePageModal } from './CreatePageModal';
 import { SimplePageEditor } from './SimplePageEditor';
 import { SimplePagePreview, TailwindBreakpoint } from './SimplePagePreview';
 
-interface SimplePageManagerProps {
-  className?: string;
-}
-
-export function SimplePageManagerNew({ className = '' }: SimplePageManagerProps) {
+export function SimplePageManagerNew() {
   const params = useParams();
   const locale = (params?.locale as string) || 'es';
 
-  const { loadPages, setCurrentPage, updatePage, savePageToDatabase } = usePageActions();
+  // Use URL-based navigation instead of store state
+  const { create, pageId, navigateToPage, openCreateModal, clearParams } = useEditorParams();
+  const { loadPages, loadPageById, setCurrentPage, updatePage } = usePageActions();
 
   const pages = usePages();
-  const currentPage = useCurrentPage();
+  // Find current page based on URL parameters, not store state
+  const currentPage = useFindPageFromParams(pages);
 
-  const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
-  const [isCreating, setIsCreating] = useState(false);
   const [previewBreakpoint, setPreviewBreakpoint] = useState<TailwindBreakpoint>('lg');
-  const [isSaving, setIsSaving] = useState(false);
 
   // Layout state - siguiendo el patrón del editor original
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -61,15 +58,18 @@ export function SimplePageManagerNew({ className = '' }: SimplePageManagerProps)
     loadPages();
   }, [loadPages]);
 
-  // Set current page when selectedPageId changes
+  // Auto-load page when pageId changes in URL
   useEffect(() => {
-    if (selectedPageId) {
-      const page = pages.find((p: PageConfig) => p.id === selectedPageId);
-      if (page) {
-        setCurrentPage(page);
+    if (pageId && pages.length > 0) {
+      const targetPage = pages.find(p => p.id === pageId);
+      if (targetPage && targetPage.id !== currentPage?.id) {
+        setCurrentPage(targetPage);
       }
     }
-  }, [selectedPageId, pages, setCurrentPage]);
+  }, [pageId, pages, currentPage?.id, setCurrentPage]);
+
+  // Handle create modal state based on URL parameter
+  const isCreating = create === true;
 
   const handlePageUpdate = useCallback(
     async (pageData: Partial<PageConfig>) => {
@@ -80,29 +80,6 @@ export function SimplePageManagerNew({ className = '' }: SimplePageManagerProps)
     },
     [currentPage, updatePage]
   );
-
-  const handleSavePage = useCallback(async () => {
-    if (!currentPage) return;
-
-    setIsSaving(true);
-    try {
-      // Use PageConfig structure, store will handle API conversion
-      await savePageToDatabase(currentPage.id, {
-        title: currentPage.title,
-        slug: currentPage.slug,
-        metadata: {
-          description: currentPage.metadata?.description || '',
-        },
-        isPublished: currentPage.isPublished,
-        components: currentPage.components || [], // Pass components directly
-      });
-      console.warn('✅ Page saved successfully');
-    } catch (error) {
-      console.error('❌ Error saving page:', error);
-    } finally {
-      setIsSaving(false);
-    }
-  }, [currentPage, savePageToDatabase]);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -217,8 +194,20 @@ export function SimplePageManagerNew({ className = '' }: SimplePageManagerProps)
             </Link>
             {/* Page Selector in Header */}
             <select
-              value={selectedPageId || ''}
-              onChange={e => setSelectedPageId(e.target.value || null)}
+              value={currentPage?.id || ''}
+              onChange={e => {
+                const selectedId = e.target.value;
+                if (selectedId) {
+                  const selectedPage = pages.find((p: PageConfig) => p.id === selectedId);
+                  if (selectedPage) {
+                    setCurrentPage(selectedPage); // Set in store first
+                    navigateToPage(selectedId, selectedPage.slug);
+                  }
+                } else {
+                  setCurrentPage(null); // Clear current page
+                  clearParams();
+                }
+              }}
               className="border-border bg-background text-foreground focus:ring-primary min-w-0 flex-1 rounded-md border px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-1"
               style={{
                 maxWidth: sidebarWidth < 300 ? `${sidebarWidth - 120}px` : 'none',
@@ -289,12 +278,11 @@ export function SimplePageManagerNew({ className = '' }: SimplePageManagerProps)
           {/* Page Editor */}
           {currentPage && (
             <SimplePageEditor
+              currentPage={currentPage}
               onPageUpdate={handlePageUpdate}
               width={sidebarWidth}
               sidebarWidth={sidebarWidth}
-              onNewPage={() => setIsCreating(true)}
-              onSave={handleSavePage}
-              isSaving={isSaving}
+              onNewPage={() => openCreateModal()}
             />
           )}
         </div>
@@ -322,13 +310,28 @@ export function SimplePageManagerNew({ className = '' }: SimplePageManagerProps)
           />
         ) : (
           <div className="flex h-full items-center justify-center">
-            <div className="space-y-4 text-center">
-              <Edit className="text-muted-foreground mx-auto h-12 w-12" />
-              <div>
-                <h3 className="text-foreground text-lg font-semibold">No Page Selected</h3>
-                <p className="text-muted-foreground">
-                  Select a page from the sidebar to start editing
+            <div className="space-y-6 text-center">
+              <Edit className="text-muted-foreground mx-auto h-16 w-16" />
+              <div className="space-y-2">
+                <h3 className="text-foreground text-xl font-semibold">No Page Selected</h3>
+                <p className="text-muted-foreground max-w-md">
+                  Select a page from the dropdown menu in the sidebar to start editing, or create a
+                  new page.
                 </p>
+              </div>
+              <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+                <button
+                  onClick={() => openCreateModal()}
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-4 py-2 font-medium transition-colors"
+                >
+                  Create New Page
+                </button>
+                {pages.length > 0 && (
+                  <p className="text-muted-foreground text-sm">
+                    Or select one of the {pages.length} existing page{pages.length !== 1 ? 's' : ''}{' '}
+                    from the sidebar
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -340,7 +343,7 @@ export function SimplePageManagerNew({ className = '' }: SimplePageManagerProps)
         <CreatePageModal
           isOpen={isCreating}
           onClose={() => {
-            setIsCreating(false);
+            clearParams(); // Clear URL parameters when modal closes
             loadPages(); // Refresh the list when modal closes
           }}
         />

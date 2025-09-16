@@ -1,6 +1,6 @@
 import { DynamicPageRenderer } from '@/components/dynamic';
 import { HomePage, generateStaticParamsForHome } from '@/components/pages';
-import { prisma } from '@/lib/db';
+import { isPagesTableAvailable, prisma } from '@/lib/db';
 import { PageJsonConfig } from '@/types/pages';
 import fs from 'fs';
 import { Metadata } from 'next';
@@ -17,6 +17,8 @@ const STATIC_ROUTES_FALLBACK = [
   '/editor-demo',
   '/stores-demo',
   '/visual-editor-demo',
+  '/component-schema-demo',
+  '/schema-test',
   '/servicios', // Nota: /servicios tiene su propio catch-all interno
   '/scrollbar-demo',
   '/not-found-redirect',
@@ -73,34 +75,71 @@ export async function generateStaticParams() {
   // Obtener rutas estáticas automáticamente
   const staticRoutes = getStaticRoutes();
 
-  // Generar parámetros para páginas dinámicas del CMS
-  const pages = await prisma.page.findMany({
-    where: {
-      isActive: true,
-      // Excluir rutas que tienen páginas estáticas específicas
-      NOT: {
-        fullPath: {
-          in: staticRoutes,
+  // Verificar si la base de datos está disponible antes de consultar páginas CMS
+  const isDatabaseReady = await isPagesTableAvailable();
+
+  if (!isDatabaseReady) {
+    console.warn('Base de datos no disponible, usando solo rutas estáticas');
+    // Solo retornar parámetros para homepage y rutas estáticas conocidas
+    const staticParams = staticRoutes
+      .map(route => route.split('/').filter(Boolean))
+      .filter(slug => slug.length > 0) // Excluir homepage
+      .flatMap(slug =>
+        // Generar parámetros para cada locale
+        ['en', 'es'].map(locale => ({
+          locale,
+          slug,
+        }))
+      );
+
+    return [...homeParams, ...staticParams];
+  }
+
+  try {
+    // Generar parámetros para páginas dinámicas del CMS
+    const pages = await prisma.page.findMany({
+      where: {
+        isActive: true,
+        // Excluir rutas que tienen páginas estáticas específicas
+        NOT: {
+          fullPath: {
+            in: staticRoutes,
+          },
         },
       },
-    },
-    select: { fullPath: true },
-  });
+      select: { fullPath: true },
+    });
 
-  const cmsParams = pages
-    .map((page: { fullPath: string }) => ({
-      slug: page.fullPath.split('/').filter(Boolean),
-    }))
-    .filter(({ slug }: { slug: string[] }) => slug.length > 0) // Excluir homepage
-    .flatMap(({ slug }: { slug: string[] }) =>
-      // Generar parámetros para cada locale
-      ['en', 'es'].map(locale => ({
-        locale,
-        slug,
+    const cmsParams = pages
+      .map((page: { fullPath: string }) => ({
+        slug: page.fullPath.split('/').filter(Boolean),
       }))
-    );
+      .filter(({ slug }: { slug: string[] }) => slug.length > 0) // Excluir homepage
+      .flatMap(({ slug }: { slug: string[] }) =>
+        // Generar parámetros para cada locale
+        ['en', 'es'].map(locale => ({
+          locale,
+          slug,
+        }))
+      );
 
-  return [...homeParams, ...cmsParams];
+    return [...homeParams, ...cmsParams];
+  } catch (error) {
+    console.error('Error al generar parámetros estáticos desde CMS:', error);
+    // Fallback: usar solo rutas estáticas
+    const staticParams = staticRoutes
+      .map(route => route.split('/').filter(Boolean))
+      .filter(slug => slug.length > 0) // Excluir homepage
+      .flatMap(slug =>
+        // Generar parámetros para cada locale
+        ['en', 'es'].map(locale => ({
+          locale,
+          slug,
+        }))
+      );
+
+    return [...homeParams, ...staticParams];
+  }
 }
 
 export default async function GlobalCatchAllPage({ params }: Props) {
@@ -113,75 +152,96 @@ export default async function GlobalCatchAllPage({ params }: Props) {
 
   const path = `/${slug.join('/')}`;
 
-  // Buscar página dinámica en CMS con todas las relaciones
-  const page = await prisma.page.findFirst({
-    where: {
-      fullPath: path,
-      isActive: true,
-    },
-    include: {
-      contents: {
-        where: {
-          locale: {
-            code: locale,
-          },
-        },
-        include: {
-          locale: {
-            select: {
-              code: true,
-              name: true,
-            },
-          },
-        },
-      },
-      components: {
-        where: {
-          isVisible: true,
-        },
-        include: {
-          component: {
-            select: {
-              id: true,
-              name: true,
-              type: true,
-              category: true,
-              description: true,
-              defaultConfig: true,
-            },
-          },
-        },
-        orderBy: {
-          order: 'asc',
-        },
-      },
-      parent: {
-        select: {
-          id: true,
-          slug: true,
-          fullPath: true,
-        },
-      },
-    },
-  });
+  // Verificar si la base de datos está disponible
+  const isDatabaseReady = await isPagesTableAvailable();
 
-  if (!page) {
+  if (!isDatabaseReady) {
+    console.warn(`Base de datos no disponible para la ruta: ${path}`);
+    // Si la base de datos no está disponible, hacer notFound para que
+    // las rutas estáticas específicas funcionen normalmente
     notFound();
   }
 
-  // Transform Prisma data to PageJsonConfig
-  const pageConfig = transformPrismaPageToApi(page, locale);
+  try {
+    // Buscar página dinámica en CMS con todas las relaciones
+    const page = await prisma.page.findFirst({
+      where: {
+        fullPath: path,
+        isActive: true,
+      },
+      include: {
+        contents: {
+          where: {
+            locale: {
+              code: locale,
+            },
+          },
+          include: {
+            locale: {
+              select: {
+                code: true,
+                name: true,
+              },
+            },
+          },
+        },
+        components: {
+          where: {
+            isVisible: true,
+          },
+          include: {
+            component: {
+              select: {
+                id: true,
+                name: true,
+                type: true,
+                category: true,
+                description: true,
+                defaultConfig: true,
+              },
+            },
+          },
+          orderBy: {
+            order: 'asc',
+          },
+        },
+        parent: {
+          select: {
+            id: true,
+            slug: true,
+            fullPath: true,
+          },
+        },
+      },
+    });
 
-  return (
-    <div className="dynamic-page min-h-screen">
-      <DynamicPageRenderer
-        pageConfig={pageConfig}
-        locale={locale}
-        editMode={false}
-        className="dynamic-page-content"
-      />
-    </div>
-  );
+    if (!page) {
+      notFound();
+    }
+
+    // Transform Prisma data to PageJsonConfig
+    const pageConfig = transformPrismaPageToApi(page, locale);
+
+    // Verificar si la página está publicada
+    // En producción, las páginas no publicadas no deben ser accesibles
+    if (!pageConfig.isPublished) {
+      notFound();
+    }
+
+    return (
+      <div className="dynamic-page min-h-screen">
+        <DynamicPageRenderer
+          pageConfig={pageConfig}
+          locale={locale}
+          editMode={false}
+          className="dynamic-page-content"
+        />
+      </div>
+    );
+  } catch (error) {
+    console.error(`Error al cargar la página dinámica ${path}:`, error);
+    notFound();
+  }
 }
 
 // Transform Prisma page data to API format
@@ -213,7 +273,7 @@ function transformPrismaPageToApi(page: any, locale: string): PageJsonConfig {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     components: page.components.map((comp: any) => ({
       id: comp.id,
-      type: comp.component.name,
+      type: comp.component.name.toLowerCase().replace(/\s+/g, '-'), // Convert "Hero Section" -> "hero-section"
       props: {
         ...(comp.component.defaultConfig as Record<string, unknown>),
         ...(comp.config as Record<string, unknown>),
@@ -242,43 +302,63 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const path = `/${slug.join('/')}`;
 
-  const page = await prisma.page.findFirst({
-    where: {
-      fullPath: path,
-      isActive: true,
-    },
-    include: {
-      contents: {
-        where: {
-          locale: {
-            code: locale,
-          },
-        },
-        select: {
-          title: true,
-          description: true,
-          metaTitle: true,
-          metaDescription: true,
-          keywords: true,
-        },
-      },
-    },
-  });
+  // Verificar si la base de datos está disponible
+  const isDatabaseReady = await isPagesTableAvailable();
 
-  if (!page || !page.contents[0]) {
+  if (!isDatabaseReady) {
+    // Fallback metadata when database is not available
     return {
-      title: 'Page Not Found',
-      description: 'The requested page could not be found',
+      title: slug[slug.length - 1] || 'Page',
+      description: `Static page: ${path}`,
     };
   }
 
-  const content = page.contents[0];
+  try {
+    const page = await prisma.page.findFirst({
+      where: {
+        fullPath: path,
+        isActive: true,
+      },
+      include: {
+        contents: {
+          where: {
+            locale: {
+              code: locale,
+            },
+          },
+          select: {
+            title: true,
+            description: true,
+            metaTitle: true,
+            metaDescription: true,
+            keywords: true,
+          },
+        },
+      },
+    });
 
-  return {
-    title: content.metaTitle || content.title,
-    description: content.metaDescription || content.description || undefined,
-    keywords: content.keywords?.join(', ') || undefined,
-  };
+    if (!page || !page.contents[0]) {
+      return {
+        title: 'Page Not Found',
+        description: 'The requested page could not be found',
+      };
+    }
+
+    const content = page.contents[0];
+
+    return {
+      title: content.metaTitle || content.title,
+      description: content.metaDescription || content.description || undefined,
+      keywords: content.keywords?.join(', ') || undefined,
+    };
+  } catch (error) {
+    console.error(`Error al generar metadata para ${path}:`, error);
+    // Fallback metadata on error
+    return {
+      title: slug[slug.length - 1] || 'Page',
+      description: `Static page: ${path}`,
+    };
+  }
 }
 
 // Configuración para ISR

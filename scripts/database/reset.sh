@@ -102,12 +102,12 @@ echo # Nueva línea después del progreso
 
 # Regenerar cliente Prisma
 log "Regenerando cliente Prisma..."
-npx prisma generate
+npx dotenv -e .env.local -- npx prisma generate
 success "Cliente Prisma regenerado"
 
 # Aplicar esquema
 log "Aplicando esquema de base de datos..."
-npx prisma db push --force-reset
+npx dotenv -e .env.local -- npx prisma db push --force-reset
 success "Esquema aplicado con datos limpios"
 
 # Ejecutar seeds si existen

@@ -96,7 +96,10 @@ interface DynamicComponentProps {
 }
 
 function DynamicComponent({ config, locale, editMode = false, index }: DynamicComponentProps) {
+  console.warn(`🔍 DynamicComponent rendering: type="${config.type}", id="${config.id}"`);
+
   const Component = ComponentFactory.getComponent(config.type);
+  console.warn('🔍 ComponentFactory.getComponent result:', Component ? Component.name : 'NULL');
 
   if (!Component) {
     if (editMode) {

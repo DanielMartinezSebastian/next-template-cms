@@ -6,6 +6,7 @@
 import { prisma } from '@/lib/db';
 import { PageJsonConfig } from '@/types/pages';
 import type { Prisma } from '@prisma/client';
+import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -231,12 +232,25 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       if (validatedData.content && typeof validatedData.content === 'object') {
         const contentData = validatedData.content as { root?: { children?: unknown[] } };
         if (contentData.root && Array.isArray(contentData.root.children)) {
-          // First, delete existing page components
-          await tx.pageComponent.deleteMany({
+          console.warn('🔄 Processing component updates...');
+
+          // Get existing page components to preserve IDs when possible
+          const existingComponents = await tx.pageComponent.findMany({
             where: { pageId: id },
+            orderBy: { order: 'asc' },
           });
 
-          // Then create new components from content.root.children
+          // Track which existing components we keep/update vs. which we delete
+          const usedExistingIds = new Set<string>();
+          const newComponentsToCreate: Array<{
+            pageId: string;
+            componentId: string;
+            config: Prisma.InputJsonValue;
+            order: number;
+            isVisible: boolean;
+          }> = [];
+
+          // Process each incoming component
           for (let index = 0; index < contentData.root.children.length; index++) {
             const child = contentData.root.children[index] as {
               componentType?: string;
@@ -244,16 +258,32 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
               componentProps?: Record<string, unknown>;
               props?: Record<string, unknown>;
               order?: number;
+              componentId?: string; // 🔧 NEW: ID from frontend
             };
 
             const componentType = child.componentType || child.type;
             const componentProps = child.componentProps || child.props || {};
+            const frontendComponentId = child.componentId;
 
             if (componentType) {
-              // Find the component definition by type/name (case-insensitive)
+              console.warn(
+                `🔍 Processing component: ${componentType}, frontendId: ${frontendComponentId}`
+              );
+
+              // Find the component definition by converting frontend type to name
+              const componentName = componentType
+                .split('-')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+
+              console.warn(
+                `🔍 Looking for component def: '${componentType}' -> '${componentName}'`
+              );
+
               const componentDef = await tx.component.findFirst({
                 where: {
                   OR: [
+                    { name: { equals: componentName, mode: 'insensitive' } },
                     { name: { equals: componentType, mode: 'insensitive' } },
                     { type: { equals: componentType, mode: 'insensitive' } },
                   ],
@@ -261,18 +291,65 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
               });
 
               if (componentDef) {
-                await tx.pageComponent.create({
-                  data: {
+                // Try to find an existing PageComponent with the same frontend ID
+                let existingPageComponent = null;
+                if (frontendComponentId) {
+                  existingPageComponent = existingComponents.find(
+                    existing =>
+                      existing.id === frontendComponentId &&
+                      existing.componentId === componentDef.id
+                  );
+                }
+
+                if (existingPageComponent) {
+                  // 🔧 UPDATE existing component (preserves ID)
+                  console.warn(`✅ Updating existing component: ${existingPageComponent.id}`);
+                  await tx.pageComponent.update({
+                    where: { id: existingPageComponent.id },
+                    data: {
+                      config: componentProps as Prisma.InputJsonValue,
+                      order: child.order || index,
+                      isVisible: true,
+                    },
+                  });
+                  usedExistingIds.add(existingPageComponent.id);
+                } else {
+                  // 🔧 CREATE new component (will get new ID)
+                  console.warn(`➕ Creating new component: ${componentType}`);
+                  newComponentsToCreate.push({
                     pageId: id,
                     componentId: componentDef.id,
                     config: componentProps as Prisma.InputJsonValue,
                     order: child.order || index,
                     isVisible: true,
-                  },
-                });
+                  });
+                }
               }
             }
           }
+
+          // Delete unused existing components
+          const componentsToDelete = existingComponents.filter(
+            existing => !usedExistingIds.has(existing.id)
+          );
+
+          for (const componentToDelete of componentsToDelete) {
+            console.warn(`🗑️ Deleting unused component: ${componentToDelete.id}`);
+            await tx.pageComponent.delete({
+              where: { id: componentToDelete.id },
+            });
+          }
+
+          // Create new components
+          for (const newComponent of newComponentsToCreate) {
+            await tx.pageComponent.create({
+              data: newComponent,
+            });
+          }
+
+          console.warn(
+            `🎯 Component update complete: ${usedExistingIds.size} updated, ${newComponentsToCreate.length} created, ${componentsToDelete.length} deleted`
+          );
         }
       }
 
@@ -334,6 +411,17 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     const formattedPage = transformPrismaPageToApi(result);
+
+    // Revalidar la página si cambió el estado de publicación
+    if (validatedData.isPublished !== undefined) {
+      try {
+        revalidatePath(formattedPage.hierarchy.fullPath);
+        console.warn(`🔄 Page revalidated: ${formattedPage.hierarchy.fullPath}`);
+      } catch (revalidateError) {
+        console.warn('⚠️ Failed to revalidate page:', revalidateError);
+        // No fallar la actualización por problemas de revalidación
+      }
+    }
 
     return NextResponse.json({
       success: true,
@@ -497,13 +585,20 @@ function transformPrismaPageToApi(page: any): PageJsonConfig {
       keywords: primaryContent?.keywords || [],
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    components: page.components.map((comp: any) => ({
-      id: comp.id,
-      type: comp.component.name,
-      props: (comp.config as Record<string, unknown>) || {},
-      order: comp.order,
-      isVisible: comp.isVisible,
-    })),
+    components: page.components.map((comp: any) => {
+      const originalType = comp.component.name;
+      const transformedType = comp.component.name.toLowerCase().replace(/\s+/g, '-'); // Convert "Hero Section" -> "hero-section"
+
+      console.warn(`🔄 API Transform: "${originalType}" → "${transformedType}"`);
+
+      return {
+        id: comp.id,
+        type: transformedType,
+        props: (comp.config as Record<string, unknown>) || {},
+        order: comp.order,
+        isVisible: comp.isVisible,
+      };
+    }),
     template: page.template || undefined,
     isPublished: primaryContent?.isPublished || false,
     publishedAt: primaryContent?.publishedAt?.toISOString(),

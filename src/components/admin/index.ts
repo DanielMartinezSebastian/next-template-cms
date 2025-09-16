@@ -14,3 +14,7 @@ export { PageTreeView } from './PageTreeView';
 export { SimplePageEditor } from './SimplePageEditor';
 export { SimplePageManager } from './SimplePageManager';
 export { SimplePagePreview } from './SimplePagePreview';
+
+// Schema-based Components
+export { ComponentPropertyEditor } from './ComponentPropertyEditor';
+export { ComponentSelector } from './ComponentSelector';

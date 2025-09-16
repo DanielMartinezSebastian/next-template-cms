@@ -3,6 +3,11 @@
  * Maps component types to React components for dynamic rendering
  */
 
+import {
+  getComponentDefaults,
+  getComponentSchema,
+  validateComponentProps,
+} from '@/lib/component-schemas';
 import { ComponentFactoryMapping } from '@/types/pages';
 import React from 'react';
 
@@ -169,30 +174,38 @@ export class ComponentFactory {
     errors: string[];
     sanitizedProps: Record<string, unknown>;
   } {
-    // Basic validation - can be extended with Zod schemas
-    const normalizedType = type.toLowerCase().trim();
+    // Use the schema-based validation instead of basic validation
+    return validateComponentProps(type, props);
+  }
 
-    if (!this.hasComponent(normalizedType)) {
-      return {
-        isValid: false,
-        errors: [`Unknown component type: ${type}`],
-        sanitizedProps: {},
-      };
+  /**
+   * Get default props for a component using schemas
+   */
+  static getDefaults(type: string): Record<string, unknown> {
+    return getComponentDefaults(type);
+  }
+
+  /**
+   * Get component schema information
+   */
+  static getSchema(type: string) {
+    return getComponentSchema(type);
+  }
+
+  /**
+   * Create component with validated props
+   */
+  static createComponent(type: string, props: Record<string, unknown> = {}): React.ReactNode {
+    const Component = this.getComponent(type);
+
+    if (!Component) {
+      console.warn(`Unknown component type: ${type}`);
+      return React.createElement(UnknownComponent, { type, ...props });
     }
 
-    // TODO: Implement per-component validation schemas
-    // For now, just sanitize basic props
-    const sanitizedProps = { ...props };
+    // Validate and sanitize props
+    const { sanitizedProps } = this.validateProps(type, props);
 
-    // Remove potentially dangerous props
-    delete sanitizedProps.dangerouslySetInnerHTML;
-    delete sanitizedProps.ref;
-    delete sanitizedProps.key;
-
-    return {
-      isValid: true,
-      errors: [],
-      sanitizedProps,
-    };
+    return React.createElement(Component, sanitizedProps);
   }
 }

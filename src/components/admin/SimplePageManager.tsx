@@ -5,8 +5,8 @@
 'use client';
 
 import { Edit, Plus, RotateCcw, Save } from 'lucide-react';
-import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
+import { useEditorParams, useFindPageFromParams } from '../../hooks/useEditorParams';
 import { PageConfig, useCurrentPage, usePageActions, usePages } from '../../stores';
 import { Button } from '../ui/button';
 import { CreatePageModal } from './CreatePageModal';
@@ -18,13 +18,24 @@ interface SimplePageManagerProps {
 }
 
 export function SimplePageManager({ className = '' }: SimplePageManagerProps) {
-  const params = useParams();
-  const locale = (params?.locale as string) || 'es';
+  // Query parameters and navigation
+  const { pageId, create, navigateToPage, clearParams } = useEditorParams();
 
-  const { loadPages, setCurrentPage, updatePage, savePageToDatabase } = usePageActions();
+  const { loadPages, loadPageById, setCurrentPage, updatePage, savePageToDatabase } =
+    usePageActions();
+  console.warn('🎯 Store functions:', {
+    loadPages: !!loadPages,
+    loadPageById: !!loadPageById,
+    setCurrentPage: !!setCurrentPage,
+    updatePage: !!updatePage,
+    savePageToDatabase: !!savePageToDatabase,
+  });
 
   const pages = usePages();
   const currentPage = useCurrentPage();
+
+  // Find page from URL parameters
+  const pageFromUrl = useFindPageFromParams(pages);
 
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
@@ -61,26 +72,165 @@ export function SimplePageManager({ className = '' }: SimplePageManagerProps) {
     loadPages();
   }, [loadPages]);
 
-  // Set current page when selectedPageId changes
+  // Handle create modal from URL parameter
   useEffect(() => {
-    if (selectedPageId) {
-      const page = pages.find((p: PageConfig) => p.id === selectedPageId);
-      if (page) {
-        setCurrentPage(page);
+    if (create) {
+      setIsCreating(true);
+    }
+  }, [create]);
+
+  // Sync page selection with URL parameters - Enhanced with API loading
+  useEffect(() => {
+    console.warn('🔗 URL → currentPage effect triggered:', {
+      pageId,
+      pageFromUrl,
+      selectedPageId,
+      pagesCount: pages.length,
+    });
+
+    if (pageId && !pageFromUrl) {
+      // Page ID in URL but not found in cache - load from API
+      console.warn('🔄 Loading page from API:', pageId);
+      loadPageById(pageId)
+        .then(loadedPage => {
+          if (loadedPage) {
+            console.warn('✅ Loaded page from API:', loadedPage);
+            setSelectedPageId(loadedPage.id);
+            setCurrentPage(loadedPage);
+          } else {
+            console.warn('❌ Failed to load page from API:', pageId);
+          }
+        })
+        .catch(error => {
+          console.error('❌ Error loading page from API:', error);
+        });
+    } else if (pageFromUrl && pageFromUrl.id !== selectedPageId) {
+      console.warn('📍 Setting page from URL cache:', pageFromUrl);
+      setSelectedPageId(pageFromUrl.id);
+      setCurrentPage(pageFromUrl);
+    }
+  }, [pageId, pageFromUrl, selectedPageId, setCurrentPage, loadPageById, pages.length]);
+
+  // Note: URL updates are handled directly in the dropdown onChange
+  // No effect needed here to avoid conflicts
+
+  // Auto-update current page when pages array changes (after loadPages)
+  useEffect(() => {
+    if (currentPage && pages.length > 0) {
+      const updatedPage = pages.find((p: PageConfig) => p.id === currentPage.id);
+      if (updatedPage && updatedPage !== currentPage) {
+        console.warn('🔄 Auto-updating current page with fresh data:', updatedPage);
+        setCurrentPage(updatedPage);
       }
     }
-  }, [selectedPageId, pages, setCurrentPage]);
+  }, [pages, currentPage, setCurrentPage]);
+
+  // URL as source of truth: Load and set currentPage when pageId in URL changes
+  useEffect(() => {
+    console.warn('🔗 URL → currentPage effect triggered:', { pageId, pagesLength: pages.length });
+
+    if (pageId) {
+      // First check if page is already in cache
+      const pageFromCache = pages.find((p: PageConfig) => p.id === pageId);
+
+      if (pageFromCache) {
+        console.warn('✅ Found page in cache, setting currentPage:', pageFromCache.title);
+        setCurrentPage(pageFromCache);
+        setSelectedPageId(pageId);
+      } else {
+        // Page not in cache, load from API
+        console.warn('🔄 Page not in cache, loading from API:', pageId);
+        loadPageById(pageId)
+          .then(loadedPage => {
+            if (loadedPage) {
+              console.warn('✅ Loaded page from API, currentPage updated:', loadedPage.title);
+              setSelectedPageId(pageId);
+            } else {
+              console.warn('❌ Failed to load page from API:', pageId);
+              setCurrentPage(null);
+              setSelectedPageId(null);
+            }
+          })
+          .catch(error => {
+            console.error('❌ Error loading page from API:', error);
+            setCurrentPage(null);
+            setSelectedPageId(null);
+          });
+      }
+    } else {
+      console.warn('🏠 No pageId in URL, clearing currentPage');
+      setCurrentPage(null);
+      setSelectedPageId(null);
+    }
+  }, [pageId, pages, setCurrentPage, loadPageById]);
+
+  // Simple update function for testing
+  const handlePageUpdateSimple = async (pageData: Partial<PageConfig>) => {
+    console.warn('📝 handlePageUpdateSimple called with:', pageData);
+    if (!currentPage) {
+      console.warn('❌ No current page available');
+      return;
+    }
+
+    try {
+      // Update local state immediately for responsive UI
+      updatePage(currentPage.id, pageData);
+
+      // Save to database
+      await savePageToDatabase(currentPage.id, {
+        ...currentPage,
+        ...pageData,
+        components: currentPage.components || [],
+      });
+
+      console.warn('✅ Page updated successfully:', pageData);
+    } catch (error) {
+      console.error('❌ Error updating page:', error);
+    }
+  };
+
+  console.warn(
+    '🔧 handlePageUpdateSimple function:',
+    !!handlePageUpdateSimple,
+    typeof handlePageUpdateSimple
+  );
 
   const handlePageUpdate = useCallback(
     async (pageData: Partial<PageConfig>) => {
-      if (!currentPage) return;
+      console.warn('📝 handlePageUpdate called with:', pageData);
+      if (!currentPage) {
+        console.warn('❌ No current page available');
+        return;
+      }
 
-      // Update local state immediately
-      updatePage(currentPage.id, pageData);
+      try {
+        // Update local state immediately for responsive UI
+        updatePage(currentPage.id, pageData);
+
+        // Save to database
+        await savePageToDatabase(currentPage.id, {
+          ...currentPage,
+          ...pageData,
+          components: currentPage.components || [],
+        });
+
+        // Reload pages from database to get fresh data
+        await loadPages();
+
+        console.warn('✅ Page updated and reloaded successfully:', pageData);
+      } catch (error) {
+        console.error('❌ Error updating page:', error);
+        // Optionally revert local changes on error
+        throw error; // Re-throw to allow the caller to handle the error
+      }
     },
-    [currentPage, updatePage]
+    [currentPage, updatePage, savePageToDatabase, loadPages]
   );
 
+  // Debug handlePageUpdate availability
+  useEffect(() => {
+    console.warn('🔧 handlePageUpdate changed:', !!handlePageUpdate, typeof handlePageUpdate);
+  }, [handlePageUpdate]);
   const handleSavePage = useCallback(async () => {
     if (!currentPage) return;
 
@@ -197,7 +347,24 @@ export function SimplePageManager({ className = '' }: SimplePageManagerProps) {
             <h2 className="text-foreground text-lg font-semibold">Pages</h2>
             <select
               value={selectedPageId || ''}
-              onChange={e => setSelectedPageId(e.target.value || null)}
+              onChange={e => {
+                console.warn(
+                  '🚀 DROPDOWN: URL as source of truth - onChange fired:',
+                  e.target.value
+                );
+                const newPageId = e.target.value || null;
+
+                if (newPageId) {
+                  console.warn(
+                    '📍 DROPDOWN: Navigating to pageId via navigateToPage hook:',
+                    newPageId
+                  );
+                  navigateToPage(newPageId);
+                } else {
+                  console.warn('🏠 DROPDOWN: Clearing selection, navigating to editor home');
+                  clearParams();
+                }
+              }}
               className="border-border bg-background text-foreground focus:ring-primary rounded-md border px-3 py-2 focus:border-transparent focus:outline-none focus:ring-1"
             >
               <option value="">Select a page...</option>
@@ -293,7 +460,19 @@ export function SimplePageManager({ className = '' }: SimplePageManagerProps) {
       )}
 
       {/* Create Page Modal */}
-      {isCreating && <CreatePageModal isOpen={isCreating} onClose={() => setIsCreating(false)} />}
+      {(isCreating || !!create) && (
+        <CreatePageModal
+          isOpen={isCreating || !!create}
+          onClose={() => {
+            setIsCreating(false);
+            if (create) {
+              clearParams(); // Clear the create parameter from URL
+            }
+            // Refresh pages list to include the newly created page
+            loadPages();
+          }}
+        />
+      )}
 
       {/* Debug Info */}
       {process.env.NODE_ENV === 'development' && (

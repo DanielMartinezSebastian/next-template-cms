@@ -1,0 +1,64 @@
+{
+  "componentIndex": "src/components/dynamic/index.ts",
+  "componentDir": "src/components/dynamic/components",
+  "outputDir": "src/lib/generated",
+  "database": {
+    "enabled": true,
+    "syncOnConfigure": true
+  },
+  "typeScript": {
+    "parseInterfaces": true,
+    "generateSchemas": true,
+    "strictMode": true
+  },
+  "componentDefaults": {
+    "category": "general",
+    "icon": "📄"
+  },
+  "categoryMapping": {
+    "Button": "ui",
+    "Input": "ui",
+    "Card": "general",
+    "HeroSection": "marketing",
+    "CallToAction": "marketing",
+    "FeatureGrid": "marketing",
+    "Testimonials": "marketing",
+    "ContactForm": "forms",
+    "Newsletter": "forms",
+    "Image": "media",
+    "ImageGallery": "media",
+    "Section": "layout",
+    "Spacer": "layout",
+    "TextBlock": "content"
+  },
+  "iconMapping": {
+    "Button": "🔘",
+    "Input": "📝",
+    "Card": "🃏",
+    "HeroSection": "🎯",
+    "CallToAction": "🚀",
+    "FeatureGrid": "⭐",
+    "Testimonials": "💬",
+    "ContactForm": "📧",
+    "Newsletter": "📬",
+    "Image": "🖼️",
+    "ImageGallery": "🖼️",
+    "Section": "📄",
+    "Spacer": "📏",
+    "TextBlock": "📝"
+  },
+  "excludeComponents": [
+    "PlaceholderComponent",
+    "UnknownComponent",
+    "LoadingComponent",
+    "ComponentErrorBoundary",
+    "withErrorBoundary",
+    "ComponentFactory",
+    "DynamicPageRenderer",
+    "renderDynamicPageSSR",
+    "getLoadingComponent",
+    "getLoading",
+    "default"
+  ],
+  "debug": true
+}

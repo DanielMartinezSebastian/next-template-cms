@@ -170,6 +170,8 @@ const createPageStoreSlice: StateCreator<
       console.warn(`✅ API response for page ${pageId}:`, data);
 
       if (data.success && data.page) {
+        console.warn('🔄 Raw API data.page.components:', data.page.components);
+
         // Convert API format to store format
         const pageForStore: PageConfig = {
           id: data.page.id,
@@ -288,6 +290,8 @@ const createPageStoreSlice: StateCreator<
               componentType: component.type,
               componentProps: component.props,
               order: component.order,
+              // 🔧 FIX: Include component ID to preserve identity during save
+              componentId: component.id,
             })),
           },
         };
@@ -308,6 +312,8 @@ const createPageStoreSlice: StateCreator<
 
       const result = await response.json();
       console.warn('✅ Page saved to database:', result);
+      console.warn('🔍 Debug - result.page.components:', result.page.components);
+      console.warn('🔍 Debug - result.page structure:', Object.keys(result.page || {}));
 
       if (result.success && result.page) {
         // Update local store with the response data from API

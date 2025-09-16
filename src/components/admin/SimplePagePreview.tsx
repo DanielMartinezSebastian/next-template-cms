@@ -5,7 +5,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { PageComponent, PageConfig } from '../../stores';
+import { PageComponent, PageConfig, usePageActions } from '../../stores';
 import { PageJsonConfig } from '../../types/pages';
 import { DynamicPageRenderer } from '../dynamic/DynamicPageRenderer';
 import { ThemeToggle } from '../ui/theme-toggle';
@@ -17,6 +17,7 @@ interface SimplePagePreviewProps {
   locale: string;
   breakpoint: TailwindBreakpoint;
   onBreakpointChange: (breakpoint: TailwindBreakpoint) => void;
+  // Removed onPageUpdate prop - using store directly
 }
 
 export function SimplePagePreview({
@@ -25,7 +26,17 @@ export function SimplePagePreview({
   breakpoint,
   onBreakpointChange,
 }: SimplePagePreviewProps) {
+  // Import store methods directly
+  const { updatePage, savePageToDatabase, loadPages } = usePageActions();
+
   const [pageConfig, setPageConfig] = useState<PageJsonConfig | null>(null);
+  // Local state for publish status to enable immediate UI updates
+  const [localIsPublished, setLocalIsPublished] = useState(page.isPublished || false);
+
+  // Sync local state with page prop changes
+  useEffect(() => {
+    setLocalIsPublished(page.isPublished || false);
+  }, [page.isPublished]);
 
   // Convert PageConfig to PageJsonConfig for DynamicPageRenderer
   useEffect(() => {
@@ -152,18 +163,6 @@ export function SimplePagePreview({
                 /{page.slug || 'new-page'}
               </a>
 
-              {/* Status - hidden on small screens */}
-              <span className="hidden lg:inline">•</span>
-              <span
-                className={`hidden whitespace-nowrap rounded-md px-2 py-1 text-xs lg:inline-block ${
-                  page.isPublished
-                    ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-                    : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400'
-                }`}
-              >
-                {page.isPublished ? 'Published' : 'Draft'}
-              </span>
-
               {/* Page ID - hidden on small screens */}
               {page.id && (
                 <>
@@ -179,8 +178,53 @@ export function SimplePagePreview({
             </div>
           </div>
 
-          {/* Right side: Breakpoint Selector and Theme Toggle (always visible) */}
+          {/* Right side: Publish Button, Breakpoint Selector and Theme Toggle */}
           <div className="flex flex-shrink-0 items-center gap-2">
+            {/* Publish/Draft Toggle Button */}
+            <button
+              onClick={async () => {
+                const newStatus = !localIsPublished;
+                console.warn('🔥 Publish button clicked', {
+                  currentStatus: localIsPublished,
+                  willToggleTo: newStatus,
+                  pageId: page.id,
+                });
+
+                // Update local state immediately for responsive UI
+                setLocalIsPublished(newStatus);
+
+                try {
+                  // Update store state immediately
+                  updatePage(page.id, { isPublished: newStatus });
+
+                  // Save to database
+                  await savePageToDatabase(page.id, {
+                    ...page,
+                    isPublished: newStatus,
+                    components: page.components || [],
+                  });
+
+                  // Reload pages to ensure full synchronization
+                  await loadPages();
+
+                  console.warn('✅ Store update successful');
+                } catch (error) {
+                  console.error('❌ Store update failed, reverting local state:', error);
+                  // Revert local state on error
+                  setLocalIsPublished(!newStatus);
+                }
+              }}
+              className={`flex items-center space-x-1 rounded-md px-3 py-1 text-xs font-medium transition-colors ${
+                localIsPublished
+                  ? 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/20 dark:text-green-400 dark:hover:bg-green-900/30'
+                  : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:hover:bg-yellow-900/30'
+              }`}
+              title={localIsPublished ? 'Cambiar a borrador' : 'Publicar página'}
+            >
+              <span className="mr-1">{localIsPublished ? '📝' : '🚀'}</span>
+              <span>{localIsPublished ? 'Published' : 'Draft'}</span>
+            </button>
+
             {/* Breakpoint Selector */}
             <div className="bg-muted flex rounded-md p-1">
               {tailwindBreakpoints.map(bp => (
