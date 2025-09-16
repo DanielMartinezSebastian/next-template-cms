@@ -28,6 +28,7 @@ export interface PageConfig {
     image?: string;
   };
   isPublished: boolean;
+  content?: Record<string, unknown> | null; // Lexical JSON content
   createdAt: Date;
   updatedAt: Date;
 
@@ -58,6 +59,7 @@ export interface PageStoreState {
   setCurrentPage: (page: PageConfig | null) => void;
   addPage: (page: Omit<PageConfig, 'id' | 'createdAt' | 'updatedAt'>) => void;
   updatePage: (id: string, updates: Partial<PageConfig>) => void;
+  savePageToDatabase: (id: string, updates: Partial<PageConfig>) => Promise<void>;
   deletePage: (id: string) => void;
   addComponent: (pageId: string, component: Omit<PageComponent, 'id'>) => void;
   updateComponent: (pageId: string, componentId: string, updates: Partial<PageComponent>) => void;
@@ -181,6 +183,7 @@ const createPageStoreSlice: StateCreator<
             image: data.page.meta?.image,
           },
           isPublished: data.page.isPublished,
+          content: data.page.content || null, // Include Lexical JSON content
           createdAt: new Date(data.page.createdAt),
           updatedAt: new Date(data.page.updatedAt),
           routeType: 'dynamic' as const,
@@ -255,6 +258,77 @@ const createPageStoreSlice: StateCreator<
       false,
       'updatePage'
     );
+  },
+
+  savePageToDatabase: async (id, updates) => {
+    set({ isLoading: true, error: null }, false, 'savePageToDatabase:start');
+
+    try {
+      console.warn('🔄 Saving page to database:', {
+        pageId: id,
+        updates,
+        contentType: typeof updates.content,
+        contentPreview: updates.content ? JSON.stringify(updates.content).substring(0, 200) : null,
+      });
+
+      // Make PUT request to save page
+      const response = await fetch(`/api/pages/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updates),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.warn('✅ Page saved to database:', result);
+
+      if (result.success && result.page) {
+        // Update local store with the response data from API
+        const updatedPageData: PageConfig = {
+          id: result.page.id,
+          title: result.page.meta?.title || 'Untitled',
+          slug: result.page.slug,
+          locale: result.page.locale,
+          components: result.page.components || [],
+          metadata: {
+            description: result.page.meta?.description,
+            keywords: result.page.meta?.keywords || [],
+            image: result.page.meta?.image,
+          },
+          isPublished: result.page.isPublished,
+          content: result.page.content || null,
+          createdAt: new Date(result.page.createdAt),
+          updatedAt: new Date(result.page.updatedAt),
+          routeType: 'dynamic' as const,
+        };
+
+        set(
+          state => ({
+            pages: state.pages.map(page => (page.id === id ? updatedPageData : page)),
+            currentPage: state.currentPage?.id === id ? updatedPageData : state.currentPage,
+            isLoading: false,
+          }),
+          false,
+          'savePageToDatabase:success'
+        );
+      }
+    } catch (error) {
+      console.error('❌ Error saving page to database:', error);
+      set(
+        {
+          isLoading: false,
+          error: error instanceof Error ? error.message : 'Failed to save page',
+        },
+        false,
+        'savePageToDatabase:error'
+      );
+      throw error; // Re-throw to allow component to handle
+    }
   },
 
   deletePage: id => {
@@ -432,6 +506,7 @@ export const usePageActions = () => {
   const setCurrentPage = usePageStore(state => state.setCurrentPage);
   const addPage = usePageStore(state => state.addPage);
   const updatePage = usePageStore(state => state.updatePage);
+  const savePageToDatabase = usePageStore(state => state.savePageToDatabase);
   const deletePage = usePageStore(state => state.deletePage);
   const addComponent = usePageStore(state => state.addComponent);
   const updateComponent = usePageStore(state => state.updateComponent);
@@ -447,6 +522,7 @@ export const usePageActions = () => {
     setCurrentPage,
     addPage,
     updatePage,
+    savePageToDatabase,
     deletePage,
     addComponent,
     updateComponent,

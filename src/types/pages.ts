@@ -54,6 +54,7 @@ export interface PageJsonConfig {
   template?: string;
   isPublished: boolean;
   publishedAt?: string;
+  content?: Record<string, unknown> | null; // Lexical JSON content
   createdAt: string;
   updatedAt: string;
 }
@@ -104,6 +105,7 @@ export const PageJsonConfigSchema = z.object({
   template: z.string().optional(),
   isPublished: z.boolean(),
   publishedAt: z.string().optional(),
+  content: z.record(z.unknown()).nullable().optional(), // Lexical JSON content
   createdAt: z.string(),
   updatedAt: z.string(),
 });

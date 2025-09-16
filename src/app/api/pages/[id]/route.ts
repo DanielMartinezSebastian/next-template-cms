@@ -466,6 +466,7 @@ function transformPrismaPageToApi(page: any): PageJsonConfig {
     template: page.template || undefined,
     isPublished: primaryContent?.isPublished || false,
     publishedAt: primaryContent?.publishedAt?.toISOString(),
+    content: primaryContent?.content || null, // Include Lexical JSON content
     createdAt: page.createdAt.toISOString(),
     updatedAt: page.updatedAt.toISOString(),
   };
