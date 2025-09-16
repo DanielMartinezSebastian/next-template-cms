@@ -1,10 +1,11 @@
 /**
  * Hero Section Component
  * Dynamic hero component for pages
+ * Pure component - no editor coupling
  */
 
-import React from 'react';
 import { Button } from '@/components/ui/button';
+import React from 'react';
 
 interface HeroSectionProps {
   title?: string;
@@ -20,7 +21,6 @@ interface HeroSectionProps {
   overlay?: boolean;
   overlayOpacity?: number;
   locale?: string;
-  editMode?: boolean;
   componentId?: string;
 }
 
@@ -38,7 +38,6 @@ export function HeroSection({
   overlay = true,
   overlayOpacity = 0.5,
   locale = 'en',
-  editMode = false,
   componentId,
 }: HeroSectionProps) {
   const heightClass = {
@@ -69,50 +68,27 @@ export function HeroSection({
     >
       {/* Overlay */}
       {overlay && (backgroundImage || !backgroundColor.includes('gradient')) && (
-        <div
-          className="absolute inset-0 bg-black"
-          style={{ opacity: overlayOpacity }}
-        />
+        <div className="absolute inset-0 bg-black" style={{ opacity: overlayOpacity }} />
       )}
 
       {/* Content */}
       <div className={`relative z-10 mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 ${textAlignClass}`}>
         {subtitle && (
-          <div className="mb-4 text-lg font-medium text-blue-200 sm:text-xl">
-            {subtitle}
-          </div>
+          <div className="mb-4 text-lg font-medium text-blue-200 sm:text-xl">{subtitle}</div>
         )}
 
-        <h1 className="mb-6 text-4xl font-bold text-white sm:text-5xl lg:text-6xl">
-          {title}
-        </h1>
+        <h1 className="mb-6 text-4xl font-bold text-white sm:text-5xl lg:text-6xl">{title}</h1>
 
-        {description && (
-          <p className="mb-8 text-xl text-gray-200 sm:text-2xl">
-            {description}
-          </p>
-        )}
+        {description && <p className="mb-8 text-xl text-gray-200 sm:text-2xl">{description}</p>}
 
         {ctaText && (
           <div className="flex justify-center">
-            <Button
-              variant={ctaType}
-              size="lg"
-              className="px-8 py-3 text-lg"
-              asChild
-            >
+            <Button variant={ctaType} size="lg" className="px-8 py-3 text-lg" asChild>
               <a href={ctaLink}>{ctaText}</a>
             </Button>
           </div>
         )}
       </div>
-
-      {/* Edit Mode Indicator */}
-      {editMode && (
-        <div className="absolute bottom-4 right-4 rounded bg-black/70 px-2 py-1 text-xs text-white">
-          Hero Section
-        </div>
-      )}
     </section>
   );
 }

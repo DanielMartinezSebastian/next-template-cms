@@ -21,6 +21,12 @@ interface TextBlockProps {
   locale?: string;
   editMode?: boolean;
   componentId?: string;
+
+  // Editor context props (from DynamicComponentNode)
+  nodeKey?: string;
+  isInEditMode?: boolean;
+  lexicalEditor?: unknown;
+  editorConfig?: unknown;
 }
 
 export function TextBlock({
@@ -39,7 +45,15 @@ export function TextBlock({
   locale = 'en',
   editMode = false,
   componentId,
+
+  // Editor context props
+  nodeKey,
+  isInEditMode,
+  lexicalEditor,
+  editorConfig,
 }: TextBlockProps) {
+  // Determinar si mostrar indicadores de edición
+  const showEditIndicators = editMode || isInEditMode;
   const textAlignClass = {
     left: 'text-left',
     center: 'text-center',
@@ -86,13 +100,21 @@ export function TextBlock({
 
   return (
     <div
-      className={`text-block ${paddingClass} ${marginClass}`}
+      className={`text-block ${paddingClass} ${marginClass} ${showEditIndicators ? 'relative ring-2 ring-blue-500 ring-opacity-50' : ''}`}
       style={backgroundColor ? customStyles : undefined}
       data-component-id={componentId}
+      data-lexical-node-key={nodeKey}
     >
+      {/* Edit Mode Indicator */}
+      {showEditIndicators && (
+        <div className="absolute left-1 top-1 z-10 rounded bg-blue-500 px-2 py-1 text-xs text-white shadow">
+          Text Block {nodeKey ? `(${nodeKey})` : ''}
+        </div>
+      )}
+
       <div className={`${maxWidthClass} ${textAlignClass}`}>
         {title && (
-          <h2 
+          <h2
             className={`mb-4 text-2xl font-bold ${color ? '' : 'text-foreground'}`}
             style={color ? { color } : undefined}
           >
@@ -101,7 +123,7 @@ export function TextBlock({
         )}
 
         {subtitle && (
-          <h3 
+          <h3
             className={`mb-6 text-xl font-semibold ${color ? '' : 'text-muted-foreground'}`}
             style={color ? { color } : undefined}
           >
@@ -123,20 +145,13 @@ export function TextBlock({
         )}
 
         {/* Empty state for edit mode */}
-        {editMode && !content && !title && !subtitle && (
+        {showEditIndicators && !content && !title && !subtitle && (
           <div className="rounded border-2 border-dashed border-gray-300 p-8 text-center text-gray-500 dark:border-gray-600 dark:text-gray-400">
             <div className="text-lg font-medium">Empty Text Block</div>
             <div className="text-sm">Add title, subtitle, or content to this text block</div>
           </div>
         )}
       </div>
-
-      {/* Edit Mode Indicator */}
-      {editMode && (
-        <div className="absolute bottom-2 right-2 rounded bg-black/70 px-2 py-1 text-xs text-white">
-          Text Block
-        </div>
-      )}
     </div>
   );
 }
