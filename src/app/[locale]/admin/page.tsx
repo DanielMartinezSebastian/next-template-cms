@@ -4,6 +4,7 @@
  */
 
 import Link from 'next/link';
+import { DatabaseStatusIndicator } from '@/components/admin/DatabaseStatusIndicator';
 
 export default function AdminPage() {
   return (
@@ -46,13 +47,13 @@ export default function AdminPage() {
             </p>
             <div className="space-y-2">
               <Link
-                href="/admin/editor"
+                href="/admin/pages"
                 className="bg-primary text-primary-foreground hover:bg-primary/90 block w-full rounded-md px-4 py-2 text-center"
               >
                 Gestionar Páginas
               </Link>
               <Link
-                href="/admin/editor"
+                href="/admin/pages"
                 className="border-border text-foreground hover:bg-muted block w-full rounded-md border px-4 py-2 text-center"
               >
                 Ver Todas las Páginas
@@ -99,41 +100,8 @@ export default function AdminPage() {
             </div>
           </div>
 
-          {/* System Status */}
-          <div className="bg-card border-border rounded-lg border p-6">
-            <div className="mb-4 flex items-center space-x-3">
-              <div className="rounded-md bg-green-600 p-2">
-                <svg
-                  className="h-5 w-5 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </div>
-              <h2 className="text-foreground text-lg font-semibold">Estado del Sistema</h2>
-            </div>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground text-sm">Estado</span>
-                <span className="text-sm font-medium text-green-600">Operativo</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground text-sm">Editor</span>
-                <span className="text-sm font-medium text-green-600">Activo</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground text-sm">Base de datos</span>
-                <span className="text-sm font-medium text-green-600">Conectada</span>
-              </div>
-            </div>
-          </div>
+          {/* System Status - Dynamic */}
+          <DatabaseStatusIndicator />
         </div>
 
         {/* Quick Actions */}

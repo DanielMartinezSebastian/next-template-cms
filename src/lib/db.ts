@@ -29,11 +29,26 @@ export const prisma = realPrisma as PrismaClient;
  * Get database client (real or mock based on availability)
  */
 export function getDbClient() {
-  if (shouldUseMock() || !realPrisma) {
-    console.log('🔧 Using mock database for development');
-    return mockPrisma as unknown as PrismaClient;
+  // Check if DATABASE_URL exists and we should use real DB
+  if (process.env.DATABASE_URL && !shouldUseMock()) {
+    if (!realPrisma) {
+      try {
+        realPrisma = new PrismaClient({
+          log: ['query'],
+        });
+        console.log('🔗 Connected to PostgreSQL database');
+        return realPrisma;
+      } catch (error) {
+        console.warn('Failed to connect to PostgreSQL, falling back to mock:', error);
+        return mockPrisma as unknown as PrismaClient;
+      }
+    }
+    console.log('🔗 Using existing PostgreSQL connection');
+    return realPrisma;
   }
-  return realPrisma;
+  
+  console.log('🔧 Using mock database for development');
+  return mockPrisma as unknown as PrismaClient;
 }
 
 /**

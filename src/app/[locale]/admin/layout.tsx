@@ -22,24 +22,29 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         <div className="container mx-auto flex h-full items-center px-4">
           <div className="flex w-full items-center justify-between">
             <div className="flex items-center space-x-2 md:space-x-4">
-              <h1 className="text-foreground text-lg font-semibold md:text-xl">Admin Panel</h1>
+              <Link 
+                href="/admin"
+                className="text-foreground text-lg font-semibold md:text-xl hover:text-primary transition-colors"
+              >
+                Admin Panel
+              </Link>
               <div className="bg-border hidden h-6 w-px md:block" />
               <nav className="hidden items-center space-x-4 md:flex">
                 <Link
-                  href="/en"
+                  href="/admin"
                   className="text-muted-foreground hover:text-foreground text-sm transition-colors"
                 >
-                  ← Back to Site
+                  ← Dashboard
                 </Link>
               </nav>
             </div>
 
             <div className="flex items-center space-x-2">
               <Link
-                href="/en"
+                href="/admin"
                 className="text-muted-foreground hover:text-foreground text-sm transition-colors md:hidden"
               >
-                ← Back
+                ← Dashboard
               </Link>
               <div className="text-muted-foreground hidden text-sm lg:block">
                 Content Management System

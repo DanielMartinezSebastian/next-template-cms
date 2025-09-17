@@ -43,7 +43,7 @@ export function EditorToolbar({
   const t = useTranslations('Admin');
 
   const breadcrumbItems = [
-    { title: t('navigation.pages'), href: '/admin/editor' },
+    { title: t('navigation.pages'), href: '/admin/pages' },
     ...breadcrumbPath,
     { title: pageTitle, isActive: true },
   ];

@@ -1087,7 +1087,37 @@ export function getSchemasByCategory(): Record<string, ComponentSchema[]> {
 /**
  * Get default props for a component type
  */
-export function getComponentDefaults(type: string): Record<string, unknown> {
+/**
+ * Get component defaults with database priority
+ * Tries database first, then falls back to static schema defaults
+ */
+export async function getComponentDefaults(type: string): Promise<Record<string, unknown>> {
+  try {
+    // Try database first (real-time defaults)
+    const response = await fetch('/api/admin/components');
+    if (response.ok) {
+      const data = await response.json();
+      if (data.success && data.components) {
+        const dbComponent = data.components.find((c: any) => c.type === type);
+        if (dbComponent?.defaultConfig) {
+          console.log(`✅ Using database defaults for ${type}`);
+          return dbComponent.defaultConfig;
+        }
+      }
+    }
+  } catch (error) {
+    console.warn(`Database unavailable for ${type}, using static defaults`);
+  }
+  
+  // Fallback to static schema defaults
+  const schema = getComponentSchema(type);
+  return schema?.defaults || {};
+}
+
+/**
+ * Synchronous version for backward compatibility
+ */
+export function getComponentDefaultsSync(type: string): Record<string, unknown> {
   const schema = getComponentSchema(type);
   return schema?.defaults || {};
 }

@@ -368,7 +368,7 @@ export function SimplePageEditor({
       const schema = getComponentSchema(componentType);
       const componentDef = availableComponents.find(c => c.type === componentType);
 
-      const defaultProps = defaults || schema?.defaults || componentDef?.defaultProps || {};
+      const defaultProps = defaults || componentDef?.defaultConfig || schema?.defaults || {}; // ✅ Prioritize database defaults
 
       const newComponent: PageComponent = {
         id: `${componentType}-${Date.now()}`,

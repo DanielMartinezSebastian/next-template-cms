@@ -18,3 +18,8 @@ export { SimplePagePreview } from './SimplePagePreview';
 // Schema-based Components
 export { ComponentPropertyEditor } from './ComponentPropertyEditor';
 export { ComponentSelector } from './ComponentSelector';
+
+// New Admin Panel Components
+export { ComponentsManager } from './ComponentsManager';
+export { PagesManager } from './PagesManager';
+export { DatabaseStatusIndicator } from './DatabaseStatusIndicator';
