@@ -1,9 +1,9 @@
 /**
  * Admin Editor Page
- * Lista y gestiona todas las páginas del CMS
+ * Lista y gestiona todas las páginas del CMS usando el nuevo sistema sin Lexical
  */
 
-import { PageManager } from '@/components/admin/PageManager';
+import { SimplePageManagerNew } from '@/components/admin/SimplePageManagerNew';
 import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 
@@ -26,15 +26,15 @@ export default async function AdminEditorPage({ params }: Props) {
   const t = await getTranslations({ locale, namespace: 'Admin' });
 
   return (
-    <div className="container mx-auto space-y-6 p-6">
-      {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-foreground text-3xl font-bold">{t('editor.title')}</h1>
-        <p className="text-muted-foreground">{t('editor.description')}</p>
-      </div>
-
-      {/* Page Manager Component */}
-      <PageManager />
+    <div
+      className="admin-editor-page fixed inset-0"
+      style={{
+        height: '100dvh',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Simple Page Manager Component (Full Screen Layout) */}
+      <SimplePageManagerNew />
     </div>
   );
 }

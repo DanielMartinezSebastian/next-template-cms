@@ -7,6 +7,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
+import { useEditorParams } from '@/hooks/useEditorParams';
 import { useLocale, usePageActions } from '@/stores';
 import { useTranslations } from 'next-intl';
 import React, { useEffect, useState } from 'react';
@@ -22,6 +23,7 @@ interface FormData {
   description: string;
   locale: string;
   isPublished: boolean;
+  redirectOption: 'editor' | 'page' | 'stay';
 }
 
 interface FormErrors {
@@ -32,6 +34,7 @@ interface FormErrors {
 export function CreatePageModal({ isOpen, onClose }: CreatePageModalProps) {
   const t = useTranslations('Admin.editor.createModal');
   const { addPage } = usePageActions();
+  const { navigateToPage, navigateToPageView } = useEditorParams();
   const locale = useLocale();
 
   const [formData, setFormData] = useState<FormData>({
@@ -40,6 +43,7 @@ export function CreatePageModal({ isOpen, onClose }: CreatePageModalProps) {
     description: '',
     locale,
     isPublished: false,
+    redirectOption: 'editor',
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -54,6 +58,7 @@ export function CreatePageModal({ isOpen, onClose }: CreatePageModalProps) {
         description: '',
         locale,
         isPublished: false,
+        redirectOption: 'editor',
       });
       setErrors({});
       setIsSubmitting(false);
@@ -98,8 +103,8 @@ export function CreatePageModal({ isOpen, onClose }: CreatePageModalProps) {
     setIsSubmitting(true);
 
     try {
-      // Create the page
-      addPage({
+      // Create the page via API
+      const pageData = {
         title: formData.title.trim(),
         slug:
           formData.slug ||
@@ -110,36 +115,82 @@ export function CreatePageModal({ isOpen, onClose }: CreatePageModalProps) {
             .replace(/-+/g, '-')
             .trim(),
         locale: formData.locale,
-        components: [
-          {
-            id: 'heading-1',
-            type: 'heading',
-            props: {
-              level: 1,
-              content: formData.title,
-            },
-            order: 0,
-          },
-          {
-            id: 'paragraph-1',
-            type: 'paragraph',
-            props: {
-              content: formData.description || 'Nueva página creada desde el admin.',
-            },
-            order: 1,
-          },
-        ],
-        isPublished: formData.isPublished,
-        metadata: {
-          description: formData.description || undefined,
+        description: formData.description || undefined,
+      };
+
+      console.warn('🔄 Creating page via API:', pageData);
+
+      const response = await fetch('/api/pages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify(pageData),
       });
 
-      // Close modal and reset
-      onClose();
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.warn('✅ Page created successfully:', result);
+
+      if (result.success && result.page) {
+        // Add the new page to local store
+        const newPageConfig = {
+          title: result.page.meta.title,
+          slug: result.page.slug,
+          locale: result.page.locale,
+          components: result.page.components || [],
+          metadata: {
+            description: result.page.meta.description,
+            keywords: result.page.meta.keywords || [],
+            image: result.page.meta.image,
+          },
+          isPublished: result.page.isPublished,
+          routeType: 'dynamic' as const,
+        };
+
+        addPage(newPageConfig);
+
+        // Close modal first
+        onClose();
+
+        // Navigate based on user preference
+        if (result.page.id && result.page.slug) {
+          // Add small delay to ensure modal is closed and store is updated
+          setTimeout(() => {
+            switch (formData.redirectOption) {
+              case 'page':
+                // Navigate directly to the new page
+                navigateToPageView(result.page.slug, result.page.locale);
+                break;
+              case 'editor':
+                // Navigate to editor with page selected
+                navigateToPage(result.page.id, result.page.slug);
+                break;
+              case 'stay':
+                // Stay in current location (just close modal)
+                break;
+            }
+          }, 100);
+        }
+
+        console.warn('✅ Page created and navigation initiated:', {
+          pageId: result.page.id,
+          slug: result.page.slug,
+          title: result.page.meta.title,
+          redirectOption: formData.redirectOption,
+        });
+      } else {
+        // Close modal normally if creation succeeded but no page data
+        onClose();
+      }
     } catch (error) {
-      console.error('Error creating page:', error);
+      console.error('❌ Error creating page:', error);
       // Here you could show an error message to the user
+      // For now, we'll log it and keep the modal open
     } finally {
       setIsSubmitting(false);
     }
@@ -271,6 +322,49 @@ export function CreatePageModal({ isOpen, onClose }: CreatePageModalProps) {
                 disabled={isSubmitting}
               />
               <span className="text-sm">{t('statusPublished')}</span>
+            </label>
+          </div>
+        </div>
+
+        {/* Redirect Option */}
+        <div>
+          <label className="text-foreground mb-2 block text-sm font-medium">Después de crear</label>
+          <div className="space-y-2">
+            <label className="flex items-center">
+              <input
+                type="radio"
+                name="redirectOption"
+                value="editor"
+                checked={formData.redirectOption === 'editor'}
+                onChange={() => setFormData(prev => ({ ...prev, redirectOption: 'editor' }))}
+                className="text-primary focus:ring-primary mr-2"
+                disabled={isSubmitting}
+              />
+              <span className="text-sm">Editar en el panel de administración</span>
+            </label>
+            <label className="flex items-center">
+              <input
+                type="radio"
+                name="redirectOption"
+                value="page"
+                checked={formData.redirectOption === 'page'}
+                onChange={() => setFormData(prev => ({ ...prev, redirectOption: 'page' }))}
+                className="text-primary focus:ring-primary mr-2"
+                disabled={isSubmitting}
+              />
+              <span className="text-sm">Ir a la página nueva</span>
+            </label>
+            <label className="flex items-center">
+              <input
+                type="radio"
+                name="redirectOption"
+                value="stay"
+                checked={formData.redirectOption === 'stay'}
+                onChange={() => setFormData(prev => ({ ...prev, redirectOption: 'stay' }))}
+                className="text-primary focus:ring-primary mr-2"
+                disabled={isSubmitting}
+              />
+              <span className="text-sm">Quedarse aquí</span>
             </label>
           </div>
         </div>

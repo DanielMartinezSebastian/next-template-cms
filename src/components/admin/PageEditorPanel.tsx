@@ -1,12 +1,11 @@
 /**
- * Page Editor Panel
- * Panel lateral izquierdo para editar propiedades de la página
+ * Page Editor Panel (Legacy - Component-based version)
+ * Este componente está deprecado. Usar SimplePageEditor en su lugar.
  */
 'use client';
 
-import { useCallback, useState } from 'react';
-import { PageConfig, usePageActions, usePageStore } from '../../stores';
-import { VisualEditor } from '../editor';
+import { useCallback, useEffect, useState } from 'react';
+import { PageConfig, useCurrentPage, usePageActions } from '../../stores';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 
@@ -25,26 +24,76 @@ export function PageEditorPanel({
   onPageUpdate,
   width,
 }: PageEditorPanelProps) {
-  const { pages } = usePageStore();
-  const { updatePage } = usePageActions();
-
-  // Find the current page
-  const currentPage = pages.find(p => p.id === pageId);
+  const currentPage = useCurrentPage();
+  const { updatePage, savePageToDatabase } = usePageActions();
 
   const [pageData, setPageData] = useState<Partial<PageConfig>>({
-    title: currentPage?.title || 'New Page',
-    slug: currentPage?.slug || 'new-page',
+    title: 'New Page',
+    slug: 'new-page',
     metadata: {
-      description: currentPage?.metadata?.description || '',
-      keywords: currentPage?.metadata?.keywords || [],
-      image: currentPage?.metadata?.image || '',
+      description: '',
+      keywords: [],
+      image: '',
     },
-    isPublished: currentPage?.isPublished || false,
+    isPublished: false,
     locale,
   });
 
   const [contentString, setContentString] = useState<string>('');
   const [isSaving, setIsSaving] = useState(false);
+
+  // Debug effect on component mount
+  useEffect(() => {
+    console.warn('🚀 PageEditorPanel mounted for pageId:', pageId);
+    console.warn('📊 Initial state:', {
+      hasCurrentPage: !!currentPage,
+      currentPageTitle: currentPage?.title,
+      pageDataTitle: pageData.title,
+    });
+  }, [pageId, currentPage, pageData.title]);
+
+  // Sync local state with store currentPage
+  useEffect(() => {
+    console.warn('🔄 PageEditorPanel useEffect triggered', {
+      hasCurrentPage: !!currentPage,
+      currentPageTitle: currentPage?.title,
+      currentPageId: currentPage?.id,
+    });
+
+    if (currentPage) {
+      console.warn('📋 Syncing currentPage to local state:', currentPage);
+
+      const newPageData = {
+        title: currentPage.title,
+        slug: currentPage.slug,
+        metadata: {
+          description: currentPage.metadata?.description || '',
+          keywords: currentPage.metadata?.keywords || [],
+          image: currentPage.metadata?.image || '',
+        },
+        isPublished: currentPage.isPublished,
+        locale: currentPage.locale,
+        components: currentPage.components,
+      };
+
+      setPageData(newPageData);
+      console.warn('✅ Local pageData updated:', newPageData);
+
+      // Note: Content field removed - using page_components structure
+      // Components are managed directly through the components array
+      console.warn('📄 Components loaded from page.components:', currentPage.components);
+
+      // Reset contentString since we're not using content field anymore
+      if (!contentString || contentString === '' || contentString === '{}') {
+        setContentString('');
+        console.warn('✅ Resetting contentString - using components structure');
+      } else {
+        console.warn('⚠️ Keeping existing contentString for compatibility');
+      }
+    } else {
+      console.warn('⚠️ currentPage is null/undefined, keeping default values');
+    }
+  }, [currentPage, contentString]);
 
   const handleFieldChange = useCallback(
     (field: keyof PageConfig, value: string | boolean | object) => {
@@ -70,6 +119,27 @@ export function PageEditorPanel({
 
   const handleContentChange = useCallback(
     (content: string) => {
+      console.warn('🔍 [PageEditorPanel.handleContentChange] Received content from VisualEditor');
+      console.warn('📄 Raw content:', content);
+      console.warn('📏 Content length:', content?.length || 0);
+      console.warn('🧮 Content type:', typeof content);
+
+      // Try to parse and validate the content
+      try {
+        if (content) {
+          const parsed = JSON.parse(content);
+          console.warn('✅ Content is valid JSON:', {
+            hasRoot: !!parsed?.root,
+            rootType: parsed?.root?.type,
+            childrenCount: parsed?.root?.children?.length || 0,
+          });
+        } else {
+          console.warn('⚠️ Content is empty or null');
+        }
+      } catch (error) {
+        console.error('❌ Content is not valid JSON:', error);
+      }
+
       setContentString(content);
       onContentChange?.(content);
 
@@ -92,23 +162,58 @@ export function PageEditorPanel({
   );
 
   const handleSave = useCallback(async () => {
+    if (!currentPage) return;
+
     setIsSaving(true);
+
+    console.warn('🔍 [PageEditorPanel.handleSave] INICIO');
+    console.warn('📄 contentString raw:', contentString);
+    console.warn('📏 contentString length:', contentString?.length || 0);
+    console.warn('🧮 contentString type:', typeof contentString);
+
+    let parsedContent = null;
     try {
-      if (currentPage) {
-        // Here you would typically save to a database
-        if (process.env.NODE_ENV === 'development') {
-          // eslint-disable-next-line no-console
-          console.log('Saving page:', pageData);
-        }
-        // For now, just update the store
-        updatePage(currentPage.id, pageData);
+      if (contentString) {
+        parsedContent = JSON.parse(contentString);
+        console.warn('✅ Parsed content successfully:', {
+          type: typeof parsedContent,
+          hasRoot: !!parsedContent?.root,
+          rootType: parsedContent?.root?.type,
+          childrenCount: parsedContent?.root?.children?.length || 0,
+          preview: `${JSON.stringify(parsedContent).substring(0, 200)}...`,
+        });
+      } else {
+        console.warn('⚠️ contentString is empty, setting content to null');
       }
+    } catch (parseError) {
+      console.error('❌ Error parsing contentString:', parseError);
+      console.warn('🔍 Invalid JSON content:', contentString);
+    }
+
+    const updateData = {
+      title: pageData.title,
+      slug: pageData.slug,
+      metadata: {
+        description: pageData.metadata?.description || '',
+      },
+      isPublished: pageData.isPublished,
+      content: parsedContent,
+    };
+
+    console.warn('📦 Final updateData being sent to store:', {
+      ...updateData,
+      content: updateData.content ? 'JSON_OBJECT' : updateData.content,
+    });
+
+    try {
+      await savePageToDatabase(currentPage.id, updateData);
+      console.warn('✅ Page saved successfully via store');
     } catch (error) {
-      console.error('Error saving page:', error);
+      console.error('❌ Error saving page:', error);
     } finally {
       setIsSaving(false);
     }
-  }, [currentPage, pageData, updatePage]);
+  }, [currentPage, pageData, contentString, savePageToDatabase]);
 
   const handleSlugChange = useCallback(
     (title: string) => {
@@ -184,17 +289,33 @@ export function PageEditorPanel({
           </div>
         </div>
 
-        {/* Content Editor */}
+        {/* Content Editor - Deprecated */}
         <div className="space-y-4">
-          <h3 className="text-card-foreground text-lg font-medium">Page Content</h3>
+          <h3 className="text-card-foreground text-lg font-medium">Page Content (Legacy)</h3>
 
-          <div className="border-border overflow-hidden rounded-lg border">
-            <VisualEditor
-              placeholder="Start creating your page content..."
-              onChange={handleContentChange}
-              className="min-h-[300px]"
-              width={width}
-            />
+          <div className="border-border rounded-lg border p-4">
+            <div className="text-center">
+              <div className="text-muted-foreground mb-4">
+                <svg
+                  className="mx-auto mb-4 h-12 w-12 opacity-50"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z"
+                  />
+                </svg>
+                <h4 className="text-foreground mb-2 text-lg font-medium">Legacy Editor</h4>
+                <p className="text-sm">
+                  Este editor está deprecado. Por favor use el SimplePageManager para editar
+                  páginas.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 

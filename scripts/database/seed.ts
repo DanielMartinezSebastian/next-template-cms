@@ -1,3 +1,10 @@
+// Load environment variables from .env.local
+import { config } from 'dotenv';
+import * as path from 'path';
+
+// Load .env.local explicitly for scripts
+config({ path: path.join(process.cwd(), '.env.local') });
+
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -257,35 +264,83 @@ async function main() {
 
   console.log('✅ Page contents created');
 
-  // Create components
-  await prisma.component.upsert({
-    where: { name: 'Hero' },
+  // Components will be created by the component configuration script
+  // Run: npm run components:configure
+  console.log('⚙️  Components should be created by running: npm run components:configure');
+  console.log('   This ensures consistency between TypeScript interfaces and database schemas');
+
+  console.log('✅ Component setup instructions provided');
+
+  // Create sample dynamic pages
+
+  // About Page
+  const aboutPage = await prisma.page.upsert({
+    where: { fullPath: '/about' },
     update: {},
     create: {
-      name: 'Hero',
-      type: 'layout',
-      category: 'marketing',
-      description: 'Hero section with title, subtitle and CTA',
-      configSchema: {
-        type: 'object',
-        properties: {
-          title: { type: 'string' },
-          subtitle: { type: 'string' },
-          ctaText: { type: 'string' },
-          ctaLink: { type: 'string' },
-        },
-      },
-      defaultConfig: {
-        title: 'Hero Title',
-        subtitle: 'Hero Subtitle',
-        ctaText: 'Get Started',
-        ctaLink: '/',
-      },
+      slug: 'about',
+      fullPath: '/about',
+      level: 0,
+      order: 1,
+      routeType: 'dynamic',
+      template: 'default',
       isActive: true,
     },
   });
 
-  console.log('✅ Components created');
+  // Add content for about page
+  await prisma.pageContent.upsert({
+    where: {
+      pageId_localeId: {
+        pageId: aboutPage.id,
+        localeId: localeEn.id,
+      },
+    },
+    update: {},
+    create: {
+      pageId: aboutPage.id,
+      localeId: localeEn.id,
+      title: 'About Us',
+      description: 'Learn more about our company and mission',
+      metaTitle: 'About Us - Next.js Template',
+      metaDescription: 'Discover our story, mission, and the team behind our innovative solutions',
+      keywords: ['about', 'company', 'mission', 'team'],
+      content: {},
+      isPublished: true,
+    },
+  });
+
+  await prisma.pageContent.upsert({
+    where: {
+      pageId_localeId: {
+        pageId: aboutPage.id,
+        localeId: localeEs.id,
+      },
+    },
+    update: {},
+    create: {
+      pageId: aboutPage.id,
+      localeId: localeEs.id,
+      title: 'Acerca de Nosotros',
+      description: 'Conoce más sobre nuestra empresa y misión',
+      metaTitle: 'Acerca de Nosotros - Plantilla Next.js',
+      metaDescription:
+        'Descubre nuestra historia, misión y el equipo detrás de nuestras soluciones innovadoras',
+      keywords: ['acerca', 'empresa', 'misión', 'equipo'],
+      content: {},
+      isPublished: true,
+    },
+  });
+
+  console.log('✅ Sample pages created');
+
+  // Note: Page components should be added through the admin interface
+  // after running: npm run components:configure
+  console.log('⚙️  Page components should be added through the admin interface');
+  console.log('   First run: npm run components:configure to create components');
+  console.log('   Then use the admin panel to add components to pages');
+
+  console.log('✅ Page component setup instructions provided');
 
   // Create system config
   await prisma.systemConfig.upsert({

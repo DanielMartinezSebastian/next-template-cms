@@ -9,3 +9,12 @@ export { PageEditorPanel } from './PageEditorPanel';
 export { PageManager } from './PageManager';
 export { PagePreview } from './PagePreview';
 export { PageTreeView } from './PageTreeView';
+
+// New Simple Components (without Lexical)
+export { SimplePageEditor } from './SimplePageEditor';
+export { SimplePageManager } from './SimplePageManager';
+export { SimplePagePreview } from './SimplePagePreview';
+
+// Schema-based Components
+export { ComponentPropertyEditor } from './ComponentPropertyEditor';
+export { ComponentSelector } from './ComponentSelector';

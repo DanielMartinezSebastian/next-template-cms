@@ -6,15 +6,16 @@
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { usePageStore } from '@/stores';
+import { usePageActions, usePageStore } from '@/stores';
 import { useTranslations } from 'next-intl';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { CreatePageModal } from './CreatePageModal';
 import { PageTreeView } from './PageTreeView';
 
 export function PageManager() {
   const t = useTranslations('Admin');
   const { pages, isLoading, error, deletePage, updatePage, setLoading, setError } = usePageStore();
+  const { loadPages } = usePageActions();
 
   // Selection and filtering state
   const [searchTerm, setSearchTerm] = useState('');
@@ -27,6 +28,14 @@ export function PageManager() {
 
   // Bulk actions state
   const [isBulkActionLoading, setIsBulkActionLoading] = useState(false);
+
+  // Load pages on component mount
+  useEffect(() => {
+    // Load pages if not already loaded or if store is empty
+    if (pages.length === 0) {
+      loadPages();
+    }
+  }, [loadPages, pages.length]);
 
   // Filter and search pages
   const filteredPages = useMemo(() => {

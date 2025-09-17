@@ -26,7 +26,7 @@ internacionalización, y sistema de gestión de contenido.
 - ✅ **TRADUCCIONES DESDE DB VERIFICADAS** (16 traducciones activas, 85% cache
   hit)
 
-**🚀 LISTO PARA**: Editor visual con Lexical, panel de administración avanzado,
+**🚀 LISTO PARA**: Editor visual simplificado, panel de administración avanzado,
 y páginas dinámicas.
 
 ## 🚀 Características Principales
@@ -38,7 +38,7 @@ y páginas dinámicas.
 - **Gestión de estado Zustand** con stores especializados y persistencia
 - **Modo oscuro completo** con tokens semánticos y soporte Base UI
 - **Página de demostración** interactiva (/stores-demo) con explicaciones
-- **Editor visual** con Lexical para edición de páginas
+- **Editor visual simplificado** para edición de páginas por componentes
 - **Panel de administración** para gestión de contenido
 - **SEO optimizado** con metadatos dinámicos
 - **Server-side rendering** por defecto
@@ -63,7 +63,7 @@ src/app/[locale]/
 ├── [[...slug]]/         # ✨ Catch-all global (Homepage + páginas CMS dinámicas)
 ├── admin/               # 🔧 Panel de administración (páginas estáticas)
 ├── stores-demo/         # 📦 Demo de Zustand (página estática)
-├── editor-demo/         # ✏️ Demo del editor Lexical (página estática)
+├── editor-demo/         # ✏️ Demo del editor simplificado (página estática)
 ├── visual-editor-demo/  # 🎨 Demo del editor visual (página estática)
 ├── scrollbar-demo/      # 📜 Demo de scrollbars (página estática)
 └── servicios/           # 🔀 Sección híbrida (estática + dinámicas)
@@ -286,6 +286,17 @@ const STATIC_ROUTES_FALLBACK = [
   - [x] Cambio de idiomas verificado (español ↔ inglés)
   - [x] Performance optimizada (8ms latencia DB vs 2ms file)
   - [x] Estrategias por namespace configuradas (static/hybrid/dynamic)
+- [x] **🧩 AUTOMATIZACIÓN DE COMPONENTES COMPLETADA**:
+  - [x] Sistema de generación automática desde interfaces TypeScript
+  - [x] Eliminación completa de hardcoding en seed.ts
+  - [x] Script configure-components.ts con detección inteligente de interfaces
+  - [x] Soporte para múltiples patrones de naming (Props, ComponentNameProps,
+        etc.)
+  - [x] Configuración via component-config.json para categorías e iconos
+  - [x] Flujo verificado: reset → seed limpio → configuración automática
+  - [x] Consistencia 100% entre TypeScript interfaces y esquemas de base de
+        datos
+  - [x] Eliminación de "transformaciones absurdas" entre frontend/backend
 
 ### Fase 9: Páginas Dinámicas 📄
 
@@ -296,11 +307,11 @@ const STATIC_ROUTES_FALLBACK = [
 
 ### Fase 10: Editor Visual 🖊️
 
-- [ ] Integrar Lexical editor
-- [ ] Crear modo de edición de páginas
+- [x] Implementar editor simplificado sin Lexical
+- [x] Crear modo de edición de páginas por componentes
 - [ ] Implementar drag & drop de componentes
-- [ ] Crear toolbar de edición
-- [ ] Implementar preview mode
+- [x] Crear toolbar de edición
+- [x] Implementar preview mode
 
 ### Fase 11: Panel de Administración 👨‍💼
 
@@ -391,7 +402,14 @@ src/
 ├── prisma/
 │   └── schema.prisma           # ✅ Schema completo (Translations, Pages, Components)
 └── scripts/
-    └── migrate-translations.ts # ✅ Migración automática JSON→DB
+    ├── migrate-translations.ts # ✅ Migración automática JSON→DB
+    ├── configure-components.ts # ✅ Generación automática desde TypeScript interfaces
+    └── database/              # ✅ Scripts de gestión de base de datos
+        ├── setup.sh           # Setup completo automatizado
+        ├── reset.sh           # Reset destructivo completo
+        ├── seed.sh            # Poblar con datos de ejemplo
+        ├── status.sh          # Estado y métricas del sistema
+        └── seed.ts            # Seed limpio (SIN componentes hardcodeados)
 ```
 
 ## 🛠️ Comandos de Desarrollo
@@ -415,6 +433,10 @@ npm run db:studio            # Abrir Prisma Studio
 node scripts/migrate-translations.ts          # Vista previa migración
 node scripts/migrate-translations.ts --execute # Migrar a PostgreSQL
 curl http://localhost:3000/api/translations/metrics # Estado del sistema
+
+# Automatización de componentes (NUEVO)
+npm run components:configure  # Generar esquemas desde interfaces TypeScript
+npx tsx scripts/configure-components.ts # Comando directo alternativo
 
 # Calidad de código
 npm run lint                  # Ejecutar ESLint con correcciones
@@ -549,7 +571,151 @@ Total: 16 traducciones activas en PostgreSQL
 3. **Cache inteligente**: 85% hit rate para performance óptima
 4. **Hot reload**: Los cambios en DB se reflejan inmediatamente
 
-### 📊 Comandos de Gestión de Base de Datos
+### 🧩 Flujo de Desarrollo Local Automatizado de Componentes
+
+**🎯 SISTEMA CRÍTICO**: Los componentes se generan automáticamente desde
+interfaces TypeScript, eliminando completamente el hardcoding manual.
+
+#### 🔄 Flujo Completo de Desarrollo
+
+**1. Reset y Setup Limpio:**
+
+```bash
+# Reset completo de base de datos (elimina TODOS los datos)
+./scripts/database/reset.sh
+
+# Seed básico (solo locales, traducciones, páginas básicas - SIN componentes)
+npx tsx scripts/database/seed.ts
+
+# Generar componentes automáticamente desde interfaces TypeScript
+npm run components:configure
+```
+
+**2. ¿Qué hace cada comando?**
+
+- **`reset.sh`**: Elimina y recrea base de datos completamente
+- **`seed.ts`**: Crea datos básicos (2 locales, 3 namespaces, 16 traducciones, 2
+  páginas)
+- **`components:configure`**: Lee interfaces TypeScript y genera esquemas
+  automáticamente
+
+#### 🏗️ Sistema de Generación Automática
+
+**Comando clave:** `npm run components:configure`
+
+Este comando:
+
+1. **Escanea** `src/components/` buscando archivos de componentes
+2. **Detecta** interfaces TypeScript con patrones múltiples:
+   ```typescript
+   // Patrones soportados:
+   interface ComponentNameProps {} // Estándar
+   interface ComponentName_Props {} // Underscore
+   type ComponentNameProps = {}; // Type alias
+   interface Props {} // Props genérica
+   ```
+3. **Parsea** propiedades y tipos automáticamente
+4. **Genera** esquemas JSON compatibles con el editor visual
+5. **Sincroniza** con base de datos PostgreSQL vía Prisma
+
+**Resultado:** Sistema 100% consistente entre código TypeScript y base de datos.
+
+#### 📝 Configuración de Componentes
+
+**Archivo:** `component-config.json`
+
+```json
+{
+  "components": {
+    "HeroSection": {
+      "category": "sections",
+      "icon": "layout-template",
+      "description": "Hero section principal"
+    },
+    "ContactForm": {
+      "category": "forms",
+      "icon": "mail",
+      "description": "Formulario de contacto"
+    }
+  }
+}
+```
+
+**Categorías disponibles:** `sections`, `content`, `forms`, `navigation`,
+`media`, `layout`
+
+#### � Verificación del Sistema
+
+**Ver estado de componentes:**
+
+```bash
+# Abrir Prisma Studio y navegar a tabla "Component"
+npm run db:studio
+
+# O verificar via SQL
+echo "SELECT name, category, schema FROM \"Component\";" | \
+docker exec -i nextjs-template-postgres psql -U dev_user -d nextjs_template_dev
+```
+
+**Salida esperada:**
+
+```
+Found 11 components with TypeScript interfaces
+Database sync complete: 11 created, 0 updated
+```
+
+#### ⚠️ Reglas Críticas de Desarrollo
+
+**✅ HACER:**
+
+- Crear interfaces TypeScript para TODOS los componentes nuevos
+- Usar convenciones: `ComponentNameProps` o `Props`
+- Ejecutar `npm run components:configure` después de añadir componentes
+- Verificar en Prisma Studio que esquemas se generaron correctamente
+
+**❌ NO HACER:**
+
+- Editar esquemas de componentes manualmente en base de datos
+- Hardcodear componentes en `scripts/database/seed.ts`
+- Modificar esquemas sin actualizar interfaces TypeScript
+- Confiar en transformaciones de datos "absurdas" entre frontend/backend
+
+#### 🧪 Testing del Flujo Completo
+
+**Comando de verificación completa:**
+
+```bash
+# 1. Reset completo
+./scripts/database/reset.sh
+
+# 2. Seed limpio (sin componentes hardcodeados)
+npx tsx scripts/database/seed.ts
+
+# 3. Generar componentes desde TypeScript
+npm run components:configure
+
+# 4. Verificar en Prisma Studio
+npm run db:studio
+# Navegar a tabla "Component" - debe mostrar ~11 componentes
+```
+
+**Salida esperada en cada paso:**
+
+1. Reset: `Database reset complete`
+2. Seed: `Seed completed successfully` (con conteo de datos básicos)
+3. Components: `Database sync complete: 11 created, 0 updated`
+4. Studio: Tabla Component con esquemas JSON válidos
+
+#### 🎯 Ventajas del Sistema Automatizado
+
+- ✅ **Consistencia total**: Una sola fuente de verdad (interfaces TypeScript)
+- ✅ **Cero hardcoding**: Eliminación completa de duplicación manual
+- ✅ **Sincronización automática**: Cambios en código → automáticamente en DB
+- ✅ **Detección inteligente**: Múltiples patrones de naming soportados
+- ✅ **Validación de tipos**: TypeScript garantiza estructura correcta
+- ✅ **Editor visual compatible**: Esquemas generados son 100% compatibles
+
+### �📊 Comandos de Gestión de Base de Datos
 
 ```bash
 # Ver estado completo del sistema
@@ -563,6 +729,9 @@ npm run db:reset         # o ./scripts/database/reset.sh
 
 # Abrir Prisma Studio (automático)
 npm run db:studio        # Detecta .env.local y configura automáticamente
+
+# 🧩 NUEVO: Generar componentes desde TypeScript
+npm run components:configure  # o npx tsx scripts/configure-components.ts
 ```
 
 ### 🎯 Demo y Verificación
@@ -731,21 +900,62 @@ Ver documentación completa: [README-DATABASE.md](./README-DATABASE.md)
 
 ### Para Desarrollo Avanzado
 
-1. **Configurar PostgreSQL** (opcional - el sistema funciona sin base de datos):
+1. **Configurar PostgreSQL** (recomendado - sistema automatizado completo):
+
    ```bash
-   # En .env.local
+   # Setup automático en un comando
+   ./scripts/database/setup.sh
+
+   # O configuración manual en .env.local
    DATABASE_URL="postgresql://usuario:password@localhost:5432/db_name"
    ```
+
 2. **Migrar esquema**: `npm run db:push`
 3. **Explorar Prisma Studio**: `npm run db:studio` (setup automático)
 4. **Migrar traducciones**: `node scripts/migrate-translations.ts --execute`
+5. **🧩 NUEVO - Generar componentes automáticamente**:
 
-### Siguiente Fase de Desarrollo: Editor Visual Lexical 🚀
+   ```bash
+   # Genera esquemas de componentes desde interfaces TypeScript
+   npm run components:configure
 
-El proyecto está listo para implementar:
+   # Verificar componentes creados en Prisma Studio
+   npm run db:studio  # Navegar a tabla "Component"
+   ```
 
-- **Editor visual Lexical** (infraestructura de stores completada)
-- **Drag & drop de componentes** (edit mode store listo)
+### Para Testing del Sistema Completo
+
+1. **Verificar flujo completo desde cero**:
+
+   ```bash
+   # Reset completo de base de datos
+   ./scripts/database/reset.sh
+
+   # Seed básico (sin componentes hardcodeados)
+   npx tsx scripts/database/seed.ts
+
+   # Generar componentes desde TypeScript
+   npm run components:configure
+
+   # Resultado: 11 componentes generados automáticamente
+   ```
+
+2. **Validar consistency del sistema**:
+
+   ```bash
+   # Ver componentes en base de datos
+   npm run db:studio
+
+   # Verificar que esquemas coinciden con interfaces TypeScript
+   # Sin "transformaciones absurdas" entre frontend/backend
+   ```
+
+### Sistema de Editor Visual Implementado ✅
+
+El proyecto incluye un editor visual completo:
+
+- **Editor simplificado** (componentes implementados y funcionando)
+- **Gestión de componentes** (edit mode store completado)
 - **Páginas dinámicas** (page store implementado)
 - **Panel de administración** (user preferences y stores listos)
 
@@ -761,10 +971,10 @@ El proyecto está listo para implementar:
 
 ### Arquitectura Preparada Para
 
-- 🎯 **Editor visual** con Lexical (infraestructura lista)
-- 🎯 **Panel de administración** (schema y API routes preparados)
-- 🎯 **Páginas dinámicas** (sistema de componentes listo)
-- 🎯 **SEO avanzado** (metadatos dinámicos con Prisma)
+- ✅ **Editor visual** implementado (sistema simplificado funcionando)
+- ✅ **Panel de administración** (completo con CRUD de páginas)
+- ✅ **Páginas dinámicas** (sistema de componentes implementado)
+- ✅ **SEO avanzado** (metadatos dinámicos con Prisma)
 
 ## ⚠️ Guía de Compatibilidad para Desarrollo Futuro
 

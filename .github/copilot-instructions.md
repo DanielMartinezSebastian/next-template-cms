@@ -15,7 +15,7 @@ be a production-ready foundation for modern web applications.
 - **Internationalization**: next-intl with middleware
 - **State Management**: Zustand with TypeScript
 - **UI Components**: Base UI with CVA variants system (LLM-optimized)
-- **Editor**: Lexical for visual content editing
+- **Editor**: Custom System
 - **Forms**: React Hook Form with Zod validation
 - **Testing**: Playwright for E2E testing and visual verification
 - **Development Database**: Docker PostgreSQL with automated setup and seeding
@@ -25,7 +25,7 @@ be a production-ready foundation for modern web applications.
 
 - **Server-side rendering (SSR)** by default with selective client components
 - **Dynamic page configuration** via JSON with TypeScript schemas
-- **Visual page editor** with drag & drop capabilities using Lexical
+- **Visual page editor** with component-based editing system
 - **Multi-language support** with next-intl and route-based localization
 - **Content management** via protected admin panel
 - **SEO optimization** with dynamic metadata generation
@@ -328,15 +328,14 @@ database translations is now ready for advanced development.
   - [x] 23.3. **Consistencia**: Todas las traducciones funcionando correctamente
   - [x] 23.4. **Métricas en tiempo real**: Dashboard de performance disponible
 
-### Next Phase: Visual Editor with Lexical 🚀 READY
+### Visual Editor System Implemented ✅ COMPLETE
 
-El sistema está completamente funcional y pulido, listo para la siguiente fase
-de desarrollo enfocada en:
+El sistema está completamente funcional y implementado:
 
-- Editor visual de páginas con Lexical
-- Drag & drop de componentes (edit mode store listo)
-- Panel de administración avanzado (stores y UI implementados)
-- Páginas dinámicas (page store completo)
+- Editor visual de páginas con sistema simplificado
+- Gestión de componentes (edit mode store implementado)
+- Panel de administración completo (stores y UI funcionando)
+- Páginas dinámicas (page store completado)
 - **Base de datos local completa** con Docker PostgreSQL
 - **Sistema de traducciones verificado** con Database Provider funcionando al
   100%
@@ -501,6 +500,48 @@ src/app/[locale]/
 - Optimize for dark/light theme support
 - Follow semantic class naming conventions
 - Use https://base-ui.com/llms.txt library for class suggestions and utilities
+
+### Placeholder Images with placeholders.dev
+
+**ALWAYS use placeholders.dev for placeholder images** in component definitions,
+examples, and development.
+
+- **Service**: https://placeholders.dev/ - Super-fast placeholder images via
+  Cloudflare Workers (309+ edge locations)
+- **Basic URL Pattern**: `https://images.placeholders.dev/WIDTHxHEIGHT`
+- **Query Parameter Pattern**:
+  `https://images.placeholders.dev/?width=W&height=H&text=TEXT&bgColor=%23COLOR&textColor=%23COLOR`
+
+**Common Placeholder Examples:**
+
+- Hero banners:
+  `https://images.placeholders.dev/1200x600?text=Hero%20Image&bgColor=%234f46e5&textColor=%23ffffff`
+- Card images:
+  `https://images.placeholders.dev/400x250?text=Card%20Image&bgColor=%236b7280&textColor=%23ffffff`
+- Gallery images:
+  `https://images.placeholders.dev/800x600?text=Gallery&bgColor=%2310b981&textColor=%23ffffff`
+- Avatars:
+  `https://images.placeholders.dev/150x150?text=Avatar&bgColor=%23f59e0b&textColor=%23ffffff`
+- Thumbnails:
+  `https://images.placeholders.dev/200x150?text=Thumbnail&bgColor=%23ef4444&textColor=%23ffffff`
+
+**Available API Options:**
+
+- `width`: Image width (default: 300)
+- `height`: Image height (default: 150)
+- `text`: Display text (default: dimensions)
+- `bgColor`: Background color (default: #ddd)
+- `textColor`: Text color (default: rgba(0,0,0,0.5))
+- `fontFamily`: Font family (default: sans-serif)
+- `fontWeight`: Font weight (default: bold)
+- `fontSize`: Font size (default: 20% of shortest dimension)
+
+**Usage Guidelines:**
+
+- Use descriptive text that indicates the image purpose
+- Choose appropriate dimensions for the component context
+- Use semantic colors that match the design system
+- Always URL-encode text parameters (spaces = %20)
 
 ### Base UI Component Patterns
 

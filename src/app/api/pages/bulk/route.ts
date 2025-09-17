@@ -4,6 +4,8 @@
  */
 
 import { prisma } from '@/lib/db';
+import type { Prisma } from '@prisma/client';
+import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
@@ -48,7 +50,7 @@ export async function POST(request: NextRequest) {
 }
 
 async function handleBulkDelete(pageIds: string[]) {
-  const transaction = await prisma.$transaction(async tx => {
+  const transaction = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     // First, delete all page components
     await tx.pageComponent.deleteMany({
       where: { pageId: { in: pageIds } },
@@ -75,6 +77,12 @@ async function handleBulkDelete(pageIds: string[]) {
 }
 
 async function handleBulkPublish(pageIds: string[], isPublished: boolean) {
+  // Primero obtener las páginas para revalidar sus rutas
+  const pages = await prisma.page.findMany({
+    where: { id: { in: pageIds }, isActive: true },
+    select: { fullPath: true },
+  });
+
   const updatedContents = await prisma.pageContent.updateMany({
     where: { pageId: { in: pageIds } },
     data: {
@@ -82,6 +90,16 @@ async function handleBulkPublish(pageIds: string[], isPublished: boolean) {
       publishedAt: isPublished ? new Date() : null,
     },
   });
+
+  // Revalidar todas las páginas afectadas
+  for (const page of pages) {
+    try {
+      revalidatePath(page.fullPath);
+      console.warn(`🔄 Bulk revalidated page: ${page.fullPath}`);
+    } catch (revalidateError) {
+      console.warn(`⚠️ Failed to revalidate page ${page.fullPath}:`, revalidateError);
+    }
+  }
 
   return {
     success: true,
@@ -122,7 +140,7 @@ async function handleBulkUpdate(pageIds: string[], updateData: Record<string, un
 }
 
 async function handleBulkMove(pageIds: string[], newParentId: string | null) {
-  const transaction = await prisma.$transaction(async tx => {
+  const transaction = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     const movedPages = [];
 
     for (const pageId of pageIds) {
@@ -154,7 +172,7 @@ async function handleBulkMove(pageIds: string[], newParentId: string | null) {
       const updatedPage = await tx.page.update({
         where: { id: pageId },
         data: {
-          parentId: newParentId,
+          parentId: newParentId ?? null,
           fullPath: newFullPath,
           level: newLevel,
         },
