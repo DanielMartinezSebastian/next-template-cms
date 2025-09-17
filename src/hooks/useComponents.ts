@@ -12,7 +12,7 @@ export interface ComponentDefinition {
   name: string;
   description: string;
   category: string;
-  defaultProps: Record<string, unknown>;
+  defaultConfig: Record<string, unknown>; // ✅ Changed from defaultProps to defaultConfig
   configSchema: Record<string, unknown>;
 }
 
@@ -33,7 +33,7 @@ export function useComponents(): UseComponentsResult {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch('/api/components');
+      const response = await fetch('/api/admin/components'); // ✅ Fixed endpoint
       const data = await response.json();
 
       if (!response.ok) {
