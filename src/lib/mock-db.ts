@@ -418,6 +418,13 @@ export const mockDb = {
       (mockComponents as Array<Record<string, unknown>>).push(newComponent);
       return newComponent;
     },
+
+    count: async (options?: { where?: Record<string, unknown> }) => {
+      console.log('🔧 Mock component.count called with options:', JSON.stringify(options, null, 2));
+      // Return the count of components from findMany to ensure consistency
+      const components = await mockDb.component.findMany();
+      return components.length;
+    },
   },
 };
 
