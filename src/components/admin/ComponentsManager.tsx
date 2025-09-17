@@ -4,7 +4,6 @@ import { useEffect, useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { getDbClient } from '@/lib/db';
 
 interface ComponentInfo {
   id: string;
@@ -34,13 +33,21 @@ export function ComponentsManager() {
   const loadComponents = async () => {
     try {
       setIsLoading(true);
-      const dbClient = getDbClient();
-      const componentsData = await dbClient.component.findMany({
-        orderBy: [{ category: 'asc' }, { name: 'asc' }],
-      });
-      setComponents(componentsData);
+      
+      // Use API endpoint to load components
+      const response = await fetch('/api/admin/components');
+      const data = await response.json();
+      
+      if (data.success) {
+        setComponents(data.components);
+        console.log(`✅ Loaded ${data.count} components from ${data.source} database`);
+      } else {
+        console.error('❌ Failed to load components:', data.error);
+        setComponents([]);
+      }
     } catch (error) {
-      console.error('Error loading components:', error);
+      console.error('❌ Error loading components:', error);
+      setComponents([]);
     } finally {
       setIsLoading(false);
     }
