@@ -186,23 +186,41 @@ export function ComponentsManager() {
       case 'textblock':
         const textAlign = (config.textAlign as string) || 'left';
         return (
-          <div className="prose max-w-none p-4 border rounded-lg">
+          <div 
+            className="prose max-w-none p-6 border rounded-lg"
+            style={{
+              backgroundColor: (config.backgroundColor as string) || '#ffffff',
+              color: (config.textColor as string) || '#1f2937'
+            }}
+          >
             {config.title && (
               <h2 
-                className="text-xl font-semibold mb-4" 
-                style={{ textAlign: textAlign as any }}
+                className={`text-xl font-semibold mb-4 ${config.fontSize || 'text-xl'} ${config.fontWeight || 'font-semibold'}`}
+                style={{ 
+                  textAlign: textAlign as any,
+                  color: (config.textColor as string) || '#1f2937'
+                }}
               >
                 {config.title as string}
               </h2>
             )}
             <div 
-              className="text-base leading-relaxed"
-              style={{ textAlign: textAlign as any }}
+              className={`leading-relaxed ${config.fontSize || 'text-base'} ${config.fontWeight || 'font-normal'}`}
+              style={{ 
+                textAlign: textAlign as any,
+                color: (config.textColor as string) || '#1f2937'
+              }}
             >
-              {(config.content as string) || 'Enter your text content here. This is a sample text block that demonstrates how your content will appear.'}
+              {(config.content as string) || 'Enter your text content here. This is a sample text block that demonstrates how your content will appear with custom styling options.'}
             </div>
             {config.showDate && (
-              <p className="text-sm text-gray-500 mt-4" style={{ textAlign: textAlign as any }}>
+              <p 
+                className="text-sm opacity-70 mt-4" 
+                style={{ 
+                  textAlign: textAlign as any,
+                  color: (config.textColor as string) || '#1f2937'
+                }}
+              >
                 {new Date().toLocaleDateString()}
               </p>
             )}
@@ -326,6 +344,143 @@ export function ComponentsManager() {
               <button className="w-full bg-primary text-primary-foreground p-2 rounded">
                 {(config.submitText as string) || 'Send Message'}
               </button>
+            </div>
+          </div>
+        );
+
+      case 'call-to-action':
+      case 'calltoaction':
+        return (
+          <div 
+            className="p-8 rounded-lg text-white"
+            style={{
+              background: (config.backgroundColor as string) || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+            }}
+          >
+            <div className={config.centerAlign ? 'text-center' : ''}>
+              <h2 className="text-3xl font-bold mb-4">
+                {(config.title as string) || 'Ready to get started?'}
+              </h2>
+              <p className="text-lg mb-6 opacity-90">
+                {(config.description as string) || 'Join thousands of satisfied customers today'}
+              </p>
+              <button className={`px-6 py-3 rounded-lg font-semibold transition-colors ${
+                config.buttonVariant === 'outline' 
+                  ? 'border-2 border-white text-white hover:bg-white hover:text-blue-600' 
+                  : 'bg-white text-blue-600 hover:bg-gray-100'
+              }`}>
+                {(config.buttonText as string) || 'Get Started'}
+              </button>
+            </div>
+          </div>
+        );
+
+      case 'pricing':
+        const pricingFeatures = (config.features as any[]) || [
+          { text: 'Unlimited projects', included: true },
+          { text: 'Advanced analytics', included: true },
+          { text: 'Priority support', included: true },
+          { text: 'Custom integrations', included: false },
+        ];
+        
+        return (
+          <div 
+            className={`relative p-6 rounded-lg border shadow-lg max-w-sm mx-auto ${
+              config.highlighted ? 'ring-2 ring-blue-600 ring-offset-2' : ''
+            }`}
+            style={{
+              backgroundColor: (config.backgroundColor as string) || '#ffffff'
+            }}
+          >
+            {config.highlighted && (
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-medium">
+                  Most Popular
+                </span>
+              </div>
+            )}
+            
+            <div className="text-center mb-6">
+              <h3 className="text-xl font-bold" style={{ color: (config.textColor as string) || '#1f2937' }}>
+                {(config.planName as string) || 'Pro Plan'}
+              </h3>
+              <p className="text-gray-500 text-sm mt-2">{(config.description as string) || 'Perfect for growing businesses'}</p>
+            </div>
+            
+            <div className="text-center mb-6">
+              <div className="flex items-baseline justify-center">
+                <span className="text-sm text-gray-500">{(config.currency as string) || '$'}</span>
+                <span className="text-4xl font-bold" style={{ color: (config.textColor as string) || '#1f2937' }}>
+                  {(config.price as string) || '29'}
+                </span>
+                <span className="text-sm text-gray-500">/{(config.period as string) || 'month'}</span>
+              </div>
+            </div>
+            
+            <div className="space-y-3 mb-6">
+              {pricingFeatures.map((feature: any, index: number) => (
+                <div key={index} className="flex items-center space-x-3">
+                  <div className="flex-shrink-0">
+                    {feature.included ? (
+                      <svg className="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    ) : (
+                      <svg className="h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                  </div>
+                  <span className={`text-sm ${feature.included ? 'text-gray-700' : 'text-gray-400 line-through'}`}>
+                    {feature.text}
+                  </span>
+                </div>
+              ))}
+            </div>
+            
+            <button 
+              className="w-full px-4 py-3 rounded-md text-center text-sm font-medium text-white transition-colors hover:opacity-90"
+              style={{
+                backgroundColor: (config.accentColor as string) || '#2563eb'
+              }}
+            >
+              {(config.buttonText as string) || 'Get Started'}
+            </button>
+          </div>
+        );
+
+      case 'testimonial':
+        return (
+          <div 
+            className="p-6 rounded-lg"
+            style={{
+              backgroundColor: (config.backgroundColor as string) || '#f9fafb'
+            }}
+          >
+            <div className="flex mb-4">
+              {[...Array(Number(config.rating) || 5)].map((_, i) => (
+                <svg key={i} className="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+              ))}
+            </div>
+            <blockquote className="text-lg mb-4" style={{ color: (config.textColor as string) || '#1f2937' }}>
+              "{(config.quote as string) || 'This product has transformed our business. Highly recommended!'}"
+            </blockquote>
+            <div className="flex items-center">
+              {config.avatar && (
+                <img 
+                  src={config.avatar as string} 
+                  alt={config.author as string} 
+                  className="w-12 h-12 rounded-full mr-4"
+                />
+              )}
+              <div>
+                <div className="font-semibold" style={{ color: (config.textColor as string) || '#1f2937' }}>
+                  {(config.author as string) || 'John Smith'}
+                </div>
+                <div className="text-gray-500 text-sm">{(config.position as string) || 'CEO, Tech Corp'}</div>
+              </div>
             </div>
           </div>
         );
