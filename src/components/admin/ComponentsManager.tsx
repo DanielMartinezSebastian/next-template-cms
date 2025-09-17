@@ -24,6 +24,8 @@ export function ComponentsManager() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [selectedComponent, setSelectedComponent] = useState<ComponentInfo | null>(null);
+  const [modalMode, setModalMode] = useState<'schema' | 'preview' | null>(null);
 
   useEffect(() => {
     loadComponents();
@@ -115,11 +117,27 @@ export function ComponentsManager() {
 
         {/* Component Actions */}
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="flex-1">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex-1"
+            onClick={() => {
+              setSelectedComponent(component);
+              setModalMode('schema');
+            }}
+          >
             Ver Esquema
           </Button>
-          <Button variant="outline" size="sm" className="flex-1">
-            Test Props
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex-1"
+            onClick={() => {
+              setSelectedComponent(component);
+              setModalMode('preview');
+            }}
+          >
+            Previsualizar
           </Button>
         </div>
 
@@ -157,10 +175,24 @@ export function ComponentsManager() {
             </div>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm">
-              Configurar
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => {
+                setSelectedComponent(component);
+                setModalMode('schema');
+              }}
+            >
+              Ver Esquema
             </Button>
-            <Button variant="outline" size="sm">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => {
+                setSelectedComponent(component);
+                setModalMode('preview');
+              }}
+            >
               Previsualizar
             </Button>
           </div>
@@ -287,6 +319,100 @@ export function ComponentsManager() {
       ) : (
         <div className="space-y-3">
           {filteredComponents.map(renderComponentListItem)}
+        </div>
+      )}
+
+      {/* Schema/Preview Modal */}
+      {selectedComponent && modalMode && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-card border-border max-h-[80vh] w-full max-w-4xl overflow-hidden rounded-lg border">
+            <div className="border-b border-border bg-muted/50 flex items-center justify-between p-4">
+              <h3 className="text-foreground text-lg font-semibold">
+                {modalMode === 'schema' ? 'Esquema de Configuración' : 'Vista Previa'} - {selectedComponent.name}
+              </h3>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSelectedComponent(null);
+                  setModalMode(null);
+                }}
+              >
+                ✕ Cerrar
+              </Button>
+            </div>
+            <div className="max-h-[60vh] overflow-y-auto p-6">
+              {modalMode === 'schema' ? (
+                <div>
+                  <h4 className="text-foreground mb-4 font-semibold">Esquema JSON de Configuración</h4>
+                  <pre className="bg-muted text-foreground overflow-x-auto rounded-lg p-4 text-sm">
+                    {JSON.stringify(selectedComponent.configSchema || {}, null, 2)}
+                  </pre>
+                  <h4 className="text-foreground mb-4 mt-6 font-semibold">Configuración por Defecto</h4>
+                  <pre className="bg-muted text-foreground overflow-x-auto rounded-lg p-4 text-sm">
+                    {JSON.stringify(selectedComponent.defaultConfig || {}, null, 2)}
+                  </pre>
+                </div>
+              ) : (
+                <div>
+                  <h4 className="text-foreground mb-4 font-semibold">Vista Previa del Componente</h4>
+                  <div className="border-border rounded-lg border p-6">
+                    {selectedComponent.type === 'hero-section' && (
+                      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-8 text-white">
+                        <h1 className="text-3xl font-bold mb-4">
+                          {(selectedComponent.defaultConfig.title as string) || 'Welcome to Our Website'}
+                        </h1>
+                        <p className="text-lg mb-6">
+                          {(selectedComponent.defaultConfig.description as string) || 'Discover amazing content and services'}
+                        </p>
+                        <button className="bg-white text-blue-600 px-6 py-2 rounded-lg font-semibold">
+                          {(selectedComponent.defaultConfig.ctaText as string) || 'Get Started'}
+                        </button>
+                      </div>
+                    )}
+                    {selectedComponent.type === 'text-block' && (
+                      <div className="prose">
+                        <h2 className="text-xl font-semibold mb-4">
+                          {(selectedComponent.defaultConfig.title as string) || 'Text Block Title'}
+                        </h2>
+                        <p>
+                          {(selectedComponent.defaultConfig.content as string) || 'Enter your text here'}
+                        </p>
+                      </div>
+                    )}
+                    {selectedComponent.type === 'feature-grid' && (
+                      <div>
+                        <h2 className="text-2xl font-bold mb-6 text-center">
+                          {(selectedComponent.defaultConfig.title as string) || 'Our Features'}
+                        </h2>
+                        <div className="grid grid-cols-3 gap-6">
+                          {[1, 2, 3].map(i => (
+                            <div key={i} className="text-center p-4">
+                              <div className="text-3xl mb-2">⚡</div>
+                              <h3 className="font-semibold mb-2">Feature {i}</h3>
+                              <p className="text-sm text-muted-foreground">Feature description here</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {selectedComponent.type === 'button' && (
+                      <div className="flex justify-center">
+                        <button className="bg-primary text-primary-foreground px-6 py-2 rounded-md font-medium">
+                          {(selectedComponent.defaultConfig.text as string) || 'Button'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <div className="bg-muted/50 mt-6 rounded-lg p-4">
+                    <p className="text-muted-foreground text-sm">
+                      💡 Esta es una vista previa simplificada del componente con su configuración por defecto.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -186,7 +186,7 @@ export function SimplePageManagerNew() {
         <div className="bg-card border-border flex items-center justify-between border-b p-4">
           <div className="flex flex-1 items-center space-x-3">
             <Link
-              href={`/${locale}/admin/editor`}
+              href={`/${locale}/admin/pages`}
               className="hover:bg-muted text-muted-foreground hover:text-foreground flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md transition-colors"
               aria-label="Volver a la lista de páginas"
             >
