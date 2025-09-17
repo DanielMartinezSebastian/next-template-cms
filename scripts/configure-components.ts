@@ -60,6 +60,7 @@ interface ComponentConfig {
       className: string;
     };
   };
+  componentSpecificDefaults?: Record<string, Record<string, any>>;
   debug: boolean;
 }
 
@@ -339,11 +340,23 @@ function getPlaceholderValue(propName: string, propType: string, config: Compone
  */
 function applyPlaceholders(
   defaults: Record<string, unknown>,
-  properties: Record<string, any>,
-  config: ComponentConfig
+  properties: Record<string, unknown>,
+  config: ComponentConfig,
+  componentName?: string
 ): Record<string, unknown> {
   const enhancedDefaults = { ...defaults };
 
+  // 1. First, apply component-specific defaults if available
+  if (componentName && config.componentSpecificDefaults?.[componentName]) {
+    const specificDefaults = config.componentSpecificDefaults[componentName];
+    Object.assign(enhancedDefaults, specificDefaults);
+
+    if (config.debug) {
+      console.log(`    🎯 Applied specific defaults for ${componentName}`);
+    }
+  }
+
+  // 2. Then, apply intelligent placeholders for missing values
   for (const [propName, propSchema] of Object.entries(properties)) {
     // Solo aplicar placeholder si no hay valor por defecto o si es problemático
     const currentValue = enhancedDefaults[propName];
@@ -354,7 +367,7 @@ function applyPlaceholders(
       currentValue === '' ||
       (typeof currentValue === 'string' && ['[]', '{}', '>', '<'].includes(currentValue))
     ) {
-      const placeholder = getPlaceholderValue(propName, propSchema.type, config);
+      const placeholder = getPlaceholderValue(propName, (propSchema as any).type, config);
       enhancedDefaults[propName] = placeholder;
 
       if (config.debug) {
@@ -431,7 +444,8 @@ function generateSchemaFromTypeScript(
       defaults: applyPlaceholders(
         generateDefaultsFromProperties(interfaceProperties, config),
         interfaceProperties,
-        config
+        config,
+        component.name
       ),
     };
   } catch (error) {
@@ -575,7 +589,9 @@ function generateBasicSchema(component: ComponentInfo, config?: ComponentConfig)
     category: component.category,
     icon: component.icon,
     properties,
-    defaults: config ? applyPlaceholders(basicDefaults, properties, config) : basicDefaults,
+    defaults: config
+      ? applyPlaceholders(basicDefaults, properties, config, component.name)
+      : basicDefaults,
   };
 }
 
@@ -588,10 +604,22 @@ function generateBasicSchema(component: ComponentInfo, config?: ComponentConfig)
  */
 function validateAndCleanDefaults(
   defaults: Record<string, unknown>,
-  config: ComponentConfig
+  config: ComponentConfig,
+  componentName?: string
 ): Record<string, unknown> {
   const cleaned = { ...defaults };
 
+  // 1. Apply component-specific defaults first if available
+  if (componentName && config.componentSpecificDefaults?.[componentName]) {
+    const specificDefaults = config.componentSpecificDefaults[componentName];
+    Object.assign(cleaned, specificDefaults);
+
+    if (config.debug) {
+      console.log(`    🎯 Applied specific defaults for ${componentName}`);
+    }
+  }
+
+  // 2. Clean problematic values
   for (const [key, value] of Object.entries(cleaned)) {
     // Check for problematic string arrays
     if (
@@ -644,7 +672,7 @@ async function syncWithDatabase(
       const schema = schemas[component.type];
 
       // Validar y limpiar defaultConfig antes de guardar
-      const cleanDefaultConfig = validateAndCleanDefaults(schema.defaults, config);
+      const cleanDefaultConfig = validateAndCleanDefaults(schema.defaults, config, component.name);
 
       if (existingNames.has(component.name)) {
         // Actualizar componente existente

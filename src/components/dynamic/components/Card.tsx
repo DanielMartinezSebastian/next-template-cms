@@ -23,11 +23,11 @@ export interface CardProps {
 
 const Card: React.FC<CardProps> = ({
   title = 'Card Title',
-  description = 'Card description goes here...',
-  image,
+  description = 'This is a sample card description that shows how content will be displayed in the card component.',
+  image = 'https://images.placeholders.dev/400x250?text=Card%20Image&bgColor=%236b7280&textColor=%23ffffff',
   imageAlt = 'Card image',
-  buttonText,
-  buttonLink,
+  buttonText = 'Learn More',
+  buttonLink = '#',
   variant = 'default',
   imagePosition = 'top',
   className,

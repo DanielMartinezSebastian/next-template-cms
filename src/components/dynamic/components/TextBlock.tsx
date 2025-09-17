@@ -146,6 +146,14 @@ export function TextBlock({
             <div className="text-sm">Add title, subtitle, or content to this text block</div>
           </div>
         )}
+
+        {/* Show placeholder content when not in edit mode and no content */}
+        {!showEditIndicators && !content && !title && !subtitle && (
+          <div className="rounded border border-gray-200 p-6 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">
+            <div className="text-lg font-medium">Text Block</div>
+            <div className="text-sm">Configure this component to add content</div>
+          </div>
+        )}
       </div>
     </div>
   );

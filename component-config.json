@@ -17,12 +17,87 @@
   },
   "placeholders": {
     "arrays": {
-      "images": [],
-      "features": [{ "text": "Feature example", "included": true }],
-      "testimonials": [{ "name": "John Doe", "text": "Great service!", "rating": 5 }],
+      "images": [
+        {
+          "src": "https://images.placeholders.dev/800x600?text=Gallery%20Image%201&bgColor=%234f46e5&textColor=%23ffffff",
+          "alt": "Gallery Image 1",
+          "title": "Beautiful Landscape",
+          "description": "A stunning view of the mountains and valleys"
+        },
+        {
+          "src": "https://images.placeholders.dev/800x600?text=Gallery%20Image%202&bgColor=%2310b981&textColor=%23ffffff",
+          "alt": "Gallery Image 2",
+          "title": "Urban Architecture",
+          "description": "Modern city skyline with impressive buildings"
+        },
+        {
+          "src": "https://images.placeholders.dev/800x600?text=Gallery%20Image%203&bgColor=%23f59e0b&textColor=%23ffffff",
+          "alt": "Gallery Image 3",
+          "title": "Nature Close-up",
+          "description": "Detailed macro photography of natural elements"
+        }
+      ],
+      "features": [
+        {
+          "title": "Fast Performance",
+          "description": "Lightning-fast loading times and optimized performance for the best user experience.",
+          "icon": "⚡",
+          "link": "/features/performance"
+        },
+        {
+          "title": "Secure & Reliable",
+          "description": "Enterprise-grade security with 99.9% uptime guarantee and regular backups.",
+          "icon": "🔐",
+          "link": "/features/security"
+        },
+        {
+          "title": "24/7 Support",
+          "description": "Round-the-clock customer support from our expert team whenever you need help.",
+          "icon": "🛟",
+          "link": "/support"
+        }
+      ],
+      "testimonials": [
+        {
+          "name": "Sarah Johnson",
+          "role": "CEO, TechStart",
+          "content": "This service has transformed our business operations. The team is professional and the results speak for themselves.",
+          "rating": 5,
+          "avatar": "https://images.placeholders.dev/100x100?text=SJ&bgColor=%234f46e5&textColor=%23ffffff"
+        },
+        {
+          "name": "Michael Chen",
+          "role": "Product Manager, InnovaCorp",
+          "content": "Outstanding quality and excellent customer support. I highly recommend this to anyone looking for reliable solutions.",
+          "rating": 5,
+          "avatar": "https://images.placeholders.dev/100x100?text=MC&bgColor=%2310b981&textColor=%23ffffff"
+        },
+        {
+          "name": "Emma Rodriguez",
+          "role": "Marketing Director, GrowthCo",
+          "content": "The best investment we've made this year. The ROI has exceeded our expectations significantly.",
+          "rating": 5,
+          "avatar": "https://images.placeholders.dev/100x100?text=ER&bgColor=%23f59e0b&textColor=%23ffffff"
+        }
+      ],
+      "fields": [
+        { "name": "name", "label": "Name", "type": "text", "required": true, "placeholder": "Your name" },
+        { "name": "email", "label": "Email", "type": "email", "required": true, "placeholder": "your@email.com" },
+        {
+          "name": "message",
+          "label": "Message",
+          "type": "textarea",
+          "required": true,
+          "placeholder": "Your message here..."
+        }
+      ],
       "items": [],
-      "tags": [],
-      "options": []
+      "tags": ["design", "development", "ui", "ux"],
+      "options": [
+        { "value": "option1", "label": "Option 1" },
+        { "value": "option2", "label": "Option 2" },
+        { "value": "option3", "label": "Option 3" }
+      ]
     },
     "objects": {
       "config": {},
@@ -36,9 +111,106 @@
     },
     "specialTypes": {
       "color": "#000000",
-      "url": "",
-      "email": "",
+      "url": "https://images.placeholders.dev/800x600?text=Placeholder&bgColor=%236b7280&textColor=%23ffffff",
+      "email": "example@email.com",
       "className": ""
+    }
+  },
+  "componentSpecificDefaults": {
+    "TextBlock": {
+      "title": "Welcome to Our Content",
+      "subtitle": "Explore our amazing features and services",
+      "content": "This is a sample text block that demonstrates how content can be displayed with various formatting options. You can customize the appearance, alignment, and styling to match your design needs.\n\nThis text block supports multiple paragraphs and provides flexible content presentation for your website or application.",
+      "textAlign": "left",
+      "fontSize": "medium",
+      "fontWeight": "normal",
+      "padding": "medium",
+      "margin": "medium",
+      "maxWidth": "prose"
+    },
+    "HeroSection": {
+      "title": "Welcome to Our Website",
+      "subtitle": "Innovation Starts Here",
+      "description": "Discover amazing content and services that will transform your experience and help you achieve your goals.",
+      "backgroundImage": "https://images.placeholders.dev/1200x600?text=Hero%20Background&bgColor=%234f46e5&textColor=%23ffffff",
+      "backgroundColor": "bg-gradient-to-r from-blue-600 to-purple-600",
+      "textAlign": "center",
+      "height": "medium",
+      "ctaText": "Get Started",
+      "ctaLink": "#",
+      "overlay": true,
+      "overlayOpacity": 0.5
+    },
+    "FeatureGrid": {
+      "title": "Our Features",
+      "subtitle": "Discover what makes us special",
+      "columns": 3,
+      "showIcons": true
+    },
+    "ImageGallery": {
+      "title": "Image Gallery",
+      "columns": 3,
+      "spacing": "medium",
+      "aspectRatio": "landscape",
+      "lightbox": false,
+      "showTitles": false,
+      "showDescriptions": false
+    },
+    "Card": {
+      "title": "Card Title",
+      "description": "This is a sample card description that shows how content will be displayed in the card component.",
+      "image": "https://images.placeholders.dev/400x250?text=Card%20Image&bgColor=%236b7280&textColor=%23ffffff",
+      "imageAlt": "Card image",
+      "buttonText": "Learn More",
+      "buttonLink": "#",
+      "variant": "default",
+      "imagePosition": "top"
+    },
+    "CallToAction": {
+      "title": "Ready to get started?",
+      "description": "Join thousands of satisfied customers today",
+      "buttonText": "Get Started",
+      "buttonLink": "#",
+      "buttonVariant": "default",
+      "backgroundColor": "bg-primary",
+      "centerAlign": true
+    },
+    "Pricing": {
+      "planName": "Pro Plan",
+      "price": "29",
+      "currency": "$",
+      "period": "month",
+      "description": "Perfect for growing businesses",
+      "buttonText": "Get Started",
+      "buttonLink": "#",
+      "highlighted": false,
+      "backgroundColor": "bg-white",
+      "textColor": "text-gray-900",
+      "accentColor": "bg-blue-600"
+    },
+    "Testimonial": {
+      "quote": "This product has completely transformed our workflow. Highly recommended!",
+      "author": "John Smith",
+      "title": "CEO",
+      "company": "Tech Solutions Inc.",
+      "avatar": "https://images.placeholders.dev/150x150?text=Avatar&bgColor=%236b7280&textColor=%23ffffff",
+      "rating": 5,
+      "backgroundColor": "bg-white",
+      "textColor": "text-gray-900"
+    },
+    "ContactForm": {
+      "title": "Contact Us",
+      "description": "Get in touch with us",
+      "submitText": "Send Message",
+      "successMessage": "Thank you for your message!"
+    },
+    "Image": {
+      "src": "https://images.placeholders.dev/800x600?text=Image&bgColor=%236b7280&textColor=%23ffffff",
+      "alt": "Image description",
+      "width": 800,
+      "height": 600,
+      "fit": "cover",
+      "priority": false
     }
   },
   "categoryMapping": {

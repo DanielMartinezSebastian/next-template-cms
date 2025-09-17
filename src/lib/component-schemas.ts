@@ -1,8 +1,14 @@
 /**
  * Component Schema Definitions
  * Automatically generates editor options from TypeScript component interfaces
+ * and component-config.json configuration
  */
 
+import { AUTO_GENERATED_SCHEMAS } from './generated/component-schemas';
+import {
+  generateAllComponentSchemasFromConfig,
+  generateComponentSchemaFromConfig,
+} from './schema-config-generator';
 import { createButtonInterfaceInfo, generateSchemaFromInterface } from './schema-inference';
 
 // =============================================================================
@@ -159,9 +165,11 @@ export const COMPONENT_SCHEMAS: Record<string, ComponentSchema> = {
     },
     defaults: {
       title: 'Welcome to Our Website',
-      subtitle: '',
-      description: 'Discover amazing content and services',
-      backgroundImage: '',
+      subtitle: 'Innovation Starts Here',
+      description:
+        'Discover amazing content and services that will transform your experience and help you achieve your goals.',
+      backgroundImage:
+        'https://images.placeholders.dev/1200x600?text=Hero%20Background&bgColor=%234f46e5&textColor=%23ffffff',
       backgroundColor: 'bg-gradient-to-r from-blue-600 to-purple-600',
       textAlign: 'center',
       height: 'medium',
@@ -173,85 +181,8 @@ export const COMPONENT_SCHEMAS: Record<string, ComponentSchema> = {
     },
   },
 
-  'image-gallery': {
-    type: 'image-gallery',
-    name: 'Image Gallery',
-    description: 'Grid of images with optional lightbox functionality',
-    category: 'media',
-    icon: '🖼️',
-    properties: {
-      title: {
-        type: 'string',
-        label: 'Gallery Title',
-        description: 'Optional title for the gallery',
-        default: '',
-        placeholder: 'Gallery title...',
-      },
-      columns: {
-        type: 'select',
-        label: 'Columns',
-        description: 'Number of columns in the grid',
-        default: 3,
-        options: [
-          { value: 1, label: '1 Column' },
-          { value: 2, label: '2 Columns' },
-          { value: 3, label: '3 Columns' },
-          { value: 4, label: '4 Columns' },
-        ],
-      },
-      spacing: {
-        type: 'select',
-        label: 'Spacing',
-        description: 'Gap between images',
-        default: 'medium',
-        options: [
-          { value: 'small', label: 'Small' },
-          { value: 'medium', label: 'Medium' },
-          { value: 'large', label: 'Large' },
-        ],
-      },
-      aspectRatio: {
-        type: 'select',
-        label: 'Aspect Ratio',
-        description: 'Shape of the images',
-        default: 'landscape',
-        options: [
-          { value: 'square', label: 'Square (1:1)' },
-          { value: 'landscape', label: 'Landscape (16:9)' },
-          { value: 'portrait', label: 'Portrait (3:4)' },
-          { value: 'auto', label: 'Original' },
-        ],
-      },
-      lightbox: {
-        type: 'boolean',
-        label: 'Enable Lightbox',
-        description: 'Allow clicking images to view in full size',
-        default: false,
-      },
-      showTitles: {
-        type: 'boolean',
-        label: 'Show Image Titles',
-        description: 'Display title for each image',
-        default: false,
-      },
-      showDescriptions: {
-        type: 'boolean',
-        label: 'Show Descriptions',
-        description: 'Display description for each image',
-        default: false,
-      },
-    },
-    defaults: {
-      title: '',
-      columns: 3,
-      spacing: 'medium',
-      aspectRatio: 'landscape',
-      lightbox: false,
-      showTitles: false,
-      showDescriptions: false,
-      images: [],
-    },
-  },
+  // ✅ REMOVED: 'image-gallery' hardcoded schema
+  // Now using automatic generation from component-config.json
 
   'text-block': {
     type: 'text-block',
@@ -373,9 +304,10 @@ export const COMPONENT_SCHEMAS: Record<string, ComponentSchema> = {
       },
     },
     defaults: {
-      title: '',
-      subtitle: '',
-      content: '',
+      title: 'Welcome to Our Content',
+      subtitle: 'Explore our amazing features and services',
+      content:
+        'This is a sample text block that demonstrates how content can be displayed with various formatting options. You can customize the appearance, alignment, and styling to match your design needs.\n\nThis text block supports multiple paragraphs and provides flexible content presentation for your website or application.',
       textAlign: 'left',
       fontSize: 'medium',
       fontWeight: 'normal',
@@ -385,6 +317,76 @@ export const COMPONENT_SCHEMAS: Record<string, ComponentSchema> = {
       color: '',
       backgroundColor: '',
       allowHtml: false,
+    },
+  },
+
+  'feature-grid': {
+    type: 'feature-grid',
+    name: 'Feature Grid',
+    description: 'Grid of features with icons and descriptions',
+    category: 'marketing',
+    icon: '⭐',
+    properties: {
+      title: {
+        type: 'string',
+        label: 'Section Title',
+        description: 'Title for the features section',
+        default: 'Our Features',
+        placeholder: 'Features title...',
+      },
+      subtitle: {
+        type: 'string',
+        label: 'Subtitle',
+        description: 'Optional subtitle for the section',
+        default: 'Discover what makes us special',
+        placeholder: 'Subtitle text...',
+      },
+      columns: {
+        type: 'select',
+        label: 'Columns',
+        description: 'Number of columns in the grid',
+        default: 3,
+        options: [
+          { value: 1, label: '1 Column' },
+          { value: 2, label: '2 Columns' },
+          { value: 3, label: '3 Columns' },
+          { value: 4, label: '4 Columns' },
+        ],
+      },
+      showIcons: {
+        type: 'boolean',
+        label: 'Show Icons',
+        description: 'Display icons for each feature',
+        default: true,
+      },
+    },
+    defaults: {
+      title: 'Our Features',
+      subtitle: 'Discover what makes us special',
+      columns: 3,
+      showIcons: true,
+      features: [
+        {
+          title: 'Fast Performance',
+          description:
+            'Lightning-fast loading times and optimized performance for the best user experience.',
+          icon: '⚡',
+          link: '/features/performance',
+        },
+        {
+          title: 'Secure & Reliable',
+          description: 'Enterprise-grade security with 99.9% uptime guarantee and regular backups.',
+          icon: '🔐',
+          link: '/features/security',
+        },
+        {
+          title: '24/7 Support',
+          description:
+            'Round-the-clock customer support from our expert team whenever you need help.',
+          icon: '🛟',
+          link: '/support',
+        },
+      ],
     },
   },
 
@@ -417,7 +419,481 @@ export const COMPONENT_SCHEMAS: Record<string, ComponentSchema> = {
     defaults: {
       title: 'What our customers say',
       layout: 'grid',
-      testimonials: [],
+      testimonials: [
+        {
+          name: 'Sarah Johnson',
+          role: 'CEO, TechStart',
+          content:
+            'This service has transformed our business operations. The team is professional and the results speak for themselves.',
+          rating: 5,
+          avatar:
+            'https://images.placeholders.dev/100x100?text=SJ&bgColor=%234f46e5&textColor=%23ffffff',
+        },
+        {
+          name: 'Michael Chen',
+          role: 'Product Manager, InnovaCorp',
+          content:
+            'Outstanding quality and excellent customer support. I highly recommend this to anyone looking for reliable solutions.',
+          rating: 5,
+          avatar:
+            'https://images.placeholders.dev/100x100?text=MC&bgColor=%2310b981&textColor=%23ffffff',
+        },
+        {
+          name: 'Emma Rodriguez',
+          role: 'Marketing Director, GrowthCo',
+          content:
+            "The best investment we've made this year. The ROI has exceeded our expectations significantly.",
+          rating: 5,
+          avatar:
+            'https://images.placeholders.dev/100x100?text=ER&bgColor=%23f59e0b&textColor=%23ffffff',
+        },
+      ],
+    },
+  },
+
+  'call-to-action': {
+    type: 'call-to-action',
+    name: 'Call to Action',
+    description: 'Prominent section with title, description and action button',
+    category: 'marketing',
+    icon: '🚀',
+    properties: {
+      title: {
+        type: 'string',
+        label: 'Title',
+        description: 'Main heading for the CTA',
+        default: 'Ready to get started?',
+        placeholder: 'CTA title...',
+      },
+      description: {
+        type: 'textarea',
+        label: 'Description',
+        description: 'Supporting text below the title',
+        default: 'Join thousands of satisfied customers today',
+        placeholder: 'CTA description...',
+      },
+      buttonText: {
+        type: 'string',
+        label: 'Button Text',
+        description: 'Text for the action button',
+        default: 'Get Started',
+        placeholder: 'Button text...',
+      },
+      buttonLink: {
+        type: 'url',
+        label: 'Button Link',
+        description: 'URL or path for the button',
+        default: '#',
+        placeholder: '/contact or https://example.com',
+      },
+      buttonVariant: {
+        type: 'select',
+        label: 'Button Style',
+        description: 'Visual style of the button',
+        default: 'default',
+        options: [
+          { value: 'default', label: 'Default' },
+          { value: 'secondary', label: 'Secondary' },
+          { value: 'outline', label: 'Outline' },
+          { value: 'destructive', label: 'Destructive' },
+          { value: 'ghost', label: 'Ghost' },
+          { value: 'link', label: 'Link' },
+        ],
+      },
+      backgroundColor: {
+        type: 'string',
+        label: 'Background Color',
+        description: 'Background color CSS class',
+        default: 'bg-primary',
+        placeholder: 'bg-blue-500',
+      },
+      centerAlign: {
+        type: 'boolean',
+        label: 'Center Align',
+        description: 'Center align the content',
+        default: true,
+      },
+    },
+    defaults: {
+      title: 'Ready to get started?',
+      description: 'Join thousands of satisfied customers today',
+      buttonText: 'Get Started',
+      buttonLink: '#',
+      buttonVariant: 'default',
+      backgroundColor: 'bg-primary',
+      textColor: 'text-primary-foreground',
+      centerAlign: true,
+    },
+  },
+
+  card: {
+    type: 'card',
+    name: 'Card',
+    description: 'Flexible card with image, title, description and button',
+    category: 'ui',
+    icon: '🃏',
+    properties: {
+      title: {
+        type: 'string',
+        label: 'Title',
+        description: 'Card title',
+        default: 'Card Title',
+        placeholder: 'Enter card title...',
+      },
+      description: {
+        type: 'textarea',
+        label: 'Description',
+        description: 'Card description',
+        default:
+          'This is a sample card description that shows how content will be displayed in the card component.',
+        placeholder: 'Enter description...',
+      },
+      image: {
+        type: 'url',
+        label: 'Image URL',
+        description: 'Card image URL',
+        default:
+          'https://images.placeholders.dev/400x250?text=Card%20Image&bgColor=%236b7280&textColor=%23ffffff',
+        placeholder: 'https://example.com/image.jpg',
+      },
+      imageAlt: {
+        type: 'string',
+        label: 'Image Alt Text',
+        description: 'Alternative text for the image',
+        default: 'Card image',
+        placeholder: 'Describe the image...',
+      },
+      buttonText: {
+        type: 'string',
+        label: 'Button Text',
+        description: 'Text for the action button',
+        default: 'Learn More',
+        placeholder: 'Button text...',
+      },
+      buttonLink: {
+        type: 'url',
+        label: 'Button Link',
+        description: 'URL or path for the button',
+        default: '#',
+        placeholder: '/page or https://example.com',
+      },
+      variant: {
+        type: 'select',
+        label: 'Card Style',
+        description: 'Visual style of the card',
+        default: 'default',
+        options: [
+          { value: 'default', label: 'Default' },
+          { value: 'outlined', label: 'Outlined' },
+          { value: 'elevated', label: 'Elevated' },
+        ],
+      },
+      imagePosition: {
+        type: 'select',
+        label: 'Image Position',
+        description: 'Position of the image relative to content',
+        default: 'top',
+        options: [
+          { value: 'top', label: 'Top' },
+          { value: 'left', label: 'Left' },
+          { value: 'right', label: 'Right' },
+        ],
+      },
+    },
+    defaults: {
+      title: 'Card Title',
+      description:
+        'This is a sample card description that shows how content will be displayed in the card component.',
+      image:
+        'https://images.placeholders.dev/400x250?text=Card%20Image&bgColor=%236b7280&textColor=%23ffffff',
+      imageAlt: 'Card image',
+      buttonText: 'Learn More',
+      buttonLink: '#',
+      variant: 'default',
+      imagePosition: 'top',
+    },
+  },
+
+  image: {
+    type: 'image',
+    name: 'Image',
+    description: 'Simple image component with configurable properties',
+    category: 'media',
+    icon: '🖼️',
+    properties: {
+      src: {
+        type: 'url',
+        label: 'Image URL',
+        description: 'URL of the image',
+        default:
+          'https://images.placeholders.dev/800x600?text=Image&bgColor=%236b7280&textColor=%23ffffff',
+        required: true,
+        placeholder: 'https://example.com/image.jpg',
+      },
+      alt: {
+        type: 'string',
+        label: 'Alt Text',
+        description: 'Alternative text for accessibility',
+        default: 'Image description',
+        required: true,
+        placeholder: 'Describe the image...',
+      },
+      width: {
+        type: 'number',
+        label: 'Width',
+        description: 'Image width in pixels',
+        default: 800,
+        min: 1,
+        max: 2000,
+      },
+      height: {
+        type: 'number',
+        label: 'Height',
+        description: 'Image height in pixels',
+        default: 600,
+        min: 1,
+        max: 2000,
+      },
+      fit: {
+        type: 'select',
+        label: 'Object Fit',
+        description: 'How the image should fit within its container',
+        default: 'cover',
+        options: [
+          { value: 'cover', label: 'Cover' },
+          { value: 'contain', label: 'Contain' },
+          { value: 'fill', label: 'Fill' },
+          { value: 'none', label: 'None' },
+          { value: 'scale-down', label: 'Scale Down' },
+        ],
+      },
+      priority: {
+        type: 'boolean',
+        label: 'Priority Loading',
+        description: 'Load image with high priority (for above-the-fold images)',
+        default: false,
+      },
+    },
+    defaults: {
+      src: 'https://images.placeholders.dev/800x600?text=Image&bgColor=%236b7280&textColor=%23ffffff',
+      alt: 'Image description',
+      width: 800,
+      height: 600,
+      fit: 'cover',
+      priority: false,
+    },
+  },
+
+  pricing: {
+    type: 'pricing',
+    name: 'Pricing Plan',
+    description: 'Pricing plan card with features and call-to-action',
+    category: 'marketing',
+    icon: '💰',
+    properties: {
+      planName: {
+        type: 'string',
+        label: 'Plan Name',
+        description: 'Name of the pricing plan',
+        default: 'Pro Plan',
+        placeholder: 'Plan name...',
+      },
+      price: {
+        type: 'string',
+        label: 'Price',
+        description: 'Price amount (without currency)',
+        default: '29',
+        placeholder: '29',
+      },
+      currency: {
+        type: 'string',
+        label: 'Currency',
+        description: 'Currency symbol',
+        default: '$',
+        placeholder: '$',
+      },
+      period: {
+        type: 'string',
+        label: 'Billing Period',
+        description: 'Billing period (month, year, etc.)',
+        default: 'month',
+        placeholder: 'month',
+      },
+      description: {
+        type: 'string',
+        label: 'Description',
+        description: 'Brief description of the plan',
+        default: 'Perfect for growing businesses',
+        placeholder: 'Plan description...',
+      },
+      buttonText: {
+        type: 'string',
+        label: 'Button Text',
+        description: 'Text for the action button',
+        default: 'Get Started',
+        placeholder: 'Button text...',
+      },
+      buttonLink: {
+        type: 'url',
+        label: 'Button Link',
+        description: 'URL or path for the button',
+        default: '#',
+        placeholder: '/signup or https://example.com',
+      },
+      highlighted: {
+        type: 'boolean',
+        label: 'Highlighted Plan',
+        description: 'Mark this plan as featured/recommended',
+        default: false,
+      },
+    },
+    defaults: {
+      planName: 'Pro Plan',
+      price: '29',
+      currency: '$',
+      period: 'month',
+      description: 'Perfect for growing businesses',
+      features: [
+        { text: 'Unlimited projects', included: true },
+        { text: 'Advanced analytics', included: true },
+        { text: 'Priority support', included: true },
+        { text: 'Custom integrations', included: false },
+        { text: 'Dedicated manager', included: false },
+      ],
+      buttonText: 'Get Started',
+      buttonLink: '#',
+      highlighted: false,
+      backgroundColor: 'bg-white',
+      textColor: 'text-gray-900',
+      accentColor: 'bg-blue-600',
+    },
+  },
+
+  testimonial: {
+    type: 'testimonial',
+    name: 'Testimonial',
+    description: 'Single customer testimonial with rating and author info',
+    category: 'marketing',
+    icon: '⭐',
+    properties: {
+      quote: {
+        type: 'textarea',
+        label: 'Quote',
+        description: 'The testimonial text',
+        default: 'This product has completely transformed our workflow. Highly recommended!',
+        required: true,
+        placeholder: 'Enter testimonial text...',
+      },
+      author: {
+        type: 'string',
+        label: 'Author Name',
+        description: 'Name of the person giving the testimonial',
+        default: 'John Smith',
+        required: true,
+        placeholder: 'Author name...',
+      },
+      title: {
+        type: 'string',
+        label: 'Job Title',
+        description: 'Job title of the author',
+        default: 'CEO',
+        placeholder: 'Job title...',
+      },
+      company: {
+        type: 'string',
+        label: 'Company',
+        description: 'Company or organization of the author',
+        default: 'Tech Solutions Inc.',
+        placeholder: 'Company name...',
+      },
+      avatar: {
+        type: 'url',
+        label: 'Avatar URL',
+        description: "URL of the author's photo",
+        default:
+          'https://images.placeholders.dev/150x150?text=Avatar&bgColor=%236b7280&textColor=%23ffffff',
+        placeholder: 'https://example.com/avatar.jpg',
+      },
+      rating: {
+        type: 'number',
+        label: 'Rating',
+        description: 'Star rating (1-5)',
+        default: 5,
+        min: 1,
+        max: 5,
+      },
+    },
+    defaults: {
+      quote: 'This product has completely transformed our workflow. Highly recommended!',
+      author: 'John Smith',
+      title: 'CEO',
+      company: 'Tech Solutions Inc.',
+      avatar:
+        'https://images.placeholders.dev/150x150?text=Avatar&bgColor=%236b7280&textColor=%23ffffff',
+      rating: 5,
+      backgroundColor: 'bg-white',
+      textColor: 'text-gray-900',
+    },
+  },
+
+  'contact-form': {
+    type: 'contact-form',
+    name: 'Contact Form',
+    description: 'Customizable contact form with multiple field types',
+    category: 'interactive',
+    icon: '📧',
+    properties: {
+      title: {
+        type: 'string',
+        label: 'Form Title',
+        description: 'Title for the contact form',
+        default: 'Contact Us',
+        placeholder: 'Form title...',
+      },
+      description: {
+        type: 'string',
+        label: 'Description',
+        description: 'Description text below the title',
+        default: 'Get in touch with us',
+        placeholder: 'Form description...',
+      },
+      submitText: {
+        type: 'string',
+        label: 'Submit Button Text',
+        description: 'Text for the submit button',
+        default: 'Send Message',
+        placeholder: 'Button text...',
+      },
+      successMessage: {
+        type: 'string',
+        label: 'Success Message',
+        description: 'Message shown after successful submission',
+        default: 'Thank you for your message!',
+        placeholder: 'Success message...',
+      },
+    },
+    defaults: {
+      title: 'Contact Us',
+      description: 'Get in touch with us',
+      fields: [
+        { name: 'name', label: 'Name', type: 'text', required: true, placeholder: 'Your name' },
+        {
+          name: 'email',
+          label: 'Email',
+          type: 'email',
+          required: true,
+          placeholder: 'your@email.com',
+        },
+        {
+          name: 'message',
+          label: 'Message',
+          type: 'textarea',
+          required: true,
+          placeholder: 'Your message here...',
+        },
+      ],
+      submitText: 'Send Message',
+      successMessage: 'Thank you for your message!',
     },
   },
 
@@ -439,26 +915,166 @@ export const COMPONENT_SCHEMAS: Record<string, ComponentSchema> = {
 // =============================================================================
 
 /**
- * Get schema for a specific component type
+ * Apply manual corrections to auto-generated schemas
+ */
+function applySchemaCorrections(type: string, schema: ComponentSchema): ComponentSchema {
+  // Fix ImageGallery schema types (both imagegallery and image-gallery)
+  if (type === 'image-gallery' || type === 'imagegallery') {
+    return {
+      ...schema,
+      properties: {
+        ...schema.properties,
+        images: {
+          ...schema.properties.images,
+          type: 'array',
+        },
+        columns: {
+          ...schema.properties.columns,
+          type: 'select',
+          options: [
+            { value: 1, label: '1 Column' },
+            { value: 2, label: '2 Columns' },
+            { value: 3, label: '3 Columns' },
+            { value: 4, label: '4 Columns' },
+          ],
+        },
+        spacing: {
+          ...schema.properties.spacing,
+          type: 'select',
+          options: [
+            { value: 'small', label: 'Small' },
+            { value: 'medium', label: 'Medium' },
+            { value: 'large', label: 'Large' },
+          ],
+        },
+        aspectRatio: {
+          ...schema.properties.aspectRatio,
+          type: 'select',
+          options: [
+            { value: 'square', label: 'Square (1:1)' },
+            { value: 'landscape', label: 'Landscape (16:9)' },
+            { value: 'portrait', label: 'Portrait (3:4)' },
+            { value: 'auto', label: 'Auto (original)' },
+          ],
+        },
+      },
+      defaults: {
+        ...schema.defaults,
+        images: [
+          {
+            src: 'https://images.placeholders.dev/800x600?text=Gallery%20Image%201&bgColor=%234f46e5&textColor=%23ffffff',
+            alt: 'Gallery Image 1',
+            title: 'Beautiful Landscape',
+            description: 'A stunning view of the mountains and valleys',
+          },
+          {
+            src: 'https://images.placeholders.dev/800x600?text=Gallery%20Image%202&bgColor=%2310b981&textColor=%23ffffff',
+            alt: 'Gallery Image 2',
+            title: 'Urban Architecture',
+            description: 'Modern cityscape with innovative buildings',
+          },
+          {
+            src: 'https://images.placeholders.dev/800x600?text=Gallery%20Image%203&bgColor=%23f59e0b&textColor=%23ffffff',
+            alt: 'Gallery Image 3',
+            title: 'Natural Wonder',
+            description: 'Pristine nature in its full glory',
+          },
+        ],
+        columns: 3,
+        spacing: 'medium',
+        aspectRatio: 'auto',
+      },
+    };
+  }
+
+  return schema;
+}
+
+/**
+ * Get component schema by type - NOW USING CONFIGURATION-BASED GENERATION
+ * This replaces the hardcoded approach with automatic generation from component-config.json
  */
 export function getComponentSchema(type: string): ComponentSchema | null {
-  return COMPONENT_SCHEMAS[type] || null;
+  // First try the new configuration-based generator
+  const configSchema = generateComponentSchemaFromConfig(type);
+  if (configSchema) {
+    return configSchema;
+  }
+
+  // Fallback to manual schemas for any edge cases
+  const manualSchema = COMPONENT_SCHEMAS[type];
+  if (manualSchema) {
+    return manualSchema;
+  }
+
+  // Fallback to auto-generated schemas with basic corrections
+  const autoGenerated = (AUTO_GENERATED_SCHEMAS as Record<string, unknown>)[type];
+  if (autoGenerated) {
+    return applySchemaCorrections(type, autoGenerated as ComponentSchema);
+  }
+
+  // Manual mapping for known mismatches (legacy support)
+  const typeMapping: Record<string, string> = {
+    imagegallery: 'image-gallery',
+    textblock: 'text-block',
+    featuregrid: 'feature-grid',
+    herosection: 'hero-section',
+    calltoaction: 'call-to-action',
+    contactform: 'contact-form',
+  };
+
+  // Try mapped variant first in manual schemas
+  const mappedType = typeMapping[type];
+  if (mappedType) {
+    const manualMappedSchema = COMPONENT_SCHEMAS[mappedType];
+    if (manualMappedSchema) {
+      return manualMappedSchema;
+    }
+
+    // Then try config-based generation with mapped type
+    const configMappedSchema = generateComponentSchemaFromConfig(mappedType);
+    if (configMappedSchema) {
+      return configMappedSchema;
+    }
+
+    // Finally try auto-generated
+    const mappedSchema = (AUTO_GENERATED_SCHEMAS as Record<string, unknown>)[mappedType];
+    if (mappedSchema) {
+      return applySchemaCorrections(mappedType, mappedSchema as ComponentSchema);
+    }
+  }
+
+  console.warn(`No schema found for component type: ${type}`);
+  return null;
 }
 
 /**
  * Get all available component schemas
  */
 export function getAllComponentSchemas(): ComponentSchema[] {
-  return Object.values(COMPONENT_SCHEMAS);
+  // Use the new configuration-based generator to get all schemas
+  const configSchemas = generateAllComponentSchemasFromConfig();
+
+  // Convert to array and sort by category and name
+  const schemaArray = Object.values(configSchemas);
+
+  return schemaArray.sort((a, b) => {
+    // Sort by category first, then by name
+    if (a.category !== b.category) {
+      return a.category.localeCompare(b.category);
+    }
+    return a.name.localeCompare(b.name);
+  });
 }
 
 /**
- * Get schemas grouped by category
+ * Get schemas grouped by category - NOW USING CONFIGURATION-BASED GENERATION
  */
 export function getSchemasByCategory(): Record<string, ComponentSchema[]> {
+  const allSchemas = getAllComponentSchemas();
   const grouped: Record<string, ComponentSchema[]> = {};
 
-  Object.values(COMPONENT_SCHEMAS).forEach(schema => {
+  allSchemas.forEach(schema => {
     if (!grouped[schema.category]) {
       grouped[schema.category] = [];
     }
@@ -553,10 +1169,20 @@ export function validateComponentProps(
 
       case 'select':
         const validOptions = propertySchema.options?.map(opt => opt.value) || [];
-        if (!validOptions.includes(value)) {
+        let selectValue = value;
+
+        // Try to convert string numbers to actual numbers for comparison
+        if (typeof value === 'string' && !isNaN(Number(value))) {
+          const numValue = Number(value);
+          if (validOptions.includes(numValue)) {
+            selectValue = numValue;
+          }
+        }
+
+        if (!validOptions.includes(selectValue)) {
           errors.push(`${propertySchema.label} must be one of: ${validOptions.join(', ')}`);
         } else {
-          sanitizedProps[key] = value;
+          sanitizedProps[key] = selectValue;
         }
         break;
 
