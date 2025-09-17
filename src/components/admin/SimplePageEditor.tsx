@@ -5,7 +5,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { GripVertical, Settings, Trash2 } from 'lucide-react';
+import { GripVertical, Settings, Trash2, MoveUp, MoveDown } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -50,6 +50,10 @@ interface ComponentEditorProps {
   component: PageComponent;
   onUpdate: (component: PageComponent) => void;
   onDelete: () => void;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
+  canMoveUp?: boolean;
+  canMoveDown?: boolean;
 }
 
 /**
@@ -158,7 +162,15 @@ function PropertyField({
   );
 }
 
-function ComponentEditor({ component, onUpdate, onDelete }: ComponentEditorProps) {
+function ComponentEditor({ 
+  component, 
+  onUpdate, 
+  onDelete, 
+  onMoveUp, 
+  onMoveDown, 
+  canMoveUp = false, 
+  canMoveDown = false 
+}: ComponentEditorProps) {
   // Auto-expand newly added components for better UX
   const [isExpanded, setIsExpanded] = useState(true);
   const [formData, setFormData] = useState(component.props);
@@ -190,7 +202,40 @@ function ComponentEditor({ component, onUpdate, onDelete }: ComponentEditorProps
             </p>
           </div>
         </div>
-        <div className="flex flex-shrink-0 items-center space-x-2">
+        <div className="flex flex-shrink-0 items-center space-x-1">
+          {/* Move Up Button */}
+          {onMoveUp && (
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={!canMoveUp}
+              onClick={e => {
+                e.stopPropagation();
+                onMoveUp();
+              }}
+              title="Move component up"
+            >
+              <MoveUp className="h-4 w-4" />
+            </Button>
+          )}
+          
+          {/* Move Down Button */}
+          {onMoveDown && (
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={!canMoveDown}
+              onClick={e => {
+                e.stopPropagation();
+                onMoveDown();
+              }}
+              title="Move component down"
+            >
+              <MoveDown className="h-4 w-4" />
+            </Button>
+          )}
+          
+          {/* Settings Button */}
           <Button
             variant="ghost"
             size="sm"
@@ -198,9 +243,12 @@ function ComponentEditor({ component, onUpdate, onDelete }: ComponentEditorProps
               e.stopPropagation();
               setIsExpanded(!isExpanded);
             }}
+            title="Edit component properties"
           >
             <Settings className="h-4 w-4" />
           </Button>
+          
+          {/* Delete Button */}
           <Button
             variant="ghost"
             size="sm"
@@ -208,6 +256,7 @@ function ComponentEditor({ component, onUpdate, onDelete }: ComponentEditorProps
               e.stopPropagation();
               onDelete();
             }}
+            title="Delete component"
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -372,6 +421,46 @@ export function SimplePageEditor({
     [watchedComponents, setValue, currentPage, updatePage, onPageUpdate]
   );
 
+  const moveComponent = useCallback(
+    (fromIndex: number, toIndex: number) => {
+      if (toIndex < 0 || toIndex >= watchedComponents.length) return;
+      
+      const updatedComponents = [...watchedComponents];
+      const [movedComponent] = updatedComponents.splice(fromIndex, 1);
+      updatedComponents.splice(toIndex, 0, movedComponent);
+      
+      // Update order property for each component
+      const reorderedComponents = updatedComponents.map((comp, index) => ({
+        ...comp,
+        order: index
+      }));
+      
+      setValue('components', reorderedComponents);
+
+      // Update page store
+      if (currentPage) {
+        const updatedPage = { ...currentPage, components: reorderedComponents };
+        updatePage(currentPage.id, updatedPage);
+        onPageUpdate?.(updatedPage);
+      }
+    },
+    [watchedComponents, setValue, currentPage, updatePage, onPageUpdate]
+  );
+
+  const moveComponentUp = useCallback(
+    (index: number) => {
+      moveComponent(index, index - 1);
+    },
+    [moveComponent]
+  );
+
+  const moveComponentDown = useCallback(
+    (index: number) => {
+      moveComponent(index, index + 1);
+    },
+    [moveComponent]
+  );
+
   const onSubmit = async (data: PageFormData) => {
     if (!currentPage) return;
 
@@ -534,13 +623,24 @@ export function SimplePageEditor({
 
             {/* Current Components */}
             <div className="min-w-0 space-y-3">
-              <h4 className="text-card-foreground text-sm font-medium">Current Components</h4>
+              <h4 className="text-card-foreground text-sm font-medium">
+                Current Components 
+                {watchedComponents.length > 0 && (
+                  <span className="text-muted-foreground ml-1 text-xs">
+                    ({watchedComponents.length})
+                  </span>
+                )}
+              </h4>
               {watchedComponents.map((component, index) => (
                 <ComponentEditor
                   key={component.id}
                   component={component}
                   onUpdate={updatedComponent => updateComponent(index, updatedComponent)}
                   onDelete={() => deleteComponent(index)}
+                  onMoveUp={() => moveComponentUp(index)}
+                  onMoveDown={() => moveComponentDown(index)}
+                  canMoveUp={index > 0}
+                  canMoveDown={index < watchedComponents.length - 1}
                 />
               ))}
 
@@ -548,6 +648,12 @@ export function SimplePageEditor({
                 <div className="border-border text-muted-foreground min-w-0 rounded-lg border border-dashed p-6 text-center">
                   <p className="text-sm">No components added yet</p>
                   <p className="text-xs">Use the buttons above to add components</p>
+                </div>
+              )}
+              
+              {watchedComponents.length > 1 && (
+                <div className="text-muted-foreground rounded-lg bg-blue-50 p-3 text-xs dark:bg-blue-950">
+                  💡 <strong>Tip:</strong> Use the ↑ ↓ buttons to reorder components. Components are displayed in the same order on your published page.
                 </div>
               )}
             </div>
