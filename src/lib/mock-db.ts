@@ -395,9 +395,6 @@ export const mockDb = {
         },
       ];
     },
-    findMany: async () => {
-      return mockComponents;
-    },
 
     findUnique: async (options: { where: { id?: string; name?: string } }) => {
       return (
@@ -414,11 +411,11 @@ export const mockDb = {
         type: data.data.type || 'unknown',
         description: data.data.description || 'New component',
         category: data.data.category || 'general',
-        defaultConfig: data.data.defaultConfig || {},
+        defaultConfig: data.data.defaultConfig || { text: '', variant: 'default' },
         configSchema: data.data.configSchema || { type: 'object', properties: {} },
       };
 
-      mockComponents.push(newComponent);
+      (mockComponents as Array<Record<string, unknown>>).push(newComponent);
       return newComponent;
     },
   },

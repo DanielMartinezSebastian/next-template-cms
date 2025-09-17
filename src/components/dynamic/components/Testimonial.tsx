@@ -3,8 +3,6 @@
  * Displays a single testimonial with user info
  */
 
-import React from 'react';
-
 interface TestimonialProps {
   quote?: string;
   author?: string;
@@ -46,7 +44,10 @@ export function Testimonial({
   };
 
   return (
-    <div className={`testimonial ${backgroundColor} rounded-lg p-6 shadow-lg`} data-component-id={componentId}>
+    <div
+      className={`testimonial ${backgroundColor} rounded-lg p-6 shadow-lg`}
+      data-component-id={componentId}
+    >
       {editMode && (
         <div className="mb-4 rounded bg-blue-50 p-2 text-xs text-blue-700 dark:bg-blue-950 dark:text-blue-300">
           Testimonial Component - ID: {componentId}
@@ -55,14 +56,10 @@ export function Testimonial({
 
       <div className="space-y-4">
         {/* Rating */}
-        <div className="flex items-center space-x-1">
-          {renderStars()}
-        </div>
+        <div className="flex items-center space-x-1">{renderStars()}</div>
 
         {/* Quote */}
-        <blockquote className={`text-lg italic ${textColor}`}>
-          "{quote}"
-        </blockquote>
+        <blockquote className={`text-lg italic ${textColor}`}>&ldquo;{quote}&rdquo;</blockquote>
 
         {/* Author Info */}
         <div className="flex items-center space-x-4">
@@ -70,14 +67,16 @@ export function Testimonial({
             src={avatar}
             alt={author}
             className="h-12 w-12 rounded-full object-cover"
-            onError={(e) => {
-              e.currentTarget.src = 'https://images.placeholders.dev/150x150?text=Avatar&bgColor=%236b7280&textColor=%23ffffff';
+            onError={e => {
+              e.currentTarget.src =
+                'https://images.placeholders.dev/150x150?text=Avatar&bgColor=%236b7280&textColor=%23ffffff';
             }}
           />
           <div>
             <div className={`font-semibold ${textColor}`}>{author}</div>
             <div className="text-sm text-gray-500">
-              {title}{company && ` at ${company}`}
+              {title}
+              {company && ` at ${company}`}
             </div>
           </div>
         </div>

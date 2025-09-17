@@ -187,6 +187,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const validatedData = CreatePageSchema.parse(body);
+    const prisma = getDbClient();
 
     // Calculate full path and level
     let fullPath = `/${validatedData.slug}`;
