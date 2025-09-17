@@ -258,7 +258,7 @@ export class ComponentFactory {
           sanitized[key] = this.getPlaceholderValue(key, '');
         }
       }
-      
+
       // Handle arrays that might be strings or invalid
       if (key.endsWith('s') || ['features', 'images', 'testimonials'].includes(key)) {
         if (typeof value === 'string' && value !== '') {

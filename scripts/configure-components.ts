@@ -283,13 +283,9 @@ function findComponentInterface(filePath: string, componentName: string): string
 /**
  * Get placeholder value for a prop based on its name and type
  */
-function getPlaceholderValue(
-  propName: string, 
-  propType: string, 
-  config: ComponentConfig
-): unknown {
+function getPlaceholderValue(propName: string, propType: string, config: ComponentConfig): unknown {
   const placeholders = config.placeholders;
-  
+
   // Si no hay configuración de placeholders, usar valores básicos
   if (!placeholders) {
     if (propType === 'boolean') return false;
@@ -333,7 +329,7 @@ function getPlaceholderValue(
   if (propType === 'number') {
     return placeholders.primitives.number;
   }
-  
+
   // Default to string
   return placeholders.primitives.string;
 }
@@ -342,8 +338,8 @@ function getPlaceholderValue(
  * Apply intelligent placeholders to component defaults
  */
 function applyPlaceholders(
-  defaults: Record<string, unknown>, 
-  properties: Record<string, any>, 
+  defaults: Record<string, unknown>,
+  properties: Record<string, any>,
   config: ComponentConfig
 ): Record<string, unknown> {
   const enhancedDefaults = { ...defaults };
@@ -351,15 +347,16 @@ function applyPlaceholders(
   for (const [propName, propSchema] of Object.entries(properties)) {
     // Solo aplicar placeholder si no hay valor por defecto o si es problemático
     const currentValue = enhancedDefaults[propName];
-    
-    if (currentValue === undefined || 
-        currentValue === null || 
-        currentValue === '' ||
-        (typeof currentValue === 'string' && ['[]', '{}', '>', '<'].includes(currentValue))) {
-      
+
+    if (
+      currentValue === undefined ||
+      currentValue === null ||
+      currentValue === '' ||
+      (typeof currentValue === 'string' && ['[]', '{}', '>', '<'].includes(currentValue))
+    ) {
       const placeholder = getPlaceholderValue(propName, propSchema.type, config);
       enhancedDefaults[propName] = placeholder;
-      
+
       if (config.debug) {
         console.log(`    🔧 Applied placeholder for ${propName}: ${JSON.stringify(placeholder)}`);
       }
@@ -407,7 +404,10 @@ function generateComponentSchemas(
   return schemas;
 }
 
-function generateSchemaFromTypeScript(component: ComponentInfo, config: ComponentConfig): SchemaObject {
+function generateSchemaFromTypeScript(
+  component: ComponentInfo,
+  config: ComponentConfig
+): SchemaObject {
   if (!component.filePath || !component.interfaceName) {
     return generateBasicSchema(component, config);
   }
@@ -526,7 +526,10 @@ function formatLabel(propName: string): string {
     .trim();
 }
 
-function generateDefaultsFromProperties(properties: Record<string, any>, config?: ComponentConfig): Record<string, any> {
+function generateDefaultsFromProperties(
+  properties: Record<string, any>,
+  config?: ComponentConfig
+): Record<string, any> {
   const defaults: Record<string, any> = {};
 
   for (const [key, prop] of Object.entries(properties)) {
@@ -584,23 +587,26 @@ function generateBasicSchema(component: ComponentInfo, config?: ComponentConfig)
  * Validate and clean defaults to prevent problematic values in database
  */
 function validateAndCleanDefaults(
-  defaults: Record<string, unknown>, 
+  defaults: Record<string, unknown>,
   config: ComponentConfig
 ): Record<string, unknown> {
   const cleaned = { ...defaults };
-  
+
   for (const [key, value] of Object.entries(cleaned)) {
     // Check for problematic string arrays
-    if (typeof value === 'string' && 
-        (key.endsWith('s') || ['features', 'images', 'testimonials'].includes(key))) {
-      
+    if (
+      typeof value === 'string' &&
+      (key.endsWith('s') || ['features', 'images', 'testimonials'].includes(key))
+    ) {
       if (value === '' || value === '[]' || value === '{}') {
         const placeholder = getPlaceholderValue(key, 'array', config);
         cleaned[key] = placeholder;
-        console.log(`    🔧 Fixed problematic array ${key}: "${value}" → ${JSON.stringify(placeholder)}`);
+        console.log(
+          `    🔧 Fixed problematic array ${key}: "${value}" → ${JSON.stringify(placeholder)}`
+        );
       }
     }
-    
+
     // Check for other problematic values
     if (typeof value === 'string' && ['>', '<', '{}'].includes(value)) {
       const placeholder = getPlaceholderValue(key, 'string', config);
@@ -608,7 +614,7 @@ function validateAndCleanDefaults(
       console.log(`    🔧 Fixed problematic value ${key}: "${value}" → "${placeholder}"`);
     }
   }
-  
+
   return cleaned;
 }
 
@@ -636,7 +642,7 @@ async function syncWithDatabase(
 
     for (const component of components) {
       const schema = schemas[component.type];
-      
+
       // Validar y limpiar defaultConfig antes de guardar
       const cleanDefaultConfig = validateAndCleanDefaults(schema.defaults, config);
 

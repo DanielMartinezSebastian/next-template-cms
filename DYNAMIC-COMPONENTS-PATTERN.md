@@ -239,7 +239,7 @@ El sistema incluye múltiples capas de protección:
 // ComponentFactory.sanitizeProps()
 static sanitizeProps(props: Record<string, unknown>): Record<string, unknown> {
   const sanitized = { ...props };
-  
+
   // Eliminar props peligrosas
   const dangerousProps = ['onClick', 'onSubmit', /* ... */];
   dangerousProps.forEach(prop => {
@@ -248,11 +248,11 @@ static sanitizeProps(props: Record<string, unknown>): Record<string, unknown> {
       console.warn(`Removed invalid ${prop} prop`);
     }
   });
-  
+
   // Asignar placeholders automáticos para arrays y objetos
   Object.keys(sanitized).forEach(key => {
     const value = sanitized[key];
-    
+
     // Arrays que podrían ser strings vacíos
     if (key.endsWith('s') || ['features', 'images', 'testimonials'].includes(key)) {
       if (typeof value === 'string' || !Array.isArray(value)) {
@@ -260,7 +260,7 @@ static sanitizeProps(props: Record<string, unknown>): Record<string, unknown> {
       }
     }
   });
-  
+
   return sanitized;
 }
 ```
@@ -296,24 +296,24 @@ Configuración en `component-config.json`:
 
 ### 3. Detección Automática de Tipos
 
-```typescript
+````typescript
 // getPlaceholderValue() - Detección inteligente
 static getPlaceholderValue(propName: string, currentValue: unknown): unknown {
   // Arrays automáticos para props que terminan en 's'
   if (propName.endsWith('s') || ['features', 'images'].includes(propName)) {
     return placeholders.arrays[propName] || [];
   }
-  
+
   // Colores para props que contienen 'color'
   if (propName.includes('color')) {
     return placeholders.specialTypes.color;
   }
-  
+
   // URLs para props que contienen 'url', 'href', 'link'
   if (propName.includes('url') || propName.includes('href')) {
     return placeholders.specialTypes.url;
   }
-  
+
   return '';
 }
 ```### 2. Validación de Esquemas
@@ -321,7 +321,7 @@ static getPlaceholderValue(propName: string, currentValue: unknown): unknown {
 ```typescript
 // Validación automática contra esquemas TypeScript
 const { sanitizedProps, errors } = ComponentFactory.validateProps(type, props);
-```
+````
 
 ### 3. Logging de Desarrollo
 

@@ -130,7 +130,7 @@ function DynamicComponent({ config, locale, editMode = false, index }: DynamicCo
     configProps: config.props,
     finalProps: componentProps,
     componentType: config.type,
-    componentId: config.id
+    componentId: config.id,
   });
 
   // Use ComponentFactory.createComponent for proper sanitization
