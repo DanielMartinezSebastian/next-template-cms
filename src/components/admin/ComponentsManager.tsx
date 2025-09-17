@@ -98,27 +98,45 @@ export function ComponentsManager() {
     }));
   };
 
-  // Save component configuration (placeholder - would normally save to database)
+  // Save component configuration to database
   const saveComponentConfig = async () => {
     if (!selectedComponent) return;
     
     try {
-      // Here you would normally update the component in the database
-      // For now, we'll just update the local state
-      setComponents(prev => prev.map(comp => 
-        comp.id === selectedComponent.id 
-          ? { ...comp, defaultConfig: { ...editedConfig } }
-          : comp
-      ));
-      
-      console.log(`✅ Updated component ${selectedComponent.name} configuration`, editedConfig);
-      
-      // Close the edit modal
-      setSelectedComponent(null);
-      setModalMode(null);
-      setEditedConfig({});
+      // Update component in database via API
+      const response = await fetch(`/api/admin/components/${selectedComponent.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          defaultConfig: editedConfig
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Update local state with the saved configuration
+        setComponents(prev => prev.map(comp => 
+          comp.id === selectedComponent.id 
+            ? { ...comp, defaultConfig: { ...editedConfig } }
+            : comp
+        ));
+        
+        console.log(`✅ Successfully saved component ${selectedComponent.name} to ${result.source} database`);
+        
+        // Close the edit modal
+        setSelectedComponent(null);
+        setModalMode(null);
+        setEditedConfig({});
+      } else {
+        console.error('❌ Failed to save component:', result.error);
+        alert('Error al guardar: ' + result.error);
+      }
     } catch (error) {
       console.error('❌ Error saving component configuration:', error);
+      alert('Error al guardar los cambios. Por favor intenta de nuevo.');
     }
   };
 
@@ -133,10 +151,18 @@ export function ComponentsManager() {
   const renderComponentPreview = (config: Record<string, unknown>) => {
     if (!selectedComponent) return null;
 
-    switch (selectedComponent.type) {
+    const componentType = selectedComponent.type.toLowerCase();
+
+    switch (componentType) {
       case 'hero-section':
+      case 'herosection':
         return (
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-8 text-white">
+          <div 
+            className="rounded-lg p-8 text-white min-h-[300px] flex flex-col justify-center"
+            style={{ 
+              background: (config.backgroundColor as string) || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' 
+            }}
+          >
             <h1 className="text-3xl font-bold mb-4">
               {(config.title as string) || 'Welcome to Our Website'}
             </h1>
@@ -148,45 +174,70 @@ export function ComponentsManager() {
             <p className="text-lg mb-6">
               {(config.description as string) || 'Discover amazing content and services'}
             </p>
-            <button className="bg-white text-blue-600 px-6 py-2 rounded-lg font-semibold">
-              {(config.ctaText as string) || 'Get Started'}
-            </button>
+            <div>
+              <button className="bg-white text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                {(config.ctaText as string) || 'Get Started'}
+              </button>
+            </div>
           </div>
         );
       
       case 'text-block':
+      case 'textblock':
+        const textAlign = (config.textAlign as string) || 'left';
         return (
-          <div className="prose max-w-none">
+          <div className="prose max-w-none p-4 border rounded-lg">
             {config.title && (
-              <h2 className="text-xl font-semibold mb-4" style={{ textAlign: config.textAlign as string || 'left' }}>
+              <h2 
+                className="text-xl font-semibold mb-4" 
+                style={{ textAlign: textAlign as any }}
+              >
                 {config.title as string}
               </h2>
             )}
-            <p style={{ textAlign: config.textAlign as string || 'left' }}>
-              {(config.content as string) || 'Enter your text here'}
-            </p>
+            <div 
+              className="text-base leading-relaxed"
+              style={{ textAlign: textAlign as any }}
+            >
+              {(config.content as string) || 'Enter your text content here. This is a sample text block that demonstrates how your content will appear.'}
+            </div>
+            {config.showDate && (
+              <p className="text-sm text-gray-500 mt-4" style={{ textAlign: textAlign as any }}>
+                {new Date().toLocaleDateString()}
+              </p>
+            )}
           </div>
         );
       
       case 'feature-grid':
+      case 'featuregrid':
         const features = (config.features as any[]) || [];
-        const columns = (config.columns as number) || 3;
+        const columns = Math.min((config.columns as number) || 3, 4);
+        const gridCols = {
+          1: 'grid-cols-1',
+          2: 'grid-cols-1 md:grid-cols-2',
+          3: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
+          4: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'
+        };
+        
         return (
-          <div>
+          <div className="p-4">
             <h2 className="text-2xl font-bold mb-6 text-center">
               {(config.title as string) || 'Our Features'}
             </h2>
-            <div className={`grid grid-cols-${Math.min(columns, 4)} gap-6`}>
+            <div className={`grid ${gridCols[columns as keyof typeof gridCols]} gap-6`}>
               {features.length > 0 ? features.map((feature, i) => (
-                <div key={i} className="text-center p-4">
-                  <div className="text-3xl mb-2">{feature.icon || '⚡'}</div>
-                  <h3 className="font-semibold mb-2">{feature.title || `Feature ${i + 1}`}</h3>
-                  <p className="text-sm text-muted-foreground">{feature.description || 'Feature description here'}</p>
+                <div key={i} className="text-center p-4 border rounded-lg hover:shadow-md transition-shadow">
+                  <div className="text-4xl mb-3">{feature.icon || '⚡'}</div>
+                  <h3 className="font-semibold mb-2 text-lg">{feature.title || `Feature ${i + 1}`}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {feature.description || 'Feature description here. Add your feature details.'}
+                  </p>
                 </div>
-              )) : [1, 2, 3].slice(0, columns).map(i => (
-                <div key={i} className="text-center p-4">
-                  <div className="text-3xl mb-2">⚡</div>
-                  <h3 className="font-semibold mb-2">Feature {i}</h3>
+              )) : Array.from({ length: columns }, (_, i) => (
+                <div key={i} className="text-center p-4 border rounded-lg">
+                  <div className="text-4xl mb-3">⚡</div>
+                  <h3 className="font-semibold mb-2 text-lg">Feature {i + 1}</h3>
                   <p className="text-sm text-muted-foreground">Feature description here</p>
                 </div>
               ))}
@@ -195,27 +246,97 @@ export function ComponentsManager() {
         );
       
       case 'button':
+        const variant = (config.variant as string) || 'default';
+        const size = (config.size as string) || 'default';
+        
+        const variantClasses = {
+          default: 'bg-primary text-primary-foreground hover:bg-primary/90',
+          outline: 'border-2 border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-foreground',
+          ghost: 'text-primary hover:bg-primary/10',
+          destructive: 'bg-red-600 text-white hover:bg-red-700'
+        };
+        
+        const sizeClasses = {
+          sm: 'px-4 py-1 text-sm',
+          default: 'px-6 py-2',
+          lg: 'px-8 py-3 text-lg'
+        };
+        
         return (
-          <div className="flex justify-center">
-            <button className={`px-6 py-2 rounded-md font-medium ${
-              config.variant === 'outline' 
-                ? 'border-2 border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-foreground'
-                : 'bg-primary text-primary-foreground hover:bg-primary/90'
-            } ${
-              config.size === 'sm' ? 'px-4 py-1 text-sm' :
-              config.size === 'lg' ? 'px-8 py-3 text-lg' :
-              'px-6 py-2'
-            }`}>
+          <div className="flex justify-center p-8">
+            <button 
+              className={`rounded-md font-medium transition-colors ${
+                variantClasses[variant as keyof typeof variantClasses] || variantClasses.default
+              } ${
+                sizeClasses[size as keyof typeof sizeClasses] || sizeClasses.default
+              }`}
+            >
               {(config.text as string) || 'Button'}
             </button>
           </div>
         );
       
+      case 'image-gallery':
+      case 'imagegallery':
+        const images = (config.images as any[]) || [];
+        return (
+          <div className="p-4">
+            <h2 className="text-xl font-bold mb-4 text-center">
+              {(config.title as string) || 'Image Gallery'}
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {images.length > 0 ? images.map((img, i) => (
+                <div key={i} className="aspect-square bg-gray-200 rounded-lg flex items-center justify-center">
+                  <span className="text-gray-500">🖼️ {img.alt || `Image ${i + 1}`}</span>
+                </div>
+              )) : Array.from({ length: 6 }, (_, i) => (
+                <div key={i} className="aspect-square bg-gray-200 rounded-lg flex items-center justify-center">
+                  <span className="text-gray-500">🖼️ Image {i + 1}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+        
+      case 'contact-form':
+      case 'contactform':
+        return (
+          <div className="p-4 border rounded-lg max-w-md mx-auto">
+            <h2 className="text-xl font-bold mb-4">
+              {(config.title as string) || 'Contact Us'}
+            </h2>
+            <div className="space-y-4">
+              <input 
+                type="text" 
+                placeholder="Name" 
+                className="w-full p-2 border rounded"
+                disabled
+              />
+              <input 
+                type="email" 
+                placeholder="Email" 
+                className="w-full p-2 border rounded"
+                disabled
+              />
+              <textarea 
+                placeholder="Message" 
+                className="w-full p-2 border rounded h-24"
+                disabled
+              />
+              <button className="w-full bg-primary text-primary-foreground p-2 rounded">
+                {(config.submitText as string) || 'Send Message'}
+              </button>
+            </div>
+          </div>
+        );
+      
       default:
         return (
-          <div className="text-center py-8 text-muted-foreground">
+          <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg">
             <div className="text-4xl mb-4">🧩</div>
-            <p>Preview not available for this component type</p>
+            <h3 className="font-semibold mb-2">Component: {selectedComponent.type}</h3>
+            <p>Preview not fully implemented for this component type.</p>
+            <p className="text-xs mt-2">Component ID: {selectedComponent.id}</p>
           </div>
         );
     }
@@ -556,43 +677,48 @@ export function ComponentsManager() {
                               <div className="flex items-center space-x-2">
                                 <input
                                   type="checkbox"
-                                  checked={editedConfig[key] as boolean || false}
+                                  checked={editedConfig[key] as boolean ?? (value as boolean)}
                                   onChange={(e) => handlePropChange(key, e.target.checked)}
                                   className="rounded border-gray-300"
                                 />
                                 <span className="text-sm text-muted-foreground">
-                                  {editedConfig[key] ? 'Habilitado' : 'Deshabilitado'}
+                                  {(editedConfig[key] ?? value) ? 'Habilitado' : 'Deshabilitado'}
                                 </span>
                               </div>
                             ) : typeof value === 'number' ? (
                               <Input
                                 type="number"
-                                value={editedConfig[key] as number || 0}
+                                value={editedConfig[key] as number ?? (value as number) ?? 0}
                                 onChange={(e) => handlePropChange(key, parseInt(e.target.value) || 0)}
                                 className="w-full"
+                                min="0"
+                                max={key === 'columns' ? '6' : undefined}
                               />
                             ) : key === 'textAlign' ? (
                               <select
-                                value={editedConfig[key] as string || 'left'}
+                                value={editedConfig[key] as string ?? (value as string) ?? 'left'}
                                 onChange={(e) => handlePropChange(key, e.target.value)}
                                 className="w-full rounded-md border border-gray-300 px-3 py-2 bg-background"
                               >
                                 <option value="left">Izquierda</option>
                                 <option value="center">Centro</option>
                                 <option value="right">Derecha</option>
+                                <option value="justify">Justificado</option>
                               </select>
                             ) : key === 'variant' ? (
                               <select
-                                value={editedConfig[key] as string || 'default'}
+                                value={editedConfig[key] as string ?? (value as string) ?? 'default'}
                                 onChange={(e) => handlePropChange(key, e.target.value)}
                                 className="w-full rounded-md border border-gray-300 px-3 py-2 bg-background"
                               >
                                 <option value="default">Por defecto</option>
                                 <option value="outline">Contorno</option>
+                                <option value="ghost">Fantasma</option>
+                                <option value="destructive">Destructivo</option>
                               </select>
                             ) : key === 'size' ? (
                               <select
-                                value={editedConfig[key] as string || 'default'}
+                                value={editedConfig[key] as string ?? (value as string) ?? 'default'}
                                 onChange={(e) => handlePropChange(key, e.target.value)}
                                 className="w-full rounded-md border border-gray-300 px-3 py-2 bg-background"
                               >
@@ -600,10 +726,79 @@ export function ComponentsManager() {
                                 <option value="default">Mediano</option>
                                 <option value="lg">Grande</option>
                               </select>
+                            ) : key.toLowerCase().includes('color') || key === 'backgroundColor' ? (
+                              <div className="space-y-2">
+                                <Input
+                                  type="text"
+                                  value={editedConfig[key] as string ?? (value as string) ?? ''}
+                                  onChange={(e) => handlePropChange(key, e.target.value)}
+                                  className="w-full"
+                                  placeholder="CSS color or gradient"
+                                />
+                                <div className="flex space-x-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => handlePropChange(key, 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)')}
+                                    className="px-3 py-1 text-xs bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded"
+                                  >
+                                    Azul-Morado
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handlePropChange(key, 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)')}
+                                    className="px-3 py-1 text-xs bg-gradient-to-r from-pink-400 to-red-500 text-white rounded"
+                                  >
+                                    Rosa-Rojo
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handlePropChange(key, 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)')}
+                                    className="px-3 py-1 text-xs bg-gradient-to-r from-blue-400 to-cyan-400 text-white rounded"
+                                  >
+                                    Azul-Cyan
+                                  </button>
+                                </div>
+                              </div>
+                            ) : Array.isArray(value) ? (
+                              <div className="space-y-2">
+                                <p className="text-xs text-muted-foreground">
+                                  Array con {(value as any[]).length} elementos
+                                </p>
+                                <textarea
+                                  value={JSON.stringify(editedConfig[key] ?? value, null, 2)}
+                                  onChange={(e) => {
+                                    try {
+                                      const parsed = JSON.parse(e.target.value);
+                                      handlePropChange(key, parsed);
+                                    } catch {
+                                      // Invalid JSON, don't update
+                                    }
+                                  }}
+                                  className="w-full rounded-md border border-gray-300 px-3 py-2 bg-background font-mono text-sm"
+                                  rows={4}
+                                  placeholder="JSON array"
+                                />
+                              </div>
+                            ) : key.toLowerCase().includes('link') || key.toLowerCase().includes('url') ? (
+                              <Input
+                                type="url"
+                                value={editedConfig[key] as string ?? (value as string) ?? ''}
+                                onChange={(e) => handlePropChange(key, e.target.value)}
+                                className="w-full"
+                                placeholder="https://example.com"
+                              />
+                            ) : typeof value === 'string' && (value as string).length > 50 ? (
+                              <textarea
+                                value={editedConfig[key] as string ?? (value as string) ?? ''}
+                                onChange={(e) => handlePropChange(key, e.target.value)}
+                                className="w-full rounded-md border border-gray-300 px-3 py-2 bg-background"
+                                rows={3}
+                                placeholder={`Introduce ${key.toLowerCase()}`}
+                              />
                             ) : (
                               <Input
                                 type="text"
-                                value={editedConfig[key] as string || ''}
+                                value={editedConfig[key] as string ?? (value as string) ?? ''}
                                 onChange={(e) => handlePropChange(key, e.target.value)}
                                 className="w-full"
                                 placeholder={`Introduce ${key.toLowerCase()}`}

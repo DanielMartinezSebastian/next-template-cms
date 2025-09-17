@@ -31,20 +31,20 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <div className="bg-border hidden h-6 w-px md:block" />
               <nav className="hidden items-center space-x-4 md:flex">
                 <Link
-                  href="/en"
+                  href="/admin"
                   className="text-muted-foreground hover:text-foreground text-sm transition-colors"
                 >
-                  ← Back to Site
+                  ← Dashboard
                 </Link>
               </nav>
             </div>
 
             <div className="flex items-center space-x-2">
               <Link
-                href="/en"
+                href="/admin"
                 className="text-muted-foreground hover:text-foreground text-sm transition-colors md:hidden"
               >
-                ← Back
+                ← Dashboard
               </Link>
               <div className="text-muted-foreground hidden text-sm lg:block">
                 Content Management System
