@@ -13,13 +13,13 @@
 
 // Load environment variables from .env.local
 import { config } from 'dotenv';
-import path from 'path';
+import * as path from 'path';
 
 // Load .env.local explicitly for scripts
 config({ path: path.join(process.cwd(), '.env.local') });
 
-import { PrismaClient } from '@prisma/client';
-import fs from 'fs';
+import { PrismaClient, type Prisma } from '@prisma/client';
+import * as fs from 'fs';
 
 // =============================================================================
 // TYPES AND INTERFACES
@@ -45,6 +45,21 @@ interface ComponentConfig {
   categoryMapping: Record<string, string>;
   iconMapping: Record<string, string>;
   excludeComponents: string[];
+  placeholders?: {
+    arrays: Record<string, any[]>;
+    objects: Record<string, Record<string, any>>;
+    primitives: {
+      string: string;
+      number: number;
+      boolean: boolean;
+    };
+    specialTypes: {
+      color: string;
+      url: string;
+      email: string;
+      className: string;
+    };
+  };
   debug: boolean;
 }
 
@@ -262,6 +277,99 @@ function findComponentInterface(filePath: string, componentName: string): string
 }
 
 // =============================================================================
+// PLACEHOLDER SYSTEM
+// =============================================================================
+
+/**
+ * Get placeholder value for a prop based on its name and type
+ */
+function getPlaceholderValue(
+  propName: string, 
+  propType: string, 
+  config: ComponentConfig
+): unknown {
+  const placeholders = config.placeholders;
+  
+  // Si no hay configuración de placeholders, usar valores básicos
+  if (!placeholders) {
+    if (propType === 'boolean') return false;
+    if (propType === 'number') return 0;
+    return '';
+  }
+
+  // Check for array props that should have array defaults
+  const arrayProps = ['features', 'images', 'testimonials', 'items', 'tags', 'options'];
+  if (arrayProps.includes(propName) || propName.endsWith('s')) {
+    if (placeholders.arrays[propName]) {
+      return placeholders.arrays[propName];
+    }
+    return placeholders.arrays.items || [];
+  }
+
+  // Check for object props
+  const objectProps = ['config', 'settings', 'metadata'];
+  if (objectProps.includes(propName)) {
+    return placeholders.objects[propName] || {};
+  }
+
+  // Check for special types based on prop name
+  if (propName.includes('color') || propName.includes('Color')) {
+    return placeholders.specialTypes.color;
+  }
+  if (propName.includes('url') || propName.includes('href') || propName.includes('link')) {
+    return placeholders.specialTypes.url;
+  }
+  if (propName.includes('email') || propName.includes('Email')) {
+    return placeholders.specialTypes.email;
+  }
+  if (propName.includes('class') || propName.includes('Class')) {
+    return placeholders.specialTypes.className;
+  }
+
+  // Check for types
+  if (propType === 'boolean') {
+    return placeholders.primitives.boolean;
+  }
+  if (propType === 'number') {
+    return placeholders.primitives.number;
+  }
+  
+  // Default to string
+  return placeholders.primitives.string;
+}
+
+/**
+ * Apply intelligent placeholders to component defaults
+ */
+function applyPlaceholders(
+  defaults: Record<string, unknown>, 
+  properties: Record<string, any>, 
+  config: ComponentConfig
+): Record<string, unknown> {
+  const enhancedDefaults = { ...defaults };
+
+  for (const [propName, propSchema] of Object.entries(properties)) {
+    // Solo aplicar placeholder si no hay valor por defecto o si es problemático
+    const currentValue = enhancedDefaults[propName];
+    
+    if (currentValue === undefined || 
+        currentValue === null || 
+        currentValue === '' ||
+        (typeof currentValue === 'string' && ['[]', '{}', '>', '<'].includes(currentValue))) {
+      
+      const placeholder = getPlaceholderValue(propName, propSchema.type, config);
+      enhancedDefaults[propName] = placeholder;
+      
+      if (config.debug) {
+        console.log(`    🔧 Applied placeholder for ${propName}: ${JSON.stringify(placeholder)}`);
+      }
+    }
+  }
+
+  return enhancedDefaults;
+}
+
+// =============================================================================
 // SCHEMA GENERATION
 // =============================================================================
 
@@ -277,21 +385,21 @@ function generateComponentSchemas(
     try {
       if (component.hasInterface && component.filePath) {
         // Generar schema desde interfaz TypeScript
-        const schema = generateSchemaFromTypeScript(component);
+        const schema = generateSchemaFromTypeScript(component, config);
         if (schema) {
           schemas[component.type] = schema;
           console.log(`  ✅ ${component.name}: Auto-generated from TypeScript interface`);
         }
       } else {
         // Generar schema básico
-        const schema = generateBasicSchema(component);
+        const schema = generateBasicSchema(component, config);
         schemas[component.type] = schema;
         console.log(`  📄 ${component.name}: Basic schema (no interface found)`);
       }
     } catch (error) {
       console.warn(`  ⚠️  ${component.name}: Error generating schema -`, error);
       // Fallback a schema básico
-      const schema = generateBasicSchema(component);
+      const schema = generateBasicSchema(component, config);
       schemas[component.type] = schema;
     }
   }
@@ -299,9 +407,9 @@ function generateComponentSchemas(
   return schemas;
 }
 
-function generateSchemaFromTypeScript(component: ComponentInfo): SchemaObject {
+function generateSchemaFromTypeScript(component: ComponentInfo, config: ComponentConfig): SchemaObject {
   if (!component.filePath || !component.interfaceName) {
-    return generateBasicSchema(component);
+    return generateBasicSchema(component, config);
   }
 
   try {
@@ -310,7 +418,7 @@ function generateSchemaFromTypeScript(component: ComponentInfo): SchemaObject {
 
     if (Object.keys(interfaceProperties).length === 0) {
       console.warn(`  ⚠️  No properties found in interface ${component.interfaceName}`);
-      return generateBasicSchema(component);
+      return generateBasicSchema(component, config);
     }
 
     return {
@@ -320,11 +428,15 @@ function generateSchemaFromTypeScript(component: ComponentInfo): SchemaObject {
       category: component.category,
       icon: component.icon,
       properties: interfaceProperties,
-      defaults: generateDefaultsFromProperties(interfaceProperties),
+      defaults: applyPlaceholders(
+        generateDefaultsFromProperties(interfaceProperties, config),
+        interfaceProperties,
+        config
+      ),
     };
   } catch (error) {
     console.warn(`  ⚠️  Error parsing interface for ${component.name}:`, error);
-    return generateBasicSchema(component);
+    return generateBasicSchema(component, config);
   }
 }
 
@@ -414,49 +526,91 @@ function formatLabel(propName: string): string {
     .trim();
 }
 
-function generateDefaultsFromProperties(properties: Record<string, any>): Record<string, any> {
+function generateDefaultsFromProperties(properties: Record<string, any>, config?: ComponentConfig): Record<string, any> {
   const defaults: Record<string, any> = {};
 
   for (const [key, prop] of Object.entries(properties)) {
     if (prop.default !== undefined) {
       defaults[key] = prop.default;
-    } else if (prop.type === 'boolean') {
-      defaults[key] = false;
-    } else if (prop.type === 'number') {
-      defaults[key] = 0;
-    } else if (prop.type === 'string') {
-      defaults[key] = '';
+    } else if (config) {
+      // Usar placeholders inteligentes
+      defaults[key] = getPlaceholderValue(key, prop.type, config);
+    } else {
+      // Fallback básico
+      if (prop.type === 'boolean') {
+        defaults[key] = false;
+      } else if (prop.type === 'number') {
+        defaults[key] = 0;
+      } else if (prop.type === 'string') {
+        defaults[key] = '';
+      }
     }
   }
 
   return defaults;
 }
 
-function generateBasicSchema(component: ComponentInfo): SchemaObject {
+function generateBasicSchema(component: ComponentInfo, config?: ComponentConfig): SchemaObject {
+  const basicDefaults = {
+    content: `${component.name} content`,
+  };
+
+  const properties = {
+    content: {
+      type: 'string',
+      label: 'Content',
+      description: 'Component content',
+      required: false,
+      default: `${component.name} content`,
+    },
+  };
+
   return {
     type: component.type,
     name: component.name,
     description: component.description,
     category: component.category,
     icon: component.icon,
-    properties: {
-      content: {
-        type: 'string',
-        label: 'Content',
-        description: 'Component content',
-        required: false,
-        default: `${component.name} content`,
-      },
-    },
-    defaults: {
-      content: `${component.name} content`,
-    },
+    properties,
+    defaults: config ? applyPlaceholders(basicDefaults, properties, config) : basicDefaults,
   };
 }
 
 // =============================================================================
 // DATABASE SYNCHRONIZATION
 // =============================================================================
+
+/**
+ * Validate and clean defaults to prevent problematic values in database
+ */
+function validateAndCleanDefaults(
+  defaults: Record<string, unknown>, 
+  config: ComponentConfig
+): Record<string, unknown> {
+  const cleaned = { ...defaults };
+  
+  for (const [key, value] of Object.entries(cleaned)) {
+    // Check for problematic string arrays
+    if (typeof value === 'string' && 
+        (key.endsWith('s') || ['features', 'images', 'testimonials'].includes(key))) {
+      
+      if (value === '' || value === '[]' || value === '{}') {
+        const placeholder = getPlaceholderValue(key, 'array', config);
+        cleaned[key] = placeholder;
+        console.log(`    🔧 Fixed problematic array ${key}: "${value}" → ${JSON.stringify(placeholder)}`);
+      }
+    }
+    
+    // Check for other problematic values
+    if (typeof value === 'string' && ['>', '<', '{}'].includes(value)) {
+      const placeholder = getPlaceholderValue(key, 'string', config);
+      cleaned[key] = placeholder;
+      console.log(`    🔧 Fixed problematic value ${key}: "${value}" → "${placeholder}"`);
+    }
+  }
+  
+  return cleaned;
+}
 
 async function syncWithDatabase(
   components: ComponentInfo[],
@@ -482,6 +636,9 @@ async function syncWithDatabase(
 
     for (const component of components) {
       const schema = schemas[component.type];
+      
+      // Validar y limpiar defaultConfig antes de guardar
+      const cleanDefaultConfig = validateAndCleanDefaults(schema.defaults, config);
 
       if (existingNames.has(component.name)) {
         // Actualizar componente existente
@@ -491,7 +648,7 @@ async function syncWithDatabase(
             type: component.type,
             description: component.description,
             category: component.category,
-            defaultConfig: schema.defaults,
+            defaultConfig: cleanDefaultConfig as Prisma.InputJsonValue,
             configSchema: {
               type: 'object',
               properties: schema.properties,
@@ -508,7 +665,7 @@ async function syncWithDatabase(
             type: component.type,
             description: component.description,
             category: component.category,
-            defaultConfig: schema.defaults,
+            defaultConfig: cleanDefaultConfig as Prisma.InputJsonValue,
             configSchema: {
               type: 'object',
               properties: schema.properties,

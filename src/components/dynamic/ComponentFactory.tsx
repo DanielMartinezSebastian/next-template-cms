@@ -10,6 +10,7 @@ import {
 } from '@/lib/component-schemas';
 import { ComponentFactoryMapping } from '@/types/pages';
 import React from 'react';
+import componentConfig from '../../../component-config.json';
 
 // Import available components
 import ButtonComponent from './components/Button';
@@ -20,11 +21,11 @@ import { FeatureGrid } from './components/FeatureGrid';
 import { HeroSection } from './components/HeroSection';
 import Image from './components/Image';
 import { ImageGallery } from './components/ImageGallery';
+import { Pricing } from './components/Pricing';
 import Section from './components/Section';
 import Spacer from './components/Spacer';
-import { Newsletter, Testimonials } from './components/Testimonials';
 import { Testimonial } from './components/Testimonial';
-import { Pricing } from './components/Pricing';
+import { Newsletter, Testimonials } from './components/Testimonials';
 import { TextBlock } from './components/TextBlock';
 
 // Demo/Fallback components
@@ -179,6 +180,111 @@ export class ComponentFactory {
   }
 
   /**
+   * Get placeholder value for a prop based on its name and current value
+   */
+  static getPlaceholderValue(propName: string, currentValue: unknown): unknown {
+    // If value is already valid (not empty string, not null, not undefined), keep it
+    if (currentValue !== '' && currentValue !== null && currentValue !== undefined) {
+      return currentValue;
+    }
+
+    // Get placeholders from config
+    const placeholders = componentConfig.placeholders;
+
+    // Check for array props that should have array defaults
+    const arrayProps = ['features', 'images', 'testimonials', 'items', 'tags', 'options'];
+    if (arrayProps.includes(propName) || propName.endsWith('s')) {
+      if (placeholders.arrays[propName as keyof typeof placeholders.arrays]) {
+        return placeholders.arrays[propName as keyof typeof placeholders.arrays];
+      }
+      return placeholders.arrays.items; // Default empty array
+    }
+
+    // Check for object props
+    const objectProps = ['config', 'settings', 'metadata'];
+    if (objectProps.includes(propName)) {
+      return placeholders.objects[propName as keyof typeof placeholders.objects] || {};
+    }
+
+    // Check for special types
+    if (propName.includes('color') || propName.includes('Color')) {
+      return placeholders.specialTypes.color;
+    }
+    if (propName.includes('url') || propName.includes('href') || propName.includes('link')) {
+      return placeholders.specialTypes.url;
+    }
+    if (propName.includes('email') || propName.includes('Email')) {
+      return placeholders.specialTypes.email;
+    }
+    if (propName.includes('class') || propName.includes('Class')) {
+      return placeholders.specialTypes.className;
+    }
+
+    // Default to empty string for unknown props
+    return '';
+  }
+
+  /**
+   * Sanitize props by removing dangerous or invalid properties and adding placeholders
+   */
+  static sanitizeProps(props: Record<string, unknown>): Record<string, unknown> {
+    const sanitized = { ...props };
+
+    // Remove dangerous props that could cause runtime errors
+    const dangerousProps = ['onClick', 'onSubmit', 'onChange', 'onFocus', 'onBlur'];
+
+    dangerousProps.forEach(prop => {
+      if (prop in sanitized && typeof sanitized[prop] === 'string') {
+        // If it's a string, it's likely invalid - remove it
+        delete sanitized[prop];
+        console.warn(`Removed invalid ${prop} prop with string value: "${sanitized[prop]}"`);
+      }
+    });
+
+    // Additional cleanup and placeholder assignment
+    Object.keys(sanitized).forEach(key => {
+      const value = sanitized[key];
+
+      // Remove undefined and null values first
+      if (value === undefined || value === null) {
+        delete sanitized[key];
+        return;
+      }
+
+      // Handle string props that should be empty or have placeholders
+      if (typeof value === 'string') {
+        // Remove placeholder-like values and replace with proper placeholders
+        if (value === '>' || value === '<' || value === '[]' || value === '{}' || value === '') {
+          sanitized[key] = this.getPlaceholderValue(key, '');
+        }
+      }
+      
+      // Handle arrays that might be strings or invalid
+      if (key.endsWith('s') || ['features', 'images', 'testimonials'].includes(key)) {
+        if (typeof value === 'string' && value !== '') {
+          // Try to parse if it's a JSON string
+          try {
+            const parsed = JSON.parse(value);
+            if (Array.isArray(parsed)) {
+              sanitized[key] = parsed;
+            } else {
+              sanitized[key] = this.getPlaceholderValue(key, '');
+            }
+          } catch {
+            // If it's not valid JSON, use placeholder
+            sanitized[key] = this.getPlaceholderValue(key, '');
+          }
+        } else if (!Array.isArray(value)) {
+          // If it's not an array, use placeholder
+          sanitized[key] = this.getPlaceholderValue(key, '');
+        }
+      }
+    });
+
+    return sanitized;
+  }
+
+  /**
    * Validate component props against expected schema
    */
   static validateProps(
@@ -189,8 +295,11 @@ export class ComponentFactory {
     errors: string[];
     sanitizedProps: Record<string, unknown>;
   } {
-    // Use the schema-based validation instead of basic validation
-    return validateComponentProps(type, props);
+    // First sanitize dangerous props
+    const cleanProps = this.sanitizeProps(props);
+
+    // Then use schema-based validation
+    return validateComponentProps(type, cleanProps);
   }
 
   /**
@@ -219,7 +328,12 @@ export class ComponentFactory {
     }
 
     // Validate and sanitize props
-    const { sanitizedProps } = this.validateProps(type, props);
+    const { sanitizedProps, errors } = this.validateProps(type, props);
+
+    // Log validation errors in development
+    if (errors.length > 0 && process.env.NODE_ENV === 'development') {
+      console.warn(`Component ${type} validation errors:`, errors);
+    }
 
     return React.createElement(Component, sanitizedProps);
   }

@@ -133,6 +133,9 @@ function DynamicComponent({ config, locale, editMode = false, index }: DynamicCo
     componentId: config.id
   });
 
+  // Use ComponentFactory.createComponent for proper sanitization
+  const componentElement = ComponentFactory.createComponent(config.type, componentProps);
+
   return (
     <div
       className={`dynamic-component ${editMode ? 'edit-mode' : ''} ${
@@ -154,7 +157,7 @@ function DynamicComponent({ config, locale, editMode = false, index }: DynamicCo
         </div>
       )}
 
-      <Component {...componentProps} />
+      {componentElement}
 
       {/* Render Children Components */}
       {config.children && config.children.length > 0 && (

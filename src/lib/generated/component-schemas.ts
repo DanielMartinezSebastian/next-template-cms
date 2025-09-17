@@ -1,6 +1,6 @@
 /**
  * AUTO-GENERATED COMPONENT SCHEMAS
- * Generated on: 2025-09-16T18:47:10.162Z
+ * Generated on: 2025-09-17T09:18:57.991Z
  * 
  * DO NOT EDIT MANUALLY - Run 'npm run configure' to regenerate
  */
@@ -89,11 +89,13 @@ export const AUTO_GENERATED_SCHEMAS = {
     "defaults": {
       "text": "",
       "href": "",
+      "variant": "",
+      "size": "",
       "disabled": false,
       "fullWidth": false,
       "centerAlign": false,
       "className": "",
-      "onClick": ">"
+      "onClick": ""
     }
   },
   "card": {
@@ -175,6 +177,8 @@ export const AUTO_GENERATED_SCHEMAS = {
       "imageAlt": "",
       "buttonText": "",
       "buttonLink": "",
+      "variant": "",
+      "imagePosition": "",
       "className": ""
     }
   },
@@ -241,6 +245,7 @@ export const AUTO_GENERATED_SCHEMAS = {
       "alt": "",
       "width": 0,
       "height": 0,
+      "fit": "",
       "className": "",
       "priority": false
     }
@@ -311,8 +316,9 @@ export const AUTO_GENERATED_SCHEMAS = {
     "defaults": {
       "children": "",
       "title": "",
-      "backgroundColor": "",
-      "textColor": "",
+      "backgroundColor": "#000000",
+      "textColor": "#000000",
+      "padding": "",
       "fullWidth": false,
       "centerContent": false,
       "className": ""
@@ -357,6 +363,7 @@ export const AUTO_GENERATED_SCHEMAS = {
     "defaults": {
       "height": 0,
       "width": 0,
+      "direction": "",
       "className": ""
     }
   },
@@ -449,8 +456,9 @@ export const AUTO_GENERATED_SCHEMAS = {
       "description": "",
       "buttonText": "",
       "buttonLink": "",
-      "backgroundColor": "",
-      "textColor": "",
+      "buttonVariant": "",
+      "backgroundColor": "#000000",
+      "textColor": "#000000",
       "centerAlign": false,
       "locale": "",
       "editMode": false,
@@ -517,8 +525,9 @@ export const AUTO_GENERATED_SCHEMAS = {
     "defaults": {
       "title": "",
       "description": "",
-      "fields": "",
+      "fields": [],
       "label": "",
+      "type": "",
       "required": false,
       "placeholder": ""
     }
@@ -584,8 +593,13 @@ export const AUTO_GENERATED_SCHEMAS = {
     "defaults": {
       "title": "",
       "subtitle": "",
-      "features": "",
-      "columns": "",
+      "features": [
+        {
+          "text": "Feature example",
+          "included": true
+        }
+      ],
+      "columns": [],
       "showIcons": false,
       "locale": "",
       "editMode": false,
@@ -706,9 +720,12 @@ export const AUTO_GENERATED_SCHEMAS = {
       "subtitle": "",
       "description": "",
       "backgroundImage": "",
-      "backgroundColor": "",
+      "backgroundColor": "#000000",
+      "textAlign": "",
       "ctaText": "",
       "ctaLink": "",
+      "ctaType": "",
+      "height": "",
       "overlay": false,
       "overlayOpacity": 0,
       "locale": "",
@@ -805,9 +822,11 @@ export const AUTO_GENERATED_SCHEMAS = {
       }
     },
     "defaults": {
-      "images": "",
+      "images": [],
       "title": "",
-      "columns": "",
+      "columns": [],
+      "spacing": "",
+      "aspectRatio": "",
       "showTitles": false,
       "showDescriptions": false,
       "lightbox": false,
@@ -922,13 +941,18 @@ export const AUTO_GENERATED_SCHEMAS = {
       "currency": "",
       "period": "",
       "description": "",
-      "features": "",
+      "features": [
+        {
+          "text": "Feature example",
+          "included": true
+        }
+      ],
       "buttonText": "",
       "buttonLink": "",
       "highlighted": false,
-      "backgroundColor": "",
-      "textColor": "",
-      "accentColor": "",
+      "backgroundColor": "#000000",
+      "textColor": "#000000",
+      "accentColor": "#000000",
       "locale": "",
       "editMode": false,
       "componentId": ""
@@ -1016,8 +1040,8 @@ export const AUTO_GENERATED_SCHEMAS = {
       "company": "",
       "avatar": "",
       "rating": 0,
-      "backgroundColor": "",
-      "textColor": "",
+      "backgroundColor": "#000000",
+      "textColor": "#000000",
       "locale": "",
       "editMode": false,
       "componentId": ""
@@ -1173,8 +1197,14 @@ export const AUTO_GENERATED_SCHEMAS = {
       "content": "",
       "title": "",
       "subtitle": "",
-      "color": "",
-      "backgroundColor": "",
+      "textAlign": "",
+      "fontSize": "",
+      "fontWeight": "",
+      "color": "#000000",
+      "backgroundColor": "#000000",
+      "padding": "",
+      "margin": "",
+      "maxWidth": "",
       "allowHtml": false,
       "locale": "",
       "editMode": false,
