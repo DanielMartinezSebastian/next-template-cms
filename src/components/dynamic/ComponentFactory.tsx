@@ -4,7 +4,7 @@
  */
 
 import {
-  getComponentDefaults,
+  getComponentDefaultsSync,
   getComponentSchema,
   validateComponentProps,
 } from '@/lib/component-schemas';
@@ -306,7 +306,7 @@ export class ComponentFactory {
    * Get default props for a component using schemas
    */
   static getDefaults(type: string): Record<string, unknown> {
-    return getComponentDefaults(type);
+    return getComponentDefaultsSync(type); // Use sync version for immediate response
   }
 
   /**
