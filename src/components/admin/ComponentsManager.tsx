@@ -24,11 +24,19 @@ export function ComponentsManager() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedComponent, setSelectedComponent] = useState<ComponentInfo | null>(null);
-  const [modalMode, setModalMode] = useState<'schema' | 'preview' | null>(null);
+  const [modalMode, setModalMode] = useState<'schema' | 'preview' | 'edit' | null>(null);
+  const [editedConfig, setEditedConfig] = useState<Record<string, unknown>>({});
 
   useEffect(() => {
     loadComponents();
   }, []);
+
+  // Initialize edited config when component is selected for editing
+  useEffect(() => {
+    if (selectedComponent && modalMode === 'edit') {
+      setEditedConfig({ ...selectedComponent.defaultConfig });
+    }
+  }, [selectedComponent, modalMode]);
 
   const loadComponents = async () => {
     try {
@@ -81,6 +89,137 @@ export function ComponentsManager() {
     const categorySet = new Set(components.map(component => component.category));
     return Array.from(categorySet).sort();
   }, [components]);
+
+  // Handle prop value changes
+  const handlePropChange = (propName: string, value: unknown) => {
+    setEditedConfig(prev => ({
+      ...prev,
+      [propName]: value
+    }));
+  };
+
+  // Save component configuration (placeholder - would normally save to database)
+  const saveComponentConfig = async () => {
+    if (!selectedComponent) return;
+    
+    try {
+      // Here you would normally update the component in the database
+      // For now, we'll just update the local state
+      setComponents(prev => prev.map(comp => 
+        comp.id === selectedComponent.id 
+          ? { ...comp, defaultConfig: { ...editedConfig } }
+          : comp
+      ));
+      
+      console.log(`✅ Updated component ${selectedComponent.name} configuration`, editedConfig);
+      
+      // Close the edit modal
+      setSelectedComponent(null);
+      setModalMode(null);
+      setEditedConfig({});
+    } catch (error) {
+      console.error('❌ Error saving component configuration:', error);
+    }
+  };
+
+  // Reset configuration to default
+  const resetConfig = () => {
+    if (selectedComponent) {
+      setEditedConfig({ ...selectedComponent.defaultConfig });
+    }
+  };
+
+  // Render component preview with current config
+  const renderComponentPreview = (config: Record<string, unknown>) => {
+    if (!selectedComponent) return null;
+
+    switch (selectedComponent.type) {
+      case 'hero-section':
+        return (
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-8 text-white">
+            <h1 className="text-3xl font-bold mb-4">
+              {(config.title as string) || 'Welcome to Our Website'}
+            </h1>
+            {config.subtitle && (
+              <p className="text-xl mb-4 opacity-90">
+                {config.subtitle as string}
+              </p>
+            )}
+            <p className="text-lg mb-6">
+              {(config.description as string) || 'Discover amazing content and services'}
+            </p>
+            <button className="bg-white text-blue-600 px-6 py-2 rounded-lg font-semibold">
+              {(config.ctaText as string) || 'Get Started'}
+            </button>
+          </div>
+        );
+      
+      case 'text-block':
+        return (
+          <div className="prose max-w-none">
+            {config.title && (
+              <h2 className="text-xl font-semibold mb-4" style={{ textAlign: config.textAlign as string || 'left' }}>
+                {config.title as string}
+              </h2>
+            )}
+            <p style={{ textAlign: config.textAlign as string || 'left' }}>
+              {(config.content as string) || 'Enter your text here'}
+            </p>
+          </div>
+        );
+      
+      case 'feature-grid':
+        const features = (config.features as any[]) || [];
+        const columns = (config.columns as number) || 3;
+        return (
+          <div>
+            <h2 className="text-2xl font-bold mb-6 text-center">
+              {(config.title as string) || 'Our Features'}
+            </h2>
+            <div className={`grid grid-cols-${Math.min(columns, 4)} gap-6`}>
+              {features.length > 0 ? features.map((feature, i) => (
+                <div key={i} className="text-center p-4">
+                  <div className="text-3xl mb-2">{feature.icon || '⚡'}</div>
+                  <h3 className="font-semibold mb-2">{feature.title || `Feature ${i + 1}`}</h3>
+                  <p className="text-sm text-muted-foreground">{feature.description || 'Feature description here'}</p>
+                </div>
+              )) : [1, 2, 3].slice(0, columns).map(i => (
+                <div key={i} className="text-center p-4">
+                  <div className="text-3xl mb-2">⚡</div>
+                  <h3 className="font-semibold mb-2">Feature {i}</h3>
+                  <p className="text-sm text-muted-foreground">Feature description here</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      
+      case 'button':
+        return (
+          <div className="flex justify-center">
+            <button className={`px-6 py-2 rounded-md font-medium ${
+              config.variant === 'outline' 
+                ? 'border-2 border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-foreground'
+                : 'bg-primary text-primary-foreground hover:bg-primary/90'
+            } ${
+              config.size === 'sm' ? 'px-4 py-1 text-sm' :
+              config.size === 'lg' ? 'px-8 py-3 text-lg' :
+              'px-6 py-2'
+            }`}>
+              {(config.text as string) || 'Button'}
+            </button>
+          </div>
+        );
+      
+      default:
+        return (
+          <div className="text-center py-8 text-muted-foreground">
+            <div className="text-4xl mb-4">🧩</div>
+            <p>Preview not available for this component type</p>
+          </div>
+        );
+    }
+  };
 
   const renderComponentCard = (component: ComponentInfo) => {
     const defaultProps = component.defaultConfig || {};
@@ -147,6 +286,21 @@ export function ComponentsManager() {
             Previsualizar
           </Button>
         </div>
+        
+        {/* Edit Props Button */}
+        <div className="flex gap-2 mt-2">
+          <Button 
+            variant="default" 
+            size="sm" 
+            className="w-full"
+            onClick={() => {
+              setSelectedComponent(component);
+              setModalMode('edit');
+            }}
+          >
+            ✏️ Editar Props
+          </Button>
+        </div>
 
         {/* Schema indicator */}
         {component.configSchema && (
@@ -201,6 +355,16 @@ export function ComponentsManager() {
               }}
             >
               Previsualizar
+            </Button>
+            <Button 
+              variant="default" 
+              size="sm"
+              onClick={() => {
+                setSelectedComponent(component);
+                setModalMode('edit');
+              }}
+            >
+              ✏️ Editar
             </Button>
           </div>
         </div>
@@ -335,7 +499,8 @@ export function ComponentsManager() {
           <div className="bg-card border-border max-h-[80vh] w-full max-w-4xl overflow-hidden rounded-lg border">
             <div className="border-b border-border bg-muted/50 flex items-center justify-between p-4">
               <h3 className="text-foreground text-lg font-semibold">
-                {modalMode === 'schema' ? 'Esquema de Configuración' : 'Vista Previa'} - {selectedComponent.name}
+                {modalMode === 'schema' ? 'Esquema de Configuración' : 
+                 modalMode === 'preview' ? 'Vista Previa' : 'Editor de Propiedades'} - {selectedComponent.name}
               </h3>
               <Button
                 variant="outline"
@@ -343,6 +508,7 @@ export function ComponentsManager() {
                 onClick={() => {
                   setSelectedComponent(null);
                   setModalMode(null);
+                  setEditedConfig({});
                 }}
               >
                 ✕ Cerrar
@@ -360,56 +526,11 @@ export function ComponentsManager() {
                     {JSON.stringify(selectedComponent.defaultConfig || {}, null, 2)}
                   </pre>
                 </div>
-              ) : (
+              ) : modalMode === 'preview' ? (
                 <div>
                   <h4 className="text-foreground mb-4 font-semibold">Vista Previa del Componente</h4>
                   <div className="border-border rounded-lg border p-6">
-                    {selectedComponent.type === 'hero-section' && (
-                      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-8 text-white">
-                        <h1 className="text-3xl font-bold mb-4">
-                          {(selectedComponent.defaultConfig.title as string) || 'Welcome to Our Website'}
-                        </h1>
-                        <p className="text-lg mb-6">
-                          {(selectedComponent.defaultConfig.description as string) || 'Discover amazing content and services'}
-                        </p>
-                        <button className="bg-white text-blue-600 px-6 py-2 rounded-lg font-semibold">
-                          {(selectedComponent.defaultConfig.ctaText as string) || 'Get Started'}
-                        </button>
-                      </div>
-                    )}
-                    {selectedComponent.type === 'text-block' && (
-                      <div className="prose">
-                        <h2 className="text-xl font-semibold mb-4">
-                          {(selectedComponent.defaultConfig.title as string) || 'Text Block Title'}
-                        </h2>
-                        <p>
-                          {(selectedComponent.defaultConfig.content as string) || 'Enter your text here'}
-                        </p>
-                      </div>
-                    )}
-                    {selectedComponent.type === 'feature-grid' && (
-                      <div>
-                        <h2 className="text-2xl font-bold mb-6 text-center">
-                          {(selectedComponent.defaultConfig.title as string) || 'Our Features'}
-                        </h2>
-                        <div className="grid grid-cols-3 gap-6">
-                          {[1, 2, 3].map(i => (
-                            <div key={i} className="text-center p-4">
-                              <div className="text-3xl mb-2">⚡</div>
-                              <h3 className="font-semibold mb-2">Feature {i}</h3>
-                              <p className="text-sm text-muted-foreground">Feature description here</p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    {selectedComponent.type === 'button' && (
-                      <div className="flex justify-center">
-                        <button className="bg-primary text-primary-foreground px-6 py-2 rounded-md font-medium">
-                          {(selectedComponent.defaultConfig.text as string) || 'Button'}
-                        </button>
-                      </div>
-                    )}
+                    {renderComponentPreview(selectedComponent.defaultConfig)}
                   </div>
                   <div className="bg-muted/50 mt-6 rounded-lg p-4">
                     <p className="text-muted-foreground text-sm">
@@ -417,7 +538,107 @@ export function ComponentsManager() {
                     </p>
                   </div>
                 </div>
-              )}
+              ) : modalMode === 'edit' ? (
+                <div>
+                  <h4 className="text-foreground mb-4 font-semibold">Editor de Propiedades</h4>
+                  
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Props Editor */}
+                    <div>
+                      <h5 className="text-foreground mb-3 font-medium">Configurar Propiedades</h5>
+                      <div className="space-y-4">
+                        {Object.entries(selectedComponent.defaultConfig || {}).map(([key, value]) => (
+                          <div key={key}>
+                            <label className="text-foreground mb-2 block text-sm font-medium capitalize">
+                              {key.replace(/([A-Z])/g, ' $1').toLowerCase()}
+                            </label>
+                            {typeof value === 'boolean' ? (
+                              <div className="flex items-center space-x-2">
+                                <input
+                                  type="checkbox"
+                                  checked={editedConfig[key] as boolean || false}
+                                  onChange={(e) => handlePropChange(key, e.target.checked)}
+                                  className="rounded border-gray-300"
+                                />
+                                <span className="text-sm text-muted-foreground">
+                                  {editedConfig[key] ? 'Habilitado' : 'Deshabilitado'}
+                                </span>
+                              </div>
+                            ) : typeof value === 'number' ? (
+                              <Input
+                                type="number"
+                                value={editedConfig[key] as number || 0}
+                                onChange={(e) => handlePropChange(key, parseInt(e.target.value) || 0)}
+                                className="w-full"
+                              />
+                            ) : key === 'textAlign' ? (
+                              <select
+                                value={editedConfig[key] as string || 'left'}
+                                onChange={(e) => handlePropChange(key, e.target.value)}
+                                className="w-full rounded-md border border-gray-300 px-3 py-2 bg-background"
+                              >
+                                <option value="left">Izquierda</option>
+                                <option value="center">Centro</option>
+                                <option value="right">Derecha</option>
+                              </select>
+                            ) : key === 'variant' ? (
+                              <select
+                                value={editedConfig[key] as string || 'default'}
+                                onChange={(e) => handlePropChange(key, e.target.value)}
+                                className="w-full rounded-md border border-gray-300 px-3 py-2 bg-background"
+                              >
+                                <option value="default">Por defecto</option>
+                                <option value="outline">Contorno</option>
+                              </select>
+                            ) : key === 'size' ? (
+                              <select
+                                value={editedConfig[key] as string || 'default'}
+                                onChange={(e) => handlePropChange(key, e.target.value)}
+                                className="w-full rounded-md border border-gray-300 px-3 py-2 bg-background"
+                              >
+                                <option value="sm">Pequeño</option>
+                                <option value="default">Mediano</option>
+                                <option value="lg">Grande</option>
+                              </select>
+                            ) : (
+                              <Input
+                                type="text"
+                                value={editedConfig[key] as string || ''}
+                                onChange={(e) => handlePropChange(key, e.target.value)}
+                                className="w-full"
+                                placeholder={`Introduce ${key.toLowerCase()}`}
+                              />
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {/* Action Buttons */}
+                      <div className="flex gap-2 mt-6">
+                        <Button onClick={saveComponentConfig} className="flex-1">
+                          💾 Guardar Cambios
+                        </Button>
+                        <Button variant="outline" onClick={resetConfig} className="flex-1">
+                          🔄 Resetear
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    {/* Live Preview */}
+                    <div>
+                      <h5 className="text-foreground mb-3 font-medium">Vista Previa en Tiempo Real</h5>
+                      <div className="border-border rounded-lg border p-6 bg-gray-50">
+                        {renderComponentPreview(editedConfig)}
+                      </div>
+                      <div className="bg-blue-50 mt-4 rounded-lg p-3">
+                        <p className="text-blue-800 text-sm">
+                          🔥 Vista previa actualizada en tiempo real. Los cambios se reflejan inmediatamente.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
