@@ -45,11 +45,11 @@ y páginas dinámicas.
 - **Server-side rendering** por defecto
 - **Sistema de componentes** con Base UI (LLM-optimized) y CVA
 - **Sistema de traducciones escalable** -
-  [Ver documentación](./README-TRANSLATIONS.md)
+  [Ver documentación](./docs/architecture/translation-system.md)
 - **Base de datos local automatizada** -
-  [Ver documentación](./README-DATABASE.md)
+  [Ver documentación](./docs/guides/database-setup.md)
 - **Sistema de routing híbrido** para páginas estáticas y dinámicas -
-  [Ver documentación](./PAGES-ROUTING-GUIDE.md)
+  [Ver documentación](./docs/guides/page-creation.md)
 
 ## 🗺️ Sistema de Routing y Páginas
 
@@ -114,7 +114,7 @@ const STATIC_ROUTES_FALLBACK = [
 
 ### 📚 Documentación Completa
 
-**👉 [Guía Completa de Routing](./PAGES-ROUTING-GUIDE.md)**
+**👉 [Guía Completa de Routing](./docs/guides/page-creation.md)**
 
 Incluye:
 
@@ -182,7 +182,7 @@ const STATIC_ROUTES_FALLBACK = [
   - [x] API de métricas y monitoreo (/api/translations/metrics)
   - [x] Zero breaking changes con next-intl
   - [x] Documentación completa:
-        [README-TRANSLATIONS.md](./README-TRANSLATIONS.md)
+        [docs/architecture/translation-system.md](./docs/architecture/translation-system.md)
 
 ### Fase 4: Sistema de Componentes ✅ COMPLETADO
 
@@ -785,7 +785,7 @@ REDIS_URL="redis://..."         # ← Cache distribuido (opcional)
 
 ### 📚 Documentación Completa
 
-Ver **[README-TRANSLATIONS.md](./README-TRANSLATIONS.md)** para:
+Ver **[docs/architecture/translation-system.md](./docs/architecture/translation-system.md)** para:
 
 - Arquitectura detallada del sistema híbrido
 - Guía de migración paso a paso
@@ -833,7 +833,7 @@ npm run db:studio   # Abrir interfaz visual
 npm run db:reset    # Reset completo (DESTRUCTIVO)
 ```
 
-Ver documentación completa: [README-DATABASE.md](./README-DATABASE.md)
+Ver documentación completa: [docs/guides/database-setup.md](./docs/guides/database-setup.md)
 
 ### Sistema de Componentes UI
 
