@@ -49,8 +49,8 @@ if ! command -v docker &> /dev/null; then
     exit 1
 fi
 
-if ! command -v docker-compose &> /dev/null; then
-    error "Docker Compose no está instalado. Instálalo desde: https://docs.docker.com/compose/install/"
+if ! docker compose version &> /dev/null; then
+    error "Docker Compose no está disponible. Instálalo desde: https://docs.docker.com/compose/install/"
     exit 1
 fi
 
@@ -58,13 +58,13 @@ success "Docker y Docker Compose están disponibles"
 
 # Verificar si los servicios ya están ejecutándose
 log "Verificando servicios existentes..."
-if docker-compose -f docker-compose.dev.yml ps | grep -q "Up"; then
+if docker compose -f docker-compose.dev.yml ps | grep -q "Up"; then
     warning "Algunos servicios ya están ejecutándose"
     read -p "¿Deseas reiniciarlos? (y/N): " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         log "Deteniendo servicios existentes..."
-        docker-compose -f docker-compose.dev.yml down
+        docker compose -f docker-compose.dev.yml down
     else
         info "Manteniendo servicios existentes"
         exit 0
@@ -107,7 +107,7 @@ success "Permisos configurados"
 
 # Iniciar servicios
 log "Iniciando servicios de desarrollo..."
-docker-compose -f docker-compose.dev.yml up -d
+docker compose -f docker-compose.dev.yml up -d
 
 # Esperar a que PostgreSQL esté listo
 log "Esperando a que PostgreSQL esté listo..."
@@ -115,7 +115,7 @@ max_attempts=30
 attempt=1
 
 while [ $attempt -le $max_attempts ]; do
-    if docker-compose -f docker-compose.dev.yml exec -T postgres-dev pg_isready -U dev_user -d nextjs_template_dev > /dev/null 2>&1; then
+    if docker compose -f docker-compose.dev.yml exec -T postgres-dev pg_isready -U dev_user -d nextjs_template_dev > /dev/null 2>&1; then
         success "PostgreSQL está listo!"
         break
     fi
@@ -184,8 +184,8 @@ echo -e "  • pgAdmin Pass:   ${CYAN}admin_2024${NC}"
 echo
 
 info "🛠️  Comandos útiles:"
-echo -e "  • Ver logs:       ${CYAN}docker-compose -f docker-compose.dev.yml logs -f${NC}"
-echo -e "  • Detener:        ${CYAN}docker-compose -f docker-compose.dev.yml down${NC}"
+echo -e "  • Ver logs:       ${CYAN}docker compose -f docker-compose.dev.yml logs -f${NC}"
+echo -e "  • Detener:        ${CYAN}docker compose -f docker-compose.dev.yml down${NC}"
 echo -e "  • Prisma Studio:  ${CYAN}npm run db:studio${NC}"
 echo -e "  • Reset DB:       ${CYAN}./scripts/database/reset.sh${NC}"
 echo

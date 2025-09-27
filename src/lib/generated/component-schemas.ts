@@ -1,6 +1,6 @@
 /**
  * AUTO-GENERATED COMPONENT SCHEMAS
- * Generated on: 2025-09-17T14:33:49.294Z
+ * Generated on: 2025-09-27T11:24:52.072Z
  * 
  * DO NOT EDIT MANUALLY - Run 'npm run configure' to regenerate
  */

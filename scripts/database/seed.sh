@@ -25,7 +25,7 @@ echo -e "${NC}"
 
 # Verificar que la base de datos esté disponible
 log "Verificando conexión a la base de datos..."
-if ! docker-compose -f docker-compose.dev.yml exec -T postgres-dev pg_isready -U dev_user -d nextjs_template_dev > /dev/null 2>&1; then
+if ! docker compose -f docker-compose.dev.yml exec -T postgres-dev pg_isready -U dev_user -d nextjs_template_dev > /dev/null 2>&1; then
     error "La base de datos no está disponible. Ejecuta primero: ./scripts/database/setup.sh"
     exit 1
 fi
@@ -70,5 +70,5 @@ echo -e "${NC}"
 success "Base de datos poblada con datos de desarrollo! 🎉"
 echo -e "ℹ️  🔧 Comandos útiles:"
 echo -e "  • Prisma Studio:  npm run db:studio"
-echo -e "  • Ver datos:      docker-compose -f docker-compose.dev.yml exec postgres-dev psql -U dev_user -d nextjs_template_dev"
+echo -e "  • Ver datos:      docker compose -f docker-compose.dev.yml exec postgres-dev psql -U dev_user -d nextjs_template_dev"
 echo -e "  • Reset DB:       ./scripts/database/reset.sh"
