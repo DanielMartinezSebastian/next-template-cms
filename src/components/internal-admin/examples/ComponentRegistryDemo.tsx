@@ -255,8 +255,8 @@ export default function ComponentRegistryDemo() {
                 <div className="flex justify-between">
                   <span>Database Status:</span>
                   <span className={syncStatus.database?.connected 
-                    ? "text-green-600 dark:text-green-400" 
-                    : "text-red-600 dark:text-red-400"}>
+                    ? 'text-green-600 dark:text-green-400' 
+                    : 'text-red-600 dark:text-red-400'}>
                     {syncStatus.database?.connected ? '✓ Connected' : '✗ Disconnected'}
                   </span>
                 </div>

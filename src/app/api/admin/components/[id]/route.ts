@@ -30,7 +30,7 @@ export async function PUT(
       const updatedComponent = await db.component.update({
         where: { id: componentId },
         data: {
-          defaultConfig: defaultConfig,
+          defaultConfig,
           updatedAt: new Date(),
         },
       });
@@ -50,7 +50,7 @@ export async function PUT(
         success: true,
         component: {
           id: componentId,
-          defaultConfig: defaultConfig,
+          defaultConfig,
           updatedAt: new Date().toISOString(),
         },
         source: 'mock'

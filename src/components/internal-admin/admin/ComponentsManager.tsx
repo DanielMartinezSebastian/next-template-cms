@@ -132,7 +132,7 @@ export function ComponentsManager() {
         setEditedConfig({});
       } else {
         console.error('❌ Failed to save component:', result.error);
-        alert('Error al guardar: ' + result.error);
+        alert(`Error al guardar: ${  result.error}`);
       }
     } catch (error) {
       console.error('❌ Error saving component configuration:', error);
