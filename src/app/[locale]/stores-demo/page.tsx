@@ -5,7 +5,7 @@
 
 'use client';
 
-import { StoresExample } from '@/components/examples';
+import { StoresExample } from '@/components/internal-admin/examples';
 
 export default function StoresDemoPage() {
   return (

@@ -4,7 +4,7 @@
  */
 'use client';
 
-import { SimplePageManager } from '@/components/admin/SimplePageManager';
+import { SimplePageManager } from '@/components/internal-admin/admin/SimplePageManager';
 
 export default function EditorDemoPage() {
   return (

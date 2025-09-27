@@ -1,340 +1,227 @@
 /**
- * Component Factory
- * Maps component types to React components for dynamic rendering
+ * Component Factory - SSR/Client Conditional System
+ * Uses the new registry system with auto-detection
  */
 
+import React, { createElement } from 'react';
+import { componentRegistry } from '@/lib/component-registry/registry';
+import { detectEditMode } from '@/lib/component-registry/client-wrapper';
+
+// Import legacy editable components (for backward compatibility)
 import {
-  getComponentDefaultsSync,
-  getComponentSchema,
-  validateComponentProps,
-} from '@/lib/component-schemas';
-import { ComponentFactoryMapping } from '@/types/pages';
-import React from 'react';
-import componentConfig from '../../../component-config.json';
+  ButtonMigrated,
+  EditableButton,
+  CardMigrated,
+  CallToActionMigrated,
+  HeroSectionMigrated,
+  TextBlockMigrated,
+} from '../editable-components';
 
-// Import available components
-import ButtonComponent from './components/Button';
-import { CallToAction } from './components/CallToAction';
-import Card from './components/Card';
-import { ContactForm } from './components/ContactForm';
-import { FeatureGrid } from './components/FeatureGrid';
-import { HeroSection } from './components/HeroSection';
-import Image from './components/Image';
-import { ImageGallery } from './components/ImageGallery';
-import { Pricing } from './components/Pricing';
-import Section from './components/Section';
-import Spacer from './components/Spacer';
-import { Testimonial } from './components/Testimonial';
-import { Newsletter, Testimonials } from './components/Testimonials';
-import { TextBlock } from './components/TextBlock';
+// Legacy placeholder for unknown components
+const UnknownComponent = ({ type, ...props }: any) => (
+  <div className="p-4 border border-red-300 bg-red-50 rounded">
+    <p className="text-red-800 font-medium">Unknown component: {type}</p>
+    <p className="text-red-600 text-sm">This component may have been removed or renamed.</p>
+    {process.env.NODE_ENV === 'development' && (
+      <details className="mt-2">
+        <summary className="text-red-600 text-xs cursor-pointer">Debug Info</summary>
+        <pre className="text-red-500 text-xs mt-1 overflow-auto">
+          Type: {type}
+          {'\n'}Props: {JSON.stringify(props, null, 2)}
+        </pre>
+      </details>
+    )}
+  </div>
+);
 
-// Demo/Fallback components
-import { PlaceholderComponent } from './components/PlaceholderComponent';
-import { UnknownComponent } from './components/UnknownComponent';
+const PlaceholderComponent = ({ message = 'Component not yet migrated to SSR system', type, ...props }: any) => (
+  <div className="p-4 border border-amber-300 bg-amber-50 rounded">
+    <p className="text-amber-800 font-medium">{message}</p>
+    <p className="text-amber-600 text-sm">
+      Component "{type}" needs to be migrated to the new withEditableSSR system.
+    </p>
+    {process.env.NODE_ENV === 'development' && (
+      <details className="mt-2">
+        <summary className="text-amber-600 text-xs cursor-pointer">Migration Guide</summary>
+        <div className="text-amber-700 text-xs mt-1">
+          <p>1. Create component in appropriate category folder</p>
+          <p>2. Use withEditableSSR instead of withEditable</p>
+          <p>3. Remove 'use client' directive</p>
+          <p>4. Add to ComponentFactory mapping</p>
+        </div>
+      </details>
+    )}
+  </div>
+);
 
 /**
- * Component Factory Class
- * Manages the mapping between component types and React components
+ * Component Factory Class - New Registry System
+ * Automatically detects editMode and uses appropriate rendering
  */
 export class ComponentFactory {
-  private static componentMap: ComponentFactoryMapping = {
-    // Layout Components
-    hero: HeroSection,
-    'hero-section': HeroSection,
-    herosection: HeroSection, // ✨ Added for compatibility
-    section: Section,
+  // Legacy mapping for backward compatibility
+  private static legacyComponentMap: Record<string, React.ComponentType<any>> = {
+    // Migrated components (legacy names)
+    'button-migrated': ButtonMigrated,
+    'editable-button': EditableButton,
+    'card-migrated': CardMigrated,
+    'call-to-action-migrated': CallToActionMigrated,
+    'hero-section-migrated': HeroSectionMigrated,
+    'text-block-migrated': TextBlockMigrated,
 
-    // Content Components
-    text: TextBlock,
-    'text-block': TextBlock,
-    textblock: TextBlock, // ✨ Added for compatibility
-    content: TextBlock,
-
-    // Media Components
-    image: Image, // Single image component
-    'image-gallery': ImageGallery,
-    imagegallery: ImageGallery, // ✨ Added for compatibility
-    gallery: ImageGallery,
-
-    // UI Components
-    button: ButtonComponent,
-    card: Card,
-    spacer: Spacer,
-
-    // Interactive Components
-    form: ContactForm,
-    'contact-form': ContactForm,
-    contactform: ContactForm, // ✨ Added for compatibility
-    contact: ContactForm,
-
-    // Marketing Components
-    features: FeatureGrid,
-    'feature-grid': FeatureGrid,
-    featuregrid: FeatureGrid, // ✨ Added for compatibility
-    'feature-list': FeatureGrid,
-
-    cta: CallToAction,
-    'call-to-action': CallToAction,
-    calltoaction: CallToAction, // ✨ Added for compatibility
-
-    testimonials: Testimonials,
-    reviews: Testimonials,
-
-    testimonial: Testimonial,
-    'testimonial-single': Testimonial,
-
-    pricing: Pricing,
-    'pricing-plan': Pricing,
-    plan: Pricing,
-
-    newsletter: Newsletter,
-    'newsletter-signup': Newsletter,
-
-    // Fallback components
-    placeholder: PlaceholderComponent,
-    unknown: UnknownComponent,
+    // Legacy placeholders
+    section: PlaceholderComponent,
+    spacer: PlaceholderComponent,
+    form: PlaceholderComponent,
+    'contact-form': PlaceholderComponent,
+    contactform: PlaceholderComponent,
+    features: PlaceholderComponent,
+    'feature-grid': PlaceholderComponent,
+    featuregrid: PlaceholderComponent,
+    testimonials: PlaceholderComponent,
+    testimonial: PlaceholderComponent,
+    pricing: PlaceholderComponent,
+    newsletter: PlaceholderComponent,
+    image: PlaceholderComponent,
+    'image-gallery': PlaceholderComponent,
+    imagegallery: PlaceholderComponent,
+    gallery: PlaceholderComponent,
   };
 
   /**
-   * Get a component by type
+   * Get a component by type using new registry system
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getComponent(type: string): React.ComponentType<any> | null {
     const normalizedType = type.toLowerCase().trim();
-    return this.componentMap[normalizedType] || null;
-  }
+    
+    // First try the new registry system
+    const registeredComponent = componentRegistry.get(normalizedType);
+    if (registeredComponent) {
+      return registeredComponent.component;
+    }
 
-  /**
-   * Register a new component type
-   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static registerComponent(type: string, component: React.ComponentType<any>): void {
-    const normalizedType = type.toLowerCase().trim();
-    this.componentMap[normalizedType] = component;
-  }
+    // Then try legacy mapping for backward compatibility
+    if (this.legacyComponentMap[normalizedType]) {
+      return this.legacyComponentMap[normalizedType];
+    }
 
-  /**
-   * Unregister a component type
-   */
-  static unregisterComponent(type: string): void {
-    const normalizedType = type.toLowerCase().trim();
-    delete this.componentMap[normalizedType];
-  }
-
-  /**
-   * Get all available component types
-   */
-  static getAvailableTypes(): string[] {
-    return Object.keys(this.componentMap);
-  }
-
-  /**
-   * Check if a component type is registered
-   */
-  static hasComponent(type: string): boolean {
-    const normalizedType = type.toLowerCase().trim();
-    return normalizedType in this.componentMap;
-  }
-
-  /**
-   * Get component mapping for admin/editor use
-   */
-  static getComponentMapping(): ComponentFactoryMapping {
-    return { ...this.componentMap };
-  }
-
-  /**
-   * Get component info for admin/editor interfaces
-   */
-  static getComponentInfo() {
-    return {
-      layout: [
-        { type: 'hero', name: 'Hero Section', category: 'layout' },
-        { type: 'hero-section', name: 'Hero Section', category: 'layout' },
-        { type: 'section', name: 'Section', category: 'layout' },
-      ],
-      content: [
-        { type: 'text', name: 'Text Block', category: 'content' },
-        { type: 'text-block', name: 'Text Block', category: 'content' },
-      ],
-      media: [
-        { type: 'image', name: 'Image', category: 'media' },
-        { type: 'image-gallery', name: 'Image Gallery', category: 'media' },
-      ],
-      ui: [
-        { type: 'button', name: 'Button', category: 'ui' },
-        { type: 'card', name: 'Card', category: 'ui' },
-        { type: 'spacer', name: 'Spacer', category: 'ui' },
-      ],
-      interactive: [
-        { type: 'form', name: 'Contact Form', category: 'interactive' },
-        { type: 'contact-form', name: 'Contact Form', category: 'interactive' },
-      ],
-      marketing: [
-        { type: 'features', name: 'Feature Grid', category: 'marketing' },
-        { type: 'cta', name: 'Call to Action', category: 'marketing' },
-        { type: 'testimonials', name: 'Testimonials', category: 'marketing' },
-        { type: 'newsletter', name: 'Newsletter Signup', category: 'marketing' },
-      ],
+    // Common type aliases
+    const typeAliases: Record<string, string> = {
+      'hero': 'HeroSection',
+      'hero-section': 'HeroSection',
+      'herosection': 'HeroSection',
+      'text': 'TextBlock',
+      'text-block': 'TextBlock',
+      'textblock': 'TextBlock',
+      'content': 'TextBlock',
+      'cta': 'CallToAction',
+      'call-to-action': 'CallToAction',
+      'calltoaction': 'CallToAction',
     };
-  }
 
-  /**
-   * Get placeholder value for a prop based on its name and current value
-   */
-  static getPlaceholderValue(propName: string, currentValue: unknown): unknown {
-    // If value is already valid (not empty string, not null, not undefined), keep it
-    if (currentValue !== '' && currentValue !== null && currentValue !== undefined) {
-      return currentValue;
-    }
-
-    // Get placeholders from config
-    const placeholders = componentConfig.placeholders;
-
-    // Check for array props that should have array defaults
-    const arrayProps = ['features', 'images', 'testimonials', 'items', 'tags', 'options'];
-    if (arrayProps.includes(propName) || propName.endsWith('s')) {
-      if (placeholders.arrays[propName as keyof typeof placeholders.arrays]) {
-        return placeholders.arrays[propName as keyof typeof placeholders.arrays];
+    // Try aliases
+    const aliasedType = typeAliases[normalizedType];
+    if (aliasedType) {
+      const aliasedComponent = componentRegistry.get(aliasedType);
+      if (aliasedComponent) {
+        return aliasedComponent.component;
       }
-      return placeholders.arrays.items; // Default empty array
     }
 
-    // Check for object props
-    const objectProps = ['config', 'settings', 'metadata'];
-    if (objectProps.includes(propName)) {
-      return placeholders.objects[propName as keyof typeof placeholders.objects] || {};
-    }
-
-    // Check for special types
-    if (propName.includes('color') || propName.includes('Color')) {
-      return placeholders.specialTypes.color;
-    }
-    if (propName.includes('url') || propName.includes('href') || propName.includes('link')) {
-      return placeholders.specialTypes.url;
-    }
-    if (propName.includes('email') || propName.includes('Email')) {
-      return placeholders.specialTypes.email;
-    }
-    if (propName.includes('class') || propName.includes('Class')) {
-      return placeholders.specialTypes.className;
-    }
-
-    // Default to empty string for unknown props
-    return '';
+    return null;
   }
 
   /**
-   * Sanitize props by removing dangerous or invalid properties and adding placeholders
-   */
-  static sanitizeProps(props: Record<string, unknown>): Record<string, unknown> {
-    const sanitized = { ...props };
-
-    // Remove dangerous props that could cause runtime errors
-    const dangerousProps = ['onClick', 'onSubmit', 'onChange', 'onFocus', 'onBlur'];
-
-    dangerousProps.forEach(prop => {
-      if (prop in sanitized && typeof sanitized[prop] === 'string') {
-        // If it's a string, it's likely invalid - remove it
-        delete sanitized[prop];
-        console.warn(`Removed invalid ${prop} prop with string value: "${sanitized[prop]}"`);
-      }
-    });
-
-    // Additional cleanup and placeholder assignment
-    Object.keys(sanitized).forEach(key => {
-      const value = sanitized[key];
-
-      // Remove undefined and null values first
-      if (value === undefined || value === null) {
-        delete sanitized[key];
-        return;
-      }
-
-      // Handle string props that should be empty or have placeholders
-      if (typeof value === 'string') {
-        // Remove placeholder-like values and replace with proper placeholders
-        if (value === '>' || value === '<' || value === '[]' || value === '{}' || value === '') {
-          sanitized[key] = this.getPlaceholderValue(key, '');
-        }
-      }
-
-      // Handle arrays that might be strings or invalid
-      if (key.endsWith('s') || ['features', 'images', 'testimonials'].includes(key)) {
-        if (typeof value === 'string' && value !== '') {
-          // Try to parse if it's a JSON string
-          try {
-            const parsed = JSON.parse(value);
-            if (Array.isArray(parsed)) {
-              sanitized[key] = parsed;
-            } else {
-              sanitized[key] = this.getPlaceholderValue(key, '');
-            }
-          } catch {
-            // If it's not valid JSON, use placeholder
-            sanitized[key] = this.getPlaceholderValue(key, '');
-          }
-        } else if (!Array.isArray(value)) {
-          // If it's not an array, use placeholder
-          sanitized[key] = this.getPlaceholderValue(key, '');
-        }
-      }
-    });
-
-    return sanitized;
-  }
-
-  /**
-   * Validate component props against expected schema
-   */
-  static validateProps(
-    type: string,
-    props: Record<string, unknown>
-  ): {
-    isValid: boolean;
-    errors: string[];
-    sanitizedProps: Record<string, unknown>;
-  } {
-    // First sanitize dangerous props
-    const cleanProps = this.sanitizeProps(props);
-
-    // Then use schema-based validation
-    return validateComponentProps(type, cleanProps);
-  }
-
-  /**
-   * Get default props for a component using schemas
-   */
-  static getDefaults(type: string): Record<string, unknown> {
-    return getComponentDefaultsSync(type); // Use sync version for immediate response
-  }
-
-  /**
-   * Get component schema information
-   */
-  static getSchema(type: string) {
-    return getComponentSchema(type);
-  }
-
-  /**
-   * Create component with validated props
+   * Create component with automatic editMode detection
    */
   static createComponent(type: string, props: Record<string, unknown> = {}): React.ReactNode {
     const Component = this.getComponent(type);
 
     if (!Component) {
-      console.warn(`Unknown component type: ${type}`);
-      return React.createElement(UnknownComponent, { type, ...props });
+      console.warn(`[ComponentFactory] Unknown component type: ${type}`);
+      return createElement(UnknownComponent, { type, ...props });
     }
 
-    // Validate and sanitize props
-    const { sanitizedProps, errors } = this.validateProps(type, props);
-
-    // Log validation errors in development
-    if (errors.length > 0 && process.env.NODE_ENV === 'development') {
-      console.warn(`Component ${type} validation errors:`, errors);
+    // Auto-detect edit mode
+    const editMode = detectEditMode();
+    
+    // For legacy components, pass the props as-is
+    if (this.legacyComponentMap[type.toLowerCase().trim()]) {
+      return createElement(Component, { type, ...props });
     }
 
-    return React.createElement(Component, sanitizedProps);
+    // For new SSR components, include editMode
+    return createElement(Component, { ...props, editMode });
+  }
+
+  /**
+   * Get all available component types from registry + legacy
+   */
+  static getAvailableTypes(): string[] {
+    const registryTypes = componentRegistry.getComponents().map(c => c.metadata.name);
+    const legacyTypes = Object.keys(this.legacyComponentMap);
+    return [...new Set([...registryTypes, ...legacyTypes])];
+  }
+
+  /**
+   * Check if a component type is available
+   */
+  static hasComponent(type: string): boolean {
+    const normalizedType = type.toLowerCase().trim();
+    return componentRegistry.has(normalizedType) || 
+           normalizedType in this.legacyComponentMap;
+  }
+
+  /**
+   * Get component info for admin interfaces
+   */
+  static getComponentInfo() {
+    const registryComponents = componentRegistry.getComponents();
+    
+    // Group by category
+    const grouped: Record<string, any[]> = {};
+    
+    registryComponents.forEach(comp => {
+      const category = comp.metadata.category;
+      if (!grouped[category]) {
+        grouped[category] = [];
+      }
+      grouped[category].push({
+        type: comp.metadata.name,
+        name: comp.metadata.description || comp.metadata.name,
+        category: category,
+        icon: comp.metadata.icon,
+        version: comp.metadata.version,
+        tags: comp.metadata.tags,
+      });
+    });
+
+    return grouped;
+  }
+
+  /**
+   * Get registry statistics
+   */
+  static getRegistryStats() {
+    const components = componentRegistry.getComponents();
+    return {
+      total: components.length,
+      categories: Array.from(new Set(components.map(c => c.metadata.category))),
+      lastUpdate: new Date().toISOString(),
+      legacyComponents: Object.keys(this.legacyComponentMap).length,
+    };
+  }
+
+  /**
+   * Initialize component system (trigger component imports for registration)
+   */
+  static initialize() {
+    // Import components to trigger auto-registration
+    // This is already done at the top of the file
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[ComponentFactory] Initialized with registry system');
+      console.log('[ComponentFactory] Available components:', this.getAvailableTypes());
+    }
   }
 }

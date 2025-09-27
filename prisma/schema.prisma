@@ -165,9 +165,22 @@ model Component {
   category    String? // e.g., "marketing", "forms", "navigation"
   description String?
 
-  // Configuration schema (JSON Schema)
+  // Configuration schema (JSON Schema) - LEGACY
   configSchema  Json?
   defaultConfig Json?
+
+  // NEW: Enhanced schema system for withEditable components
+  propsSchema   Json? // Serialized Zod schema
+  defaultProps  Json? // Default props from component definition
+  customProps   Json? // User-customized props (overrides defaults)
+  editorConfig  Json? // Auto-generated editor configuration
+  version       String @default("1.0.0") // Component version for tracking
+  
+  // Component metadata
+  displayName   String? // Human-readable display name
+  icon          String? // Icon for UI (emoji or icon name)
+  tags          String[] // Tags for search and filtering
+  deprecated    Boolean @default(false) // Mark as deprecated
 
   isActive Boolean @default(true)
 
@@ -176,8 +189,37 @@ model Component {
 
   // Relations
   pageComponents PageComponent[]
+  defaults       ComponentDefault[]
 
   @@map("components")
+}
+
+// NEW: Component defaults tracking for history/versioning
+model ComponentDefault {
+  id          String @id @default(cuid())
+  componentId String
+  
+  // Props tracking
+  originalProps Json  // Original default props from code
+  currentProps  Json  // Current props (may be customized)
+  
+  // Versioning
+  version     Int     @default(1)
+  description String? // Change description
+  
+  // Metadata
+  createdBy   String? // User who made the change
+  reason      String? // Reason for change
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  component Component @relation(fields: [componentId], references: [id], onDelete: Cascade)
+
+  // Indexes
+  @@index([componentId, version])
+  @@map("component_defaults")
 }
 
 model PageComponent {

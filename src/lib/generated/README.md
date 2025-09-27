@@ -1,8 +1,8 @@
 # Component Configuration Summary
 
-Generated on: 2025-09-17T14:33:49.295Z
+Generated on: 2025-09-27T17:35:34.547Z
 
-## Components Found: 13
+## Components Found: 17
 
 - **Button** (`button`) 🔘
   - Category: ui
@@ -24,6 +24,22 @@ Generated on: 2025-09-17T14:33:49.295Z
   - Category: layout
   - Has Interface: ✅
   - File: Spacer.tsx
+- **CardMigrated** (`card-migrated`) 📄
+  - Category: general
+  - Has Interface: ❌
+  - File: CardMigrated.tsx
+- **CallToActionMigrated** (`call-to-action-migrated`) 📄
+  - Category: general
+  - Has Interface: ❌
+  - File: CallToActionMigrated.tsx
+- **HeroSectionMigrated** (`hero-section-migrated`) 📄
+  - Category: general
+  - Has Interface: ❌
+  - File: HeroSectionMigrated.tsx
+- **TextBlockMigrated** (`text-block-migrated`) 📄
+  - Category: general
+  - Has Interface: ❌
+  - File: TextBlockMigrated.tsx
 - **CallToAction** (`call-to-action`) 🚀
   - Category: marketing
   - Has Interface: ✅
