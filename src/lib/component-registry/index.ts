@@ -29,6 +29,8 @@ export { componentRegistry } from './registry';
 
 // HOC and utilities
 export { withEditable } from './with-editable';
+export { withEditableSSR, createEditableSSRComponent } from './with-editable-ssr';
+export { withConditionalClient, detectEditMode, useEditMode } from './client-wrapper';
 
 // Schema utilities
 export { schemaToEditor } from './schema-to-editor';
