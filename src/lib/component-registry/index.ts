@@ -310,18 +310,3 @@ export const devUtils = process.env.NODE_ENV === 'development' ? {
     };
   },
 } : {};
-
-// =============================================================================
-// DEFAULT EXPORT
-// =============================================================================
-
-/**
- * Main component registry system
- */
-export default {
-  registry: componentRegistry,
-  withEditable,
-  initializeComponentSystem,
-  getSystemStatus,
-  devUtils,
-};

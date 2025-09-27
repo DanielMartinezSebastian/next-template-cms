@@ -4,8 +4,11 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { componentRegistry } from '@/lib/component-registry';
+import { componentRegistry, initializeRegistry } from '@/lib/component-registry';
 import { componentDatabaseSync } from '@/lib/component-registry/db-sync';
+
+// Ensure registry is initialized
+initializeRegistry();
 
 // =============================================================================
 // GET - Get specific component details

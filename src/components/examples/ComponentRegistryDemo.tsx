@@ -8,6 +8,9 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 
+// Initialize the component registry system
+import '@/lib/component-registry/init';
+
 // Import our editable components
 import EditableButton from '@/components/dynamic/components/EditableButton';
 import ButtonMigrated from '@/components/dynamic/components/ButtonMigrated';

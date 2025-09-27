@@ -4,7 +4,10 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { componentDatabaseSync, componentRegistry } from '@/lib/component-registry';
+import { componentDatabaseSync, componentRegistry, initializeRegistry } from '@/lib/component-registry';
+
+// Ensure registry is initialized
+initializeRegistry();
 
 // =============================================================================
 // POST - Sync components between registry and database
