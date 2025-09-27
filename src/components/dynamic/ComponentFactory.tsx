@@ -189,7 +189,7 @@ export class ComponentFactory {
       grouped[category].push({
         type: comp.metadata.name,
         name: comp.metadata.description || comp.metadata.name,
-        category: category,
+        category,
         icon: comp.metadata.icon,
         version: comp.metadata.version,
         tags: comp.metadata.tags,
