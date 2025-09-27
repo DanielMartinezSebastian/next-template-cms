@@ -5,10 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getDbClient } from '@/lib/db';
-import { componentRegistry, initializeRegistry } from '@/lib/component-registry';
-
-// Ensure registry is initialized
-initializeRegistry();
+import { componentRegistry } from '@/lib/component-registry';
 
 // =============================================================================
 // GET - List all registered components (hybrid: registry + database)

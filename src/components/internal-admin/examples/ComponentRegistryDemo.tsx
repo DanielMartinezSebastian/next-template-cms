@@ -7,17 +7,17 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { componentRegistry } from '@/lib/component-registry';
 
-// Initialize the component registry system
-import '@/lib/component-registry/init';
-
-// Import our editable components
-import EditableButton from '@/components/dynamic/components/EditableButton';
-import ButtonMigrated from '@/components/dynamic/components/ButtonMigrated';
-import CardMigrated from '@/components/dynamic/components/CardMigrated';
-import CallToActionMigrated from '@/components/dynamic/components/CallToActionMigrated';
-import HeroSectionMigrated from '@/components/dynamic/components/HeroSectionMigrated';
-import TextBlockMigrated from '@/components/dynamic/components/TextBlockMigrated';
+// Import our editable components from new structure
+import {
+  EditableButton,
+  ButtonMigrated,
+  CardMigrated,
+  CallToActionMigrated,
+  HeroSectionMigrated,
+  TextBlockMigrated,
+} from '@/components/editable-components';
 
 // =============================================================================
 // DEMO COMPONENT

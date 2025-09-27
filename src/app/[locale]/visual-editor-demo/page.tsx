@@ -3,7 +3,7 @@
  * Demonstrates the component-based visual editor
  */
 
-import VisualEditorDemo from '@/components/examples/VisualEditorDemo';
+import VisualEditorDemo from '@/components/internal-admin/examples/VisualEditorDemo';
 import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 

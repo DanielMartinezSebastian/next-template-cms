@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { Metadata } from 'next';
-import ComponentRegistryDemo from '@/components/examples/ComponentRegistryDemo';
+import ComponentRegistryDemo from '@/components/internal-admin/examples/ComponentRegistryDemo';
 
 export const metadata: Metadata = {
   title: 'Component Registry Demo | withEditable System',

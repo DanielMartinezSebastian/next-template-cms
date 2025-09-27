@@ -8,6 +8,7 @@ import type { ComponentType } from 'react';
 import type {
   ComponentRegistry,
   ComponentCategory,
+  ComponentInfo,
   RegisteredComponent,
   EditableComponentOptions,
   ComponentEditorConfig,
@@ -96,6 +97,19 @@ class ComponentRegistryImpl implements ComponentRegistry {
    */
   getByCategory(category: ComponentCategory): RegisteredComponent[] {
     return this.getAll().filter(component => component.metadata.category === category);
+  }
+
+  /**
+   * Get components as ComponentInfo array for UI display
+   */
+  getComponents(): ComponentInfo[] {
+    return this.getAll().map(registered => ({
+      name: registered.metadata.name,
+      metadata: registered.metadata,
+      defaultProps: registered.defaultProps,
+      schema: registered.schema,
+      component: registered.component,
+    }));
   }
 
   /**

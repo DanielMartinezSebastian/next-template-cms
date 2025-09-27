@@ -4,11 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { componentRegistry, initializeRegistry } from '@/lib/component-registry';
-import { componentDatabaseSync } from '@/lib/component-registry/db-sync';
-
-// Ensure registry is initialized
-initializeRegistry();
+import { componentRegistry } from '@/lib/component-registry';
 
 // =============================================================================
 // GET - Get specific component details

@@ -1,4 +1,4 @@
-import { ScrollbarDemo } from '../../../components/examples';
+import { ScrollbarDemo } from '../../../components/internal-admin/examples';
 
 export default function ScrollbarDemoPage() {
   return <ScrollbarDemo />;

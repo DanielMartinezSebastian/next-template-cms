@@ -7,8 +7,8 @@
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { PageEditorPanel } from '../../../../../../components/admin/PageEditorPanel';
-import { PagePreview } from '../../../../../../components/admin/PagePreview';
+import { PageEditorPanel } from '../../../../../../components/internal-admin/admin/PageEditorPanel';
+import { PagePreview } from '../../../../../../components/internal-admin/admin/PagePreview';
 import {
   useEditModeActions,
   useEditModeStore,

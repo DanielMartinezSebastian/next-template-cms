@@ -8,29 +8,8 @@ export { ComponentFactory } from './ComponentFactory';
 export { DynamicPageRenderer, renderDynamicPageSSR } from './DynamicPageRenderer';
 export { getLoadingComponent, LoadingComponent } from './LoadingComponent';
 
-// Individual Components (Legacy - will be removed)
-export { default as ButtonComponent } from './components/Button';
-export { CallToAction } from './components/CallToAction';
-export { default as Card } from './components/Card';
-export { ContactForm } from './components/ContactForm';
-export { FeatureGrid } from './components/FeatureGrid';
-export { HeroSection } from './components/HeroSection';
-export { default as Image } from './components/Image';
-export { ImageGallery } from './components/ImageGallery';
-export { PlaceholderComponent } from './components/PlaceholderComponent';
-export { Pricing } from './components/Pricing';
-export { default as Section } from './components/Section';
-export { default as Spacer } from './components/Spacer';
-export { Newsletter, Testimonials } from './components/Testimonials';
-export { Testimonial } from './components/Testimonial';
-export { TextBlock } from './components/TextBlock';
-export { UnknownComponent } from './components/UnknownComponent';
-
-// Migrated Components with withEditable HOC
-export { default as CardMigrated } from './components/CardMigrated';
-export { default as CallToActionMigrated } from './components/CallToActionMigrated';
-export { default as HeroSectionMigrated } from './components/HeroSectionMigrated';
-export { default as TextBlockMigrated } from './components/TextBlockMigrated';
+// Editable Components with withEditable HOC (New System)
+export * from '../editable-components';
 
 // Re-export types
 export type {

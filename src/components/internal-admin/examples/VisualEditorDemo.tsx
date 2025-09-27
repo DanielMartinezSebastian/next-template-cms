@@ -4,7 +4,7 @@
  */
 'use client';
 
-import { SimplePageManager } from '@/components/admin';
+import { SimplePageManager } from '@/components/internal-admin/admin';
 import { Button } from '@/components/ui/button';
 import { useEditModeActions, useEditModeEnabled } from '@/stores';
 import { useState } from 'react';

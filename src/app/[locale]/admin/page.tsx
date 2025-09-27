@@ -4,7 +4,7 @@
  */
 
 import Link from 'next/link';
-import { DatabaseStatusIndicator } from '@/components/admin/DatabaseStatusIndicator';
+import { DatabaseStatusIndicator } from '@/components/internal-admin/admin/DatabaseStatusIndicator';
 
 export default function AdminPage() {
   return (

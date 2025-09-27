@@ -3,7 +3,7 @@
  * Lista y gestiona todas las páginas del CMS usando el nuevo sistema sin Lexical
  */
 
-import { SimplePageManagerNew } from '@/components/admin/SimplePageManagerNew';
+import { SimplePageManagerNew } from '@/components/internal-admin/admin/SimplePageManagerNew';
 import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 

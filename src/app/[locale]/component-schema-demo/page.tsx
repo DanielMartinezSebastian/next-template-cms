@@ -5,7 +5,7 @@
 
 'use client';
 
-import { ComponentPropertyEditor, ComponentSelector } from '@/components/admin';
+import { ComponentPropertyEditor, ComponentSelector } from '@/components/internal-admin/admin';
 import { Button } from '@/components/ui/button';
 import { getAllComponentSchemas } from '@/lib/component-schemas';
 import { useCallback, useState } from 'react';

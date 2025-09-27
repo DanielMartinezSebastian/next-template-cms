@@ -22,6 +22,22 @@ export type ComponentCategory =
   | 'ui';        // Basic UI components
 
 /**
+ * Component info for registry display
+ */
+export interface ComponentInfo {
+  /** Component name */
+  name: string;
+  /** Component metadata */
+  metadata: ComponentMetadata;
+  /** Default props */
+  defaultProps: Record<string, any>;
+  /** Zod schema */
+  schema?: z.ZodSchema<any>;
+  /** Component React element */
+  component: ComponentType<any>;
+}
+
+/**
  * Component metadata for registration
  */
 export interface ComponentMetadata {

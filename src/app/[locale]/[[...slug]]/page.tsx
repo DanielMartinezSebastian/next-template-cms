@@ -23,6 +23,7 @@ const STATIC_ROUTES_FALLBACK = [
   '/scrollbar-demo',
   '/not-found-redirect',
   '/component-registry-demo', // New demo page
+  '/editable-components-test', // New editable components test page
 ];
 
 interface Props {

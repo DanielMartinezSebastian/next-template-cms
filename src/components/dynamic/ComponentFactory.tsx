@@ -12,25 +12,29 @@ import { ComponentFactoryMapping } from '@/types/pages';
 import React from 'react';
 import componentConfig from '../../../component-config.json';
 
-// Import available components
-import ButtonComponent from './components/Button';
-import { CallToAction } from './components/CallToAction';
-import Card from './components/Card';
-import { ContactForm } from './components/ContactForm';
-import { FeatureGrid } from './components/FeatureGrid';
-import { HeroSection } from './components/HeroSection';
-import Image from './components/Image';
-import { ImageGallery } from './components/ImageGallery';
-import { Pricing } from './components/Pricing';
-import Section from './components/Section';
-import Spacer from './components/Spacer';
-import { Testimonial } from './components/Testimonial';
-import { Newsletter, Testimonials } from './components/Testimonials';
-import { TextBlock } from './components/TextBlock';
+// Import available editable components from new structure
+import {
+  ButtonMigrated,
+  EditableButton,
+  CardMigrated,
+  CallToActionMigrated,
+  HeroSectionMigrated,
+  TextBlockMigrated,
+} from '../editable-components';
 
-// Demo/Fallback components
-import { PlaceholderComponent } from './components/PlaceholderComponent';
-import { UnknownComponent } from './components/UnknownComponent';
+// Legacy placeholder for unknown components
+const UnknownComponent = ({ type, ...props }: any) => (
+  <div className="p-4 border border-red-300 bg-red-50 rounded">
+    <p className="text-red-800 font-medium">Unknown component: {type}</p>
+    <p className="text-red-600 text-sm">This component may have been removed or renamed.</p>
+  </div>
+);
+
+const PlaceholderComponent = ({ message = 'Placeholder component', ...props }: any) => (
+  <div className="p-4 border border-gray-300 bg-gray-50 rounded">
+    <p className="text-gray-600">{message}</p>
+  </div>
+);
 
 /**
  * Component Factory Class
@@ -39,56 +43,55 @@ import { UnknownComponent } from './components/UnknownComponent';
 export class ComponentFactory {
   private static componentMap: ComponentFactoryMapping = {
     // Layout Components
-    hero: HeroSection,
-    'hero-section': HeroSection,
-    herosection: HeroSection, // ✨ Added for compatibility
-    section: Section,
+    hero: HeroSectionMigrated,
+    'hero-section': HeroSectionMigrated,
+    herosection: HeroSectionMigrated,
+    section: PlaceholderComponent, // Legacy section component
 
     // Content Components
-    text: TextBlock,
-    'text-block': TextBlock,
-    textblock: TextBlock, // ✨ Added for compatibility
-    content: TextBlock,
+    text: TextBlockMigrated,
+    'text-block': TextBlockMigrated,
+    textblock: TextBlockMigrated,
+    content: TextBlockMigrated,
 
-    // Media Components
-    image: Image, // Single image component
-    'image-gallery': ImageGallery,
-    imagegallery: ImageGallery, // ✨ Added for compatibility
-    gallery: ImageGallery,
-
-    // UI Components
-    button: ButtonComponent,
-    card: Card,
-    spacer: Spacer,
+    // UI Components  
+    button: ButtonMigrated,
+    'button-migrated': ButtonMigrated,
+    'editable-button': EditableButton,
+    card: CardMigrated,
+    'card-migrated': CardMigrated,
+    spacer: PlaceholderComponent, // Legacy spacer component
 
     // Interactive Components
-    form: ContactForm,
-    'contact-form': ContactForm,
-    contactform: ContactForm, // ✨ Added for compatibility
-    contact: ContactForm,
+    form: PlaceholderComponent, // Legacy form component
+    'contact-form': PlaceholderComponent,
+    contactform: PlaceholderComponent,
+    contact: PlaceholderComponent,
 
     // Marketing Components
-    features: FeatureGrid,
-    'feature-grid': FeatureGrid,
-    featuregrid: FeatureGrid, // ✨ Added for compatibility
-    'feature-list': FeatureGrid,
+    features: PlaceholderComponent, // Legacy features component
+    'feature-grid': PlaceholderComponent,
+    featuregrid: PlaceholderComponent,
+    'feature-list': PlaceholderComponent,
 
-    cta: CallToAction,
-    'call-to-action': CallToAction,
-    calltoaction: CallToAction, // ✨ Added for compatibility
+    cta: CallToActionMigrated,
+    'call-to-action': CallToActionMigrated,
+    calltoaction: CallToActionMigrated,
 
-    testimonials: Testimonials,
-    reviews: Testimonials,
-
-    testimonial: Testimonial,
-    'testimonial-single': Testimonial,
-
-    pricing: Pricing,
-    'pricing-plan': Pricing,
-    plan: Pricing,
-
-    newsletter: Newsletter,
-    'newsletter-signup': Newsletter,
+    // Legacy components - now placeholders
+    testimonials: PlaceholderComponent,
+    reviews: PlaceholderComponent,
+    testimonial: PlaceholderComponent,
+    'testimonial-single': PlaceholderComponent,
+    pricing: PlaceholderComponent,
+    'pricing-plan': PlaceholderComponent,
+    plan: PlaceholderComponent,
+    newsletter: PlaceholderComponent,
+    'newsletter-signup': PlaceholderComponent,
+    image: PlaceholderComponent,
+    'image-gallery': PlaceholderComponent,
+    imagegallery: PlaceholderComponent,
+    gallery: PlaceholderComponent,
 
     // Fallback components
     placeholder: PlaceholderComponent,

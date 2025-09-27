@@ -13,6 +13,7 @@ import type { ComponentCategory } from './types';
 export type {
   ComponentCategory,
   ComponentMetadata,
+  ComponentInfo,
   EditableComponentOptions,
   EditorFieldConfig,
   ComponentEditorConfig,
@@ -24,47 +25,16 @@ export type {
 } from './types';
 
 // Registry
-export {
-  componentRegistry,
-  initializeRegistry,
-  registerComponent,
-  getComponent,
-  getComponentsByCategory,
-  searchComponents,
-  validateComponentProps,
-  getRegistryStats,
-} from './registry';
+export { componentRegistry } from './registry';
 
 // HOC and utilities
-export {
-  withEditable,
-  createEditableComponent,
-  isEditableComponent,
-  getEditableMetadata,
-  getComponentName,
-  commonSchemas,
-} from './with-editable';
+export { withEditable } from './with-editable';
 
-export type {
-  WithEditableOptions,
-  InferSchemaProps,
-} from './with-editable';
+// Schema utilities
+export { schemaToEditor } from './schema-to-editor';
 
-// Schema to editor
-export {
-  schemaToEditor,
-} from './schema-to-editor';
-
-// Database sync
-export {
-  componentDatabaseSync,
-  initializeDatabaseSync,
-  syncComponentsToDatabase,
-  syncComponentsFromDatabase,
-  updateComponentCustomProps,
-  resetComponentToDefaults,
-  cleanupUnusedComponents,
-} from './db-sync';
+// Database sync (optional)
+// export { syncWithDatabase } from './db-sync';
 
 // =============================================================================
 // RE-EXPORTS FROM ZOD
@@ -195,14 +165,14 @@ export async function initializeComponentSystem(): Promise<void> {
  * Get system status and statistics
  */
 export function getSystemStatus() {
-  const stats = getRegistryStats();
+  const components = componentRegistry.getComponents();
   
   return {
     registry: {
       initialized: true,
-      components: stats.total,
-      categories: stats.categories,
-      lastUpdate: stats.lastUpdate,
+      components: components.length,
+      categories: Array.from(new Set(components.map(c => c.metadata.category))),
+      lastUpdate: new Date().toISOString(),
     },
     database: {
       // This will be populated by database sync status
