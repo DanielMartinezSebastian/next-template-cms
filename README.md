@@ -30,6 +30,7 @@ internacionalización, y sistema de gestión de contenido.
 y páginas dinámicas.
 
 ## 🚀 Características Principales
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/DanielMartinezSebastian/next-template-cms)
 
 - **Next.js 15** con App Router y TypeScript
 - **Tailwind CSS 4** para estilos modernos
