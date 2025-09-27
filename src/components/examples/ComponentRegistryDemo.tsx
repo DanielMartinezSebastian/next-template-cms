@@ -14,6 +14,10 @@ import '@/lib/component-registry/init';
 // Import our editable components
 import EditableButton from '@/components/dynamic/components/EditableButton';
 import ButtonMigrated from '@/components/dynamic/components/ButtonMigrated';
+import CardMigrated from '@/components/dynamic/components/CardMigrated';
+import CallToActionMigrated from '@/components/dynamic/components/CallToActionMigrated';
+import HeroSectionMigrated from '@/components/dynamic/components/HeroSectionMigrated';
+import TextBlockMigrated from '@/components/dynamic/components/TextBlockMigrated';
 
 // =============================================================================
 // DEMO COMPONENT
@@ -95,38 +99,76 @@ export default function ComponentRegistryDemo() {
           These components are automatically registered when they render for the first time.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="space-y-4">
-            <h3 className="font-medium text-card-foreground">EditableButton</h3>
+            <h3 className="font-medium text-card-foreground">Buttons</h3>
             <p className="text-sm text-muted-foreground">
-              New component built from scratch with the withEditable system.
+              Button components with different variants and configurations.
+            </p>
+            <div className="space-y-2">
+              <div className="p-4 bg-muted rounded border-2 border-dashed border-border">
+                <EditableButton />
+              </div>
+              <div className="p-4 bg-muted rounded border-2 border-dashed border-border">
+                <ButtonMigrated text="Migrated Button" variant="outline" />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="font-medium text-card-foreground">Content Cards</h3>
+            <p className="text-sm text-muted-foreground">
+              Card components for displaying content with images and actions.
             </p>
             <div className="p-4 bg-muted rounded border-2 border-dashed border-border">
-              <EditableButton />
-            </div>
-            <div className="p-4 bg-muted rounded border-2 border-dashed border-border">
-              <EditableButton 
-                text="Custom Text" 
-                variant="destructive" 
-                fullWidth={true}
+              <CardMigrated 
+                title="Sample Card"
+                description="This card was migrated to the new withEditable system"
+                buttonText="Learn More"
+                variant="elevated"
               />
             </div>
           </div>
 
           <div className="space-y-4">
-            <h3 className="font-medium text-card-foreground">ButtonMigrated</h3>
+            <h3 className="font-medium text-card-foreground">Text Content</h3>
             <p className="text-sm text-muted-foreground">
-              Existing component migrated to the new system.
+              Text blocks for rich content display.
             </p>
             <div className="p-4 bg-muted rounded border-2 border-dashed border-border">
-              <ButtonMigrated />
-            </div>
-            <div className="p-4 bg-muted rounded border-2 border-dashed border-border">
-              <ButtonMigrated 
-                text="Migrated Button" 
-                variant="outline" 
-                centerAlign={true}
+              <TextBlockMigrated 
+                title="Migrated Text Block"
+                content="This text block component has been successfully migrated to use the withEditable HOC system with Zod validation."
+                textAlign="center"
               />
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <h3 className="font-medium text-card-foreground">Call to Actions</h3>
+            <div className="p-4 bg-muted rounded border-2 border-dashed border-border">
+              <CallToActionMigrated 
+                title="Ready to get started?"
+                description="Experience the new component system"
+                buttonText="Try Now"
+                backgroundColor="bg-blue-600"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="font-medium text-card-foreground">Hero Sections</h3>
+            <div className="p-4 bg-muted rounded border-2 border-dashed border-border">
+              <div className="scale-75 origin-top-left">
+                <HeroSectionMigrated 
+                  title="Migrated Hero"
+                  description="This hero was migrated to withEditable"
+                  height="small"
+                  ctaText="Get Started"
+                />
+              </div>
             </div>
           </div>
         </div>

@@ -8,7 +8,7 @@ export { ComponentFactory } from './ComponentFactory';
 export { DynamicPageRenderer, renderDynamicPageSSR } from './DynamicPageRenderer';
 export { getLoadingComponent, LoadingComponent } from './LoadingComponent';
 
-// Individual Components
+// Individual Components (Legacy - will be removed)
 export { default as ButtonComponent } from './components/Button';
 export { CallToAction } from './components/CallToAction';
 export { default as Card } from './components/Card';
@@ -25,6 +25,12 @@ export { Newsletter, Testimonials } from './components/Testimonials';
 export { Testimonial } from './components/Testimonial';
 export { TextBlock } from './components/TextBlock';
 export { UnknownComponent } from './components/UnknownComponent';
+
+// Migrated Components with withEditable HOC
+export { default as CardMigrated } from './components/CardMigrated';
+export { default as CallToActionMigrated } from './components/CallToActionMigrated';
+export { default as HeroSectionMigrated } from './components/HeroSectionMigrated';
+export { default as TextBlockMigrated } from './components/TextBlockMigrated';
 
 // Re-export types
 export type {

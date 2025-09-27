@@ -1,6 +1,6 @@
 /**
  * AUTO-GENERATED COMPONENT SCHEMAS
- * Generated on: 2025-09-27T11:43:57.671Z
+ * Generated on: 2025-09-27T17:35:34.546Z
  * 
  * DO NOT EDIT MANUALLY - Run 'npm run configure' to regenerate
  */
@@ -365,6 +365,82 @@ export const AUTO_GENERATED_SCHEMAS = {
       "width": 0,
       "direction": "",
       "className": ""
+    }
+  },
+  "card-migrated": {
+    "type": "card-migrated",
+    "name": "CardMigrated",
+    "description": "CardMigrated component for dynamic content rendering",
+    "category": "general",
+    "icon": "📄",
+    "properties": {
+      "content": {
+        "type": "string",
+        "label": "Content",
+        "description": "Component content",
+        "required": false,
+        "default": "CardMigrated content"
+      }
+    },
+    "defaults": {
+      "content": "CardMigrated content"
+    }
+  },
+  "call-to-action-migrated": {
+    "type": "call-to-action-migrated",
+    "name": "CallToActionMigrated",
+    "description": "CallToActionMigrated component for dynamic content rendering",
+    "category": "general",
+    "icon": "📄",
+    "properties": {
+      "content": {
+        "type": "string",
+        "label": "Content",
+        "description": "Component content",
+        "required": false,
+        "default": "CallToActionMigrated content"
+      }
+    },
+    "defaults": {
+      "content": "CallToActionMigrated content"
+    }
+  },
+  "hero-section-migrated": {
+    "type": "hero-section-migrated",
+    "name": "HeroSectionMigrated",
+    "description": "HeroSectionMigrated component for dynamic content rendering",
+    "category": "general",
+    "icon": "📄",
+    "properties": {
+      "content": {
+        "type": "string",
+        "label": "Content",
+        "description": "Component content",
+        "required": false,
+        "default": "HeroSectionMigrated content"
+      }
+    },
+    "defaults": {
+      "content": "HeroSectionMigrated content"
+    }
+  },
+  "text-block-migrated": {
+    "type": "text-block-migrated",
+    "name": "TextBlockMigrated",
+    "description": "TextBlockMigrated component for dynamic content rendering",
+    "category": "general",
+    "icon": "📄",
+    "properties": {
+      "content": {
+        "type": "string",
+        "label": "Content",
+        "description": "Component content",
+        "required": false,
+        "default": "TextBlockMigrated content"
+      }
+    },
+    "defaults": {
+      "content": "TextBlockMigrated content"
     }
   },
   "call-to-action": {
@@ -1321,6 +1397,34 @@ export const COMPONENT_LIST = [
     "category": "layout",
     "icon": "📏",
     "hasInterface": true
+  },
+  {
+    "name": "CardMigrated",
+    "type": "card-migrated",
+    "category": "general",
+    "icon": "📄",
+    "hasInterface": false
+  },
+  {
+    "name": "CallToActionMigrated",
+    "type": "call-to-action-migrated",
+    "category": "general",
+    "icon": "📄",
+    "hasInterface": false
+  },
+  {
+    "name": "HeroSectionMigrated",
+    "type": "hero-section-migrated",
+    "category": "general",
+    "icon": "📄",
+    "hasInterface": false
+  },
+  {
+    "name": "TextBlockMigrated",
+    "type": "text-block-migrated",
+    "category": "general",
+    "icon": "📄",
+    "hasInterface": false
   },
   {
     "name": "CallToAction",
