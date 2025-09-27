@@ -22,6 +22,7 @@ const STATIC_ROUTES_FALLBACK = [
   '/servicios', // Nota: /servicios tiene su propio catch-all interno
   '/scrollbar-demo',
   '/not-found-redirect',
+  '/component-registry-demo', // New demo page
 ];
 
 interface Props {

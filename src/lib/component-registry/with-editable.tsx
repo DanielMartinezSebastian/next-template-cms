@@ -3,6 +3,8 @@
  * Higher-Order Component for automatic component registration and props validation
  */
 
+'use client';
+
 import React, { useEffect } from 'react';
 import { z } from 'zod';
 import type { ComponentType } from 'react';
