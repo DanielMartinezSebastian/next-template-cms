@@ -65,17 +65,11 @@ const ImageBlockComponent: React.FC<ImageBlockProps> = ({
 
   return (
     <div
-      className={cn(
-        'image-block relative flex flex-col',
-        alignmentClasses[alignment]
-      )}
+      className={cn('image-block relative flex flex-col', alignmentClasses[alignment])}
       data-component-id={componentId}
     >
       <div
-        className={cn(
-          'relative',
-          variantClasses[variant]
-        )}
+        className={cn('relative', variantClasses[variant])}
         style={{
           width: maxWidth,
           height: calculatedHeight,
@@ -90,14 +84,10 @@ const ImageBlockComponent: React.FC<ImageBlockProps> = ({
         />
       </div>
 
-      {showCaption && caption && (
-        <div className="mt-3 text-sm text-gray-600 italic">
-          {caption}
-        </div>
-      )}
+      {showCaption && caption && <div className="mt-3 text-sm italic text-gray-600">{caption}</div>}
 
       {editMode && (
-        <div className="absolute top-2 left-2 bg-indigo-600 text-white text-xs px-2 py-1 rounded">
+        <div className="absolute left-2 top-2 rounded bg-indigo-600 px-2 py-1 text-xs text-white">
           Image Block
         </div>
       )}

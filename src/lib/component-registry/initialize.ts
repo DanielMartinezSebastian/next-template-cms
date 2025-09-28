@@ -12,8 +12,8 @@ import { componentRegistry } from './registry';
 
 // Import all editable components to trigger auto-registration
 import '@/components/editable-components/Button';
-import '@/components/editable-components/Card';
 import '@/components/editable-components/CallToAction';
+import '@/components/editable-components/Card';
 import '@/components/editable-components/HeroSection';
 import '@/components/editable-components/ImageBlock';
 import '@/components/editable-components/TextBlock';

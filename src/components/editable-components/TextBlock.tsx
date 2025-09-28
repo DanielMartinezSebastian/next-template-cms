@@ -95,36 +95,24 @@ const TextBlockComponent: React.FC<TextBlockProps> = ({
       data-component-id={componentId}
     >
       {title && (
-        <h2
-          className={cn(
-            'font-bold mb-4',
-            titleSizeClasses[titleSize]
-          )}
-          style={{ color }}
-        >
+        <h2 className={cn('mb-4 font-bold', titleSizeClasses[titleSize])} style={{ color }}>
           {title}
         </h2>
       )}
 
-      <div
-        className={cn(
-          'whitespace-pre-wrap',
-          textSizeClasses[textSize]
-        )}
-        style={{ color }}
-      >
+      <div className={cn('whitespace-pre-wrap', textSizeClasses[textSize])} style={{ color }}>
         {content}
       </div>
 
       {editMode && !content && (
-        <div className="border-2 border-dashed border-gray-300 p-8 text-center text-gray-500 rounded">
+        <div className="rounded border-2 border-dashed border-gray-300 p-8 text-center text-gray-500">
           <div className="text-lg font-medium">Bloque de texto vacío</div>
           <div className="text-sm">Agrega contenido para mostrar aquí</div>
         </div>
       )}
 
       {editMode && (
-        <div className="absolute top-2 left-2 bg-green-600 text-white text-xs px-2 py-1 rounded">
+        <div className="absolute left-2 top-2 rounded bg-green-600 px-2 py-1 text-xs text-white">
           Text Block
         </div>
       )}
@@ -142,7 +130,8 @@ export default withEditableSSR(TextBlockComponent, {
   },
   schema: TextBlockSchema,
   defaultProps: {
-    content: 'Este es un ejemplo de contenido de texto. Puedes editarlo desde el panel de administración.',
+    content:
+      'Este es un ejemplo de contenido de texto. Puedes editarlo desde el panel de administración.',
     textAlign: 'left',
     textSize: 'medium',
     titleSize: 'medium',

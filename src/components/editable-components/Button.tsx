@@ -82,7 +82,7 @@ const ButtonComponent: React.FC<ButtonProps> = ({
       {content}
 
       {editMode && (
-        <div className="absolute -top-6 left-0 bg-purple-600 text-white text-xs px-2 py-1 rounded">
+        <div className="absolute -top-6 left-0 rounded bg-purple-600 px-2 py-1 text-xs text-white">
           Button
         </div>
       )}

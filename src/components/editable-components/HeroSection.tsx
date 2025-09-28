@@ -72,42 +72,37 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
     large: 'text-5xl md:text-6xl lg:text-7xl',
   };
 
-  const backgroundStyle = backgroundType === 'gradient' 
-    ? { background: `linear-gradient(135deg, ${gradientFrom} 0%, ${gradientTo} 100%)` }
-    : { backgroundColor };
+  const backgroundStyle =
+    backgroundType === 'gradient'
+      ? { background: `linear-gradient(135deg, ${gradientFrom} 0%, ${gradientTo} 100%)` }
+      : { backgroundColor };
 
   return (
     <section
       className={cn(
-        'relative flex items-center justify-center min-h-[400px] w-full',
+        'relative flex min-h-[400px] w-full items-center justify-center',
         sizeClasses[size]
       )}
       style={backgroundStyle}
       data-component-id={componentId}
     >
-      <div className={cn(
-        'max-w-4xl w-full',
-        centered ? 'text-center' : 'text-left'
-      )}>
+      <div className={cn('w-full max-w-4xl', centered ? 'text-center' : 'text-left')}>
         {subtitle && (
-          <p 
-            className="text-lg md:text-xl font-medium mb-4 opacity-90"
+          <p
+            className="mb-4 text-lg font-medium opacity-90 md:text-xl"
             style={{ color: textColor }}
           >
             {subtitle}
           </p>
         )}
-        
-        <h1
-          className={cn('font-bold mb-6', titleSizes[size])}
-          style={{ color: textColor }}
-        >
+
+        <h1 className={cn('mb-6 font-bold', titleSizes[size])} style={{ color: textColor }}>
           {title}
         </h1>
 
         {description && (
           <p
-            className="text-lg md:text-xl mb-8 opacity-80 max-w-2xl mx-auto"
+            className="mx-auto mb-8 max-w-2xl text-lg opacity-80 md:text-xl"
             style={{ color: textColor }}
           >
             {description}
@@ -115,21 +110,16 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
         )}
 
         {ctaText && ctaLink && (
-          <div className={cn(
-            'flex gap-4',
-            centered ? 'justify-center' : 'justify-start'
-          )}>
+          <div className={cn('flex gap-4', centered ? 'justify-center' : 'justify-start')}>
             <Button size="lg" asChild>
-              <Link href={ctaLink}>
-                {ctaText}
-              </Link>
+              <Link href={ctaLink}>{ctaText}</Link>
             </Button>
           </div>
         )}
       </div>
 
       {editMode && (
-        <div className="absolute top-4 left-4 bg-blue-600 text-white text-xs px-2 py-1 rounded">
+        <div className="absolute left-4 top-4 rounded bg-blue-600 px-2 py-1 text-xs text-white">
           Hero Section
         </div>
       )}
@@ -150,7 +140,7 @@ export default withEditableSSR(HeroSectionComponent, {
     title: 'Bienvenido a nuestro sitio',
     description: 'Descubre contenido increíble y servicios únicos',
     ctaText: 'Comenzar',
-    ctaLink: '#',
+    ctaLink: 'https://nextjs.org/',
     backgroundType: 'gradient',
     backgroundColor: '#f8fafc',
     gradientFrom: '#3b82f6',

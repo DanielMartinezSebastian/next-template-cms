@@ -75,8 +75,8 @@ const CardComponent: React.FC<CardProps> = ({
       <div
         className={cn(
           'relative overflow-hidden',
-          layout === 'vertical' && 'w-full h-48',
-          layout === 'horizontal' && 'w-1/3 h-full min-h-[200px]'
+          layout === 'vertical' && 'h-48 w-full',
+          layout === 'horizontal' && 'h-full min-h-[200px] w-1/3'
         )}
       >
         <NextImage
@@ -93,30 +93,19 @@ const CardComponent: React.FC<CardProps> = ({
   const renderContent = () => (
     <div
       className={cn(
-        'p-6 flex flex-col',
+        'flex flex-col p-6',
         layout === 'horizontal' && 'flex-1',
         alignmentClasses[textAlign]
       )}
     >
-      <h3 className="text-xl font-semibold text-gray-900 mb-3">
-        {title}
-      </h3>
+      <h3 className="mb-3 text-xl font-semibold text-gray-900">{title}</h3>
 
-      {description && (
-        <p className="text-gray-600 mb-4 flex-grow">
-          {description}
-        </p>
-      )}
+      {description && <p className="mb-4 flex-grow text-gray-600">{description}</p>}
 
       {buttonText && buttonLink && (
-        <div className={cn(
-          'mt-auto',
-          textAlign === 'center' ? 'flex justify-center' : ''
-        )}>
+        <div className={cn('mt-auto', textAlign === 'center' ? 'flex justify-center' : '')}>
           <Button variant="outline" size="sm" asChild>
-            <Link href={buttonLink}>
-              {buttonText}
-            </Link>
+            <Link href={buttonLink}>{buttonText}</Link>
           </Button>
         </div>
       )}
@@ -126,7 +115,7 @@ const CardComponent: React.FC<CardProps> = ({
   return (
     <div
       className={cn(
-        'card relative overflow-hidden rounded-lg flex',
+        'card relative flex overflow-hidden rounded-lg',
         variantClasses[variant],
         layoutClasses[layout]
       )}
@@ -145,7 +134,7 @@ const CardComponent: React.FC<CardProps> = ({
       )}
 
       {editMode && (
-        <div className="absolute top-2 right-2 bg-orange-600 text-white text-xs px-2 py-1 rounded">
+        <div className="absolute right-2 top-2 rounded bg-orange-600 px-2 py-1 text-xs text-white">
           Card
         </div>
       )}
@@ -164,11 +153,13 @@ export default withEditableSSR(CardComponent, {
   schema: CardSchema,
   defaultProps: {
     title: 'Título de la tarjeta',
-    description: 'Esta es una descripción de ejemplo para la tarjeta. Puedes editarla desde el panel de administración.',
-    image: 'https://images.placeholders.dev/400x250?text=Imagen%20de%20tarjeta&bgColor=%236b7280&textColor=%23ffffff',
+    description:
+      'Esta es una descripción de ejemplo para la tarjeta. Puedes editarla desde el panel de administración.',
+    image:
+      'https://images.placeholders.dev/400x250?text=Imagen%20de%20tarjeta&bgColor=%236b7280&textColor=%23ffffff',
     imageAlt: 'Imagen de la tarjeta',
     buttonText: 'Leer más',
-    buttonLink: '#',
+    buttonLink: 'https://nextjs.org/',
     layout: 'vertical',
     variant: 'default',
     textAlign: 'left',

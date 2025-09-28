@@ -1,0 +1,70 @@
+{
+  "components": [
+    {
+      "name": "ButtonComponent",
+      "type": "button",
+      "category": "interactive",
+      "description": "Botón interactivo con texto personalizable y estilos variables",
+      "displayName": "Button",
+      "icon": "🔘",
+      "tags": ["button", "interactive", "click"],
+      "isActive": true,
+      "deprecated": false
+    },
+    {
+      "name": "CardComponent",
+      "type": "card",
+      "category": "content",
+      "description": "Tarjeta con imagen, título, descripción y botón opcional",
+      "displayName": "Card",
+      "icon": "🃏",
+      "tags": ["card", "content", "image", "button"],
+      "isActive": true,
+      "deprecated": false
+    },
+    {
+      "name": "CallToActionComponent",
+      "type": "calltoaction",
+      "category": "marketing",
+      "description": "Sección de llamada a la acción con título, descripción y botón",
+      "displayName": "Call To Action",
+      "icon": "📢",
+      "tags": ["cta", "marketing", "conversion", "action"],
+      "isActive": true,
+      "deprecated": false
+    },
+    {
+      "name": "HeroSectionComponent",
+      "type": "herosection",
+      "category": "marketing",
+      "description": "Sección hero principal con título, descripción y llamada a la acción",
+      "displayName": "Hero Section",
+      "icon": "🎯",
+      "tags": ["hero", "banner", "marketing", "cta"],
+      "isActive": true,
+      "deprecated": false
+    },
+    {
+      "name": "ImageBlockComponent",
+      "type": "imageblock",
+      "category": "content",
+      "description": "Bloque de imagen con caption opcional y estilos personalizables",
+      "displayName": "Image Block",
+      "icon": "🖼️",
+      "tags": ["image", "content", "media", "caption"],
+      "isActive": true,
+      "deprecated": false
+    },
+    {
+      "name": "TextBlockComponent",
+      "type": "textblock",
+      "category": "content",
+      "description": "Bloque de texto simple con título opcional y contenido personalizable",
+      "displayName": "Text Block",
+      "icon": "📝",
+      "tags": ["text", "content", "typography", "paragraph"],
+      "isActive": true,
+      "deprecated": false
+    }
+  ]
+}

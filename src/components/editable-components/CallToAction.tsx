@@ -73,37 +73,26 @@ const CallToActionComponent: React.FC<CallToActionProps> = ({
       style={{ backgroundColor }}
       data-component-id={componentId}
     >
-      <div className="max-w-4xl mx-auto">
-        <h2
-          className={cn('font-bold mb-4', titleSizes[size])}
-          style={{ color: textColor }}
-        >
+      <div className="mx-auto max-w-4xl">
+        <h2 className={cn('mb-4 font-bold', titleSizes[size])} style={{ color: textColor }}>
           {title}
         </h2>
 
         {description && (
-          <p
-            className="text-lg md:text-xl mb-8 opacity-90"
-            style={{ color: textColor }}
-          >
+          <p className="mb-8 text-lg opacity-90 md:text-xl" style={{ color: textColor }}>
             {description}
           </p>
         )}
 
-        <div className={cn(
-          'flex gap-4',
-          centered ? 'justify-center' : 'justify-start'
-        )}>
+        <div className={cn('flex gap-4', centered ? 'justify-center' : 'justify-start')}>
           <Button variant={buttonVariant} size="lg" asChild>
-            <Link href={buttonLink}>
-              {buttonText}
-            </Link>
+            <Link href={buttonLink}>{buttonText}</Link>
           </Button>
         </div>
       </div>
 
       {editMode && (
-        <div className="absolute top-4 right-4 bg-red-600 text-white text-xs px-2 py-1 rounded">
+        <div className="absolute right-4 top-4 rounded bg-red-600 px-2 py-1 text-xs text-white">
           Call To Action
         </div>
       )}
@@ -122,9 +111,10 @@ export default withEditableSSR(CallToActionComponent, {
   schema: CallToActionSchema,
   defaultProps: {
     title: '¿Listo para comenzar?',
-    description: 'Únete a miles de clientes satisfechos y comienza tu viaje con nosotros hoy mismo.',
+    description:
+      'Únete a miles de clientes satisfechos y comienza tu viaje con nosotros hoy mismo.',
     buttonText: 'Empezar ahora',
-    buttonLink: '#',
+    buttonLink: 'https://nextjs.org/',
     buttonVariant: 'default',
     backgroundColor: '#3b82f6',
     textColor: '#ffffff',
