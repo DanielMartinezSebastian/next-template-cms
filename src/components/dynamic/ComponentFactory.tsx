@@ -1,31 +1,28 @@
 /**
- * Component Factory - SSR/Client Conditional System
- * Uses the new registry system with auto-detection
+ * Component Factory - NEW SYSTEM ONL    if (process.env.NODE_ENV === 'development') {
+      console.warn(
+        `[ComponentFactory] Looking for component: "${originalType}" (normalized: "${normalizedType}")`
+      );
+    }* Uses the new registry system with auto-detection
+ * NO LEGACY COMPONENTS - All use withEditableSSR
  */
 
-import React, { createElement } from 'react';
-import { componentRegistry } from '@/lib/component-registry/registry';
 import { detectEditMode } from '@/lib/component-registry/client-wrapper';
+import { componentRegistry } from '@/lib/component-registry/registry';
+import React, { createElement } from 'react';
 
-// Import legacy editable components (for backward compatibility)
-import {
-  ButtonMigrated,
-  EditableButton,
-  CardMigrated,
-  CallToActionMigrated,
-  HeroSectionMigrated,
-  TextBlockMigrated,
-} from '../editable-components';
+// CRITICAL: Import initialize to ensure components are registered on client-side
+import '@/lib/component-registry/initialize';
 
-// Legacy placeholder for unknown components
-const UnknownComponent = ({ type, ...props }: any) => (
-  <div className="p-4 border border-red-300 bg-red-50 rounded">
-    <p className="text-red-800 font-medium">Unknown component: {type}</p>
-    <p className="text-red-600 text-sm">This component may have been removed or renamed.</p>
+// Component not found placeholder
+const UnknownComponent = ({ type, ...props }: { type: string; [key: string]: unknown }) => (
+  <div className="rounded border border-red-300 bg-red-50 p-4">
+    <p className="font-medium text-red-800">Unknown component: {type}</p>
+    <p className="text-sm text-red-600">This component may have been removed or renamed.</p>
     {process.env.NODE_ENV === 'development' && (
       <details className="mt-2">
-        <summary className="text-red-600 text-xs cursor-pointer">Debug Info</summary>
-        <pre className="text-red-500 text-xs mt-1 overflow-auto">
+        <summary className="cursor-pointer text-xs text-red-600">Debug Info</summary>
+        <pre className="mt-1 overflow-auto text-xs text-red-500">
           Type: {type}
           {'\n'}Props: {JSON.stringify(props, null, 2)}
         </pre>
@@ -34,100 +31,81 @@ const UnknownComponent = ({ type, ...props }: any) => (
   </div>
 );
 
-const PlaceholderComponent = ({ message = 'Component not yet migrated to SSR system', type, ...props }: any) => (
-  <div className="p-4 border border-amber-300 bg-amber-50 rounded">
-    <p className="text-amber-800 font-medium">{message}</p>
-    <p className="text-amber-600 text-sm">
-      Component "{type}" needs to be migrated to the new withEditableSSR system.
-    </p>
-    {process.env.NODE_ENV === 'development' && (
-      <details className="mt-2">
-        <summary className="text-amber-600 text-xs cursor-pointer">Migration Guide</summary>
-        <div className="text-amber-700 text-xs mt-1">
-          <p>1. Create component in appropriate category folder</p>
-          <p>2. Use withEditableSSR instead of withEditable</p>
-          <p>3. Remove 'use client' directive</p>
-          <p>4. Add to ComponentFactory mapping</p>
-        </div>
-      </details>
-    )}
-  </div>
-);
-
 /**
- * Component Factory Class - New Registry System
- * Automatically detects editMode and uses appropriate rendering
+ * Component Factory Class - NEW REGISTRY SYSTEM ONLY
  */
 export class ComponentFactory {
-  // Legacy mapping for backward compatibility
-  private static legacyComponentMap: Record<string, React.ComponentType<any>> = {
-    // Migrated components (legacy names)
-    'button-migrated': ButtonMigrated,
-    'editable-button': EditableButton,
-    'card-migrated': CardMigrated,
-    'call-to-action-migrated': CallToActionMigrated,
-    'hero-section-migrated': HeroSectionMigrated,
-    'text-block-migrated': TextBlockMigrated,
-
-    // Legacy placeholders
-    section: PlaceholderComponent,
-    spacer: PlaceholderComponent,
-    form: PlaceholderComponent,
-    'contact-form': PlaceholderComponent,
-    contactform: PlaceholderComponent,
-    features: PlaceholderComponent,
-    'feature-grid': PlaceholderComponent,
-    featuregrid: PlaceholderComponent,
-    testimonials: PlaceholderComponent,
-    testimonial: PlaceholderComponent,
-    pricing: PlaceholderComponent,
-    newsletter: PlaceholderComponent,
-    image: PlaceholderComponent,
-    'image-gallery': PlaceholderComponent,
-    imagegallery: PlaceholderComponent,
-    gallery: PlaceholderComponent,
-  };
-
   /**
    * Get a component by type using new registry system
    */
-  static getComponent(type: string): React.ComponentType<any> | null {
+  static getComponent(type: string): React.ComponentType<Record<string, unknown>> | null {
+    const originalType = type.trim();
     const normalizedType = type.toLowerCase().trim();
-    
-    // First try the new registry system
-    const registeredComponent = componentRegistry.get(normalizedType);
+
+    console.log(
+      `[ComponentFactory] Looking for component: "${originalType}" (normalized: "${normalizedType}")`
+    );
+
+    // First try the exact type name (new registry system uses exact names)
+    let registeredComponent = componentRegistry.get(originalType);
     if (registeredComponent) {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn(`[ComponentFactory] Found exact match: ${originalType}`);
+      }
       return registeredComponent.component;
     }
 
-    // Then try legacy mapping for backward compatibility
-    if (this.legacyComponentMap[normalizedType]) {
-      return this.legacyComponentMap[normalizedType];
+    // Try normalized lowercase
+    registeredComponent = componentRegistry.get(normalizedType);
+    if (registeredComponent) {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn(`[ComponentFactory] Found normalized match: ${normalizedType}`);
+      }
+      return registeredComponent.component;
     }
+
+    // All components now use the NEW SYSTEM
 
     // Common type aliases
     const typeAliases: Record<string, string> = {
-      'hero': 'HeroSection',
-      'hero-section': 'HeroSection',
-      'herosection': 'HeroSection',
-      'text': 'TextBlock',
-      'text-block': 'TextBlock',
-      'textblock': 'TextBlock',
-      'content': 'TextBlock',
-      'cta': 'CallToAction',
-      'call-to-action': 'CallToAction',
-      'calltoaction': 'CallToAction',
+      hero: 'HeroSectionComponent',
+      'hero-section': 'HeroSectionComponent',
+      herosection: 'HeroSectionComponent',
+      herosectioncomponent: 'HeroSectionComponent',
+      text: 'TextBlockComponent',
+      'text-block': 'TextBlockComponent',
+      textblock: 'TextBlockComponent',
+      textblockcomponent: 'TextBlockComponent',
+      content: 'TextBlockComponent',
+      cta: 'CallToActionComponent',
+      'call-to-action': 'CallToActionComponent',
+      calltoaction: 'CallToActionComponent',
+      calltoactioncomponent: 'CallToActionComponent',
+      card: 'CardComponent',
+      cardcomponent: 'CardComponent',
+      button: 'ButtonComponent',
+      buttoncomponent: 'ButtonComponent',
+      editablebutton: 'EditableButtonComponent',
+      editablebuttoncomponent: 'EditableButtonComponent',
     };
 
     // Try aliases
     const aliasedType = typeAliases[normalizedType];
     if (aliasedType) {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn(`[ComponentFactory] Trying alias: ${normalizedType} -> ${aliasedType}`);
+      }
       const aliasedComponent = componentRegistry.get(aliasedType);
       if (aliasedComponent) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn(`[ComponentFactory] Found alias match: ${aliasedType}`);
+        }
         return aliasedComponent.component;
       }
     }
 
+    console.warn(`[ComponentFactory] Component not found: "${originalType}"`);
+    console.warn('[ComponentFactory] Available components:', componentRegistry.getNames());
     return null;
   }
 
@@ -144,32 +122,23 @@ export class ComponentFactory {
 
     // Auto-detect edit mode
     const editMode = detectEditMode();
-    
-    // For legacy components, pass the props as-is
-    if (this.legacyComponentMap[type.toLowerCase().trim()]) {
-      return createElement(Component, { type, ...props });
-    }
 
-    // For new SSR components, include editMode
+    // All components use NEW SYSTEM, include editMode
     return createElement(Component, { ...props, editMode });
   }
 
   /**
-   * Get all available component types from registry + legacy
+   * Get all available component types from registry
    */
   static getAvailableTypes(): string[] {
-    const registryTypes = componentRegistry.getComponents().map(c => c.metadata.name);
-    const legacyTypes = Object.keys(this.legacyComponentMap);
-    return [...new Set([...registryTypes, ...legacyTypes])];
+    return componentRegistry.getComponents().map(c => c.metadata.name);
   }
 
   /**
    * Check if a component type is available
    */
   static hasComponent(type: string): boolean {
-    const normalizedType = type.toLowerCase().trim();
-    return componentRegistry.has(normalizedType) || 
-           normalizedType in this.legacyComponentMap;
+    return componentRegistry.has(type) || componentRegistry.has(type.toLowerCase().trim());
   }
 
   /**
@@ -177,10 +146,20 @@ export class ComponentFactory {
    */
   static getComponentInfo() {
     const registryComponents = componentRegistry.getComponents();
-    
+
     // Group by category
-    const grouped: Record<string, any[]> = {};
-    
+    const grouped: Record<
+      string,
+      Array<{
+        type: string;
+        name: string;
+        category: string;
+        icon?: string;
+        version?: string;
+        tags?: string[];
+      }>
+    > = {};
+
     registryComponents.forEach(comp => {
       const category = comp.metadata.category;
       if (!grouped[category]) {
@@ -208,7 +187,7 @@ export class ComponentFactory {
       total: components.length,
       categories: Array.from(new Set(components.map(c => c.metadata.category))),
       lastUpdate: new Date().toISOString(),
-      legacyComponents: Object.keys(this.legacyComponentMap).length,
+      systemType: 'NEW_SYSTEM_ONLY',
     };
   }
 
@@ -218,10 +197,10 @@ export class ComponentFactory {
   static initialize() {
     // Import components to trigger auto-registration
     // This is already done at the top of the file
-    
+
     if (process.env.NODE_ENV === 'development') {
-      console.log('[ComponentFactory] Initialized with registry system');
-      console.log('[ComponentFactory] Available components:', this.getAvailableTypes());
+      console.warn('[ComponentFactory] Initialized with registry system');
+      console.warn('[ComponentFactory] Available components:', this.getAvailableTypes());
     }
   }
 }

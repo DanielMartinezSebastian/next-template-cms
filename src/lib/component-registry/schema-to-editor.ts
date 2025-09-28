@@ -19,7 +19,7 @@ function analyzeZodSchema(schema: z.ZodSchema): Record<string, EditorFieldConfig
   // Handle different Zod types
   if (schema instanceof z.ZodObject) {
     const shape = schema.shape;
-    
+
     for (const [key, fieldSchema] of Object.entries(shape)) {
       const fieldConfig = analyzeZodField(key, fieldSchema as z.ZodSchema);
       if (fieldConfig) {
@@ -46,6 +46,11 @@ function analyzeZodField(fieldName: string, fieldSchema: z.ZodSchema): EditorFie
   // Handle optional fields
   if (fieldSchema instanceof z.ZodOptional) {
     baseConfig.required = false;
+    fieldSchema = fieldSchema._def.innerType;
+  }
+
+  // Handle default fields (unwrap to get the inner type)
+  if (fieldSchema instanceof z.ZodDefault) {
     fieldSchema = fieldSchema._def.innerType;
   }
 
@@ -88,11 +93,15 @@ function handleStringField(
 
   // Detect special string types based on field name
   const lowerName = fieldName.toLowerCase();
-  
+
   if (lowerName.includes('color')) {
     config.type = 'color' as const;
     config.placeholder = '#000000';
-  } else if (lowerName.includes('url') || lowerName.includes('href') || lowerName.includes('link')) {
+  } else if (
+    lowerName.includes('url') ||
+    lowerName.includes('href') ||
+    lowerName.includes('link')
+  ) {
     config.type = 'url' as const;
     config.placeholder = 'https://example.com';
   } else if (lowerName.includes('email')) {
@@ -100,7 +109,11 @@ function handleStringField(
     config.placeholder = 'user@example.com';
     config.pattern = '^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$';
     config.validationMessage = 'Please enter a valid email address';
-  } else if (lowerName.includes('description') || lowerName.includes('content') || lowerName.includes('text')) {
+  } else if (
+    lowerName.includes('description') ||
+    lowerName.includes('content') ||
+    lowerName.includes('text')
+  ) {
     config.type = 'textarea' as const;
   }
 
@@ -183,7 +196,7 @@ function handleBooleanField(
  */
 function handleEnumField(
   fieldName: string,
-  schema: z.ZodEnum<any>,
+  schema: z.ZodEnum<[string, ...string[]]>,
   baseConfig: EditorFieldConfig
 ): EditorFieldConfig {
   const options = schema.options.map((value: string) => ({
@@ -204,7 +217,7 @@ function handleEnumField(
  */
 function handleArrayField(
   fieldName: string,
-  schema: z.ZodArray<any>,
+  schema: z.ZodArray<z.ZodTypeAny>,
   baseConfig: EditorFieldConfig
 ): EditorFieldConfig {
   return {
@@ -219,7 +232,7 @@ function handleArrayField(
  */
 function handleObjectField(
   fieldName: string,
-  schema: z.ZodObject<any>,
+  schema: z.ZodObject<z.ZodRawShape>,
   baseConfig: EditorFieldConfig
 ): EditorFieldConfig {
   return {
@@ -234,11 +247,11 @@ function handleObjectField(
  */
 function handleUnionField(
   fieldName: string,
-  schema: z.ZodUnion<any>,
+  schema: z.ZodUnion<[z.ZodTypeAny, ...z.ZodTypeAny[]]>,
   baseConfig: EditorFieldConfig
 ): EditorFieldConfig {
   const options = schema.options;
-  
+
   // If all union options are literals, create a select field
   const literalValues: string[] = [];
   let allLiterals = true;
@@ -272,11 +285,11 @@ function handleUnionField(
  */
 function handleLiteralField(
   fieldName: string,
-  schema: z.ZodLiteral<any>,
+  schema: z.ZodLiteral<z.Primitive>,
   baseConfig: EditorFieldConfig
 ): EditorFieldConfig {
   const value = schema.value;
-  
+
   return {
     ...baseConfig,
     type: typeof value === 'boolean' ? 'boolean' : 'string',
@@ -304,7 +317,7 @@ function formatFieldLabel(fieldName: string): string {
  */
 function generateFieldDescription(fieldName: string): string {
   const lowerName = fieldName.toLowerCase();
-  
+
   const descriptions: Record<string, string> = {
     title: 'The main heading or title text',
     subtitle: 'Secondary heading text below the main title',
@@ -351,7 +364,7 @@ function generateFieldDescription(fieldName: string): string {
  */
 function generatePlaceholder(fieldName: string): string {
   const lowerName = fieldName.toLowerCase();
-  
+
   const placeholders: Record<string, string> = {
     title: 'Enter title...',
     subtitle: 'Enter subtitle...',
@@ -455,11 +468,13 @@ function createFieldGroups(fields: Record<string, EditorFieldConfig>) {
   // Content group
   const contentFields = fieldNames.filter(name => {
     const lowerName = name.toLowerCase();
-    return lowerName.includes('title') || 
-           lowerName.includes('subtitle') || 
-           lowerName.includes('description') || 
-           lowerName.includes('content') || 
-           lowerName.includes('text');
+    return (
+      lowerName.includes('title') ||
+      lowerName.includes('subtitle') ||
+      lowerName.includes('description') ||
+      lowerName.includes('content') ||
+      lowerName.includes('text')
+    );
   });
 
   if (contentFields.length > 0) {
@@ -475,12 +490,14 @@ function createFieldGroups(fields: Record<string, EditorFieldConfig>) {
   // Appearance group
   const appearanceFields = fieldNames.filter(name => {
     const lowerName = name.toLowerCase();
-    return (lowerName.includes('color') || 
-            lowerName.includes('variant') || 
-            lowerName.includes('size') || 
-            lowerName.includes('className') || 
-            lowerName.includes('style')) &&
-           !groupedFields.has(name);
+    return (
+      (lowerName.includes('color') ||
+        lowerName.includes('variant') ||
+        lowerName.includes('size') ||
+        lowerName.includes('className') ||
+        lowerName.includes('style')) &&
+      !groupedFields.has(name)
+    );
   });
 
   if (appearanceFields.length > 0) {
@@ -496,13 +513,15 @@ function createFieldGroups(fields: Record<string, EditorFieldConfig>) {
   // Behavior group
   const behaviorFields = fieldNames.filter(name => {
     const lowerName = name.toLowerCase();
-    return (lowerName.includes('disabled') || 
-            lowerName.includes('visible') || 
-            lowerName.includes('enabled') || 
-            lowerName.includes('onclick') || 
-            lowerName.includes('href') || 
-            lowerName.includes('link')) &&
-           !groupedFields.has(name);
+    return (
+      (lowerName.includes('disabled') ||
+        lowerName.includes('visible') ||
+        lowerName.includes('enabled') ||
+        lowerName.includes('onclick') ||
+        lowerName.includes('href') ||
+        lowerName.includes('link')) &&
+      !groupedFields.has(name)
+    );
   });
 
   if (behaviorFields.length > 0) {
@@ -517,7 +536,7 @@ function createFieldGroups(fields: Record<string, EditorFieldConfig>) {
 
   // Advanced group (remaining fields)
   const advancedFields = fieldNames.filter(name => !groupedFields.has(name));
-  
+
   if (advancedFields.length > 0) {
     groups.push({
       name: 'advanced',

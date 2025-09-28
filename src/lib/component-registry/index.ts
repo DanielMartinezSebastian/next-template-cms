@@ -3,6 +3,8 @@
  * Auto-registration system for editable components with Zod schema validation
  */
 
+import { initializeDatabaseSync } from './db-sync';
+import { componentRegistry } from './registry';
 import type { ComponentCategory } from './types';
 
 // =============================================================================
@@ -12,27 +14,33 @@ import type { ComponentCategory } from './types';
 // Types
 export type {
   ComponentCategory,
-  ComponentMetadata,
+  ComponentEditorConfig,
   ComponentInfo,
+  ComponentMetadata,
+  ComponentRegistry,
+  EditableComponent,
   EditableComponentOptions,
   EditorFieldConfig,
-  ComponentEditorConfig,
-  RegisteredComponent,
-  ComponentRegistry,
   ExtractProps,
-  EditableComponent,
+  RegisteredComponent,
   SchemaToEditorResult,
 } from './types';
 
 // Registry
-export { componentRegistry } from './registry';
+export { ensureRegistryInitialized } from './init';
+export { componentRegistry, registerComponent } from './registry';
 
 // HOC and utilities
 export { withEditable } from './with-editable';
-export { withEditableSSR, createEditableSSRComponent } from './with-editable-ssr';
-export { withConditionalClient, detectEditMode, useEditMode } from './client-wrapper';
 
 // Schema utilities
+export { withConditionalClient } from './client-wrapper';
+export { withEditableSSR } from './with-editable-ssr';
+
+// Database sync
+export { initializeDatabaseSync } from './db-sync';
+
+// Schema and editor utilities
 export { schemaToEditor } from './schema-to-editor';
 
 // Database sync (optional)
@@ -54,7 +62,7 @@ export { z } from 'zod';
  */
 export const COMPONENT_CATEGORIES = [
   'layout',
-  'content', 
+  'content',
   'media',
   'interactive',
   'marketing',
@@ -100,7 +108,7 @@ export function formatCategoryName(category: ComponentCategory): string {
     marketing: 'Marketing',
     ui: 'UI Components',
   };
-  
+
   return names[category] || category;
 }
 
@@ -116,7 +124,7 @@ export function getCategoryDescription(category: ComponentCategory): string {
     marketing: 'Marketing-focused components like CTAs and testimonials',
     ui: 'Basic UI building blocks',
   };
-  
+
   return descriptions[category] || 'Component category';
 }
 
@@ -132,7 +140,7 @@ export function getCategoryIcon(category: ComponentCategory): string {
     marketing: '📢',
     ui: '🧩',
   };
-  
+
   return icons[category] || '📄';
 }
 
@@ -145,18 +153,17 @@ export function getCategoryIcon(category: ComponentCategory): string {
  */
 export async function initializeComponentSystem(): Promise<void> {
   try {
-    // Initialize registry
-    initializeRegistry();
-    
+    // Registry is initialized when imported
+
     // Initialize database sync (if available)
     try {
       await initializeDatabaseSync();
-      console.log('[ComponentSystem] Database sync initialized');
+      console.warn('[ComponentSystem] Database sync initialized');
     } catch (error) {
       console.warn('[ComponentSystem] Database sync not available:', error);
     }
-    
-    console.log('[ComponentSystem] Component system initialized successfully');
+
+    console.warn('[ComponentSystem] Component system initialized successfully');
   } catch (error) {
     console.error('[ComponentSystem] Failed to initialize:', error);
     throw error;
@@ -164,11 +171,18 @@ export async function initializeComponentSystem(): Promise<void> {
 }
 
 /**
+ * Get registry stats
+ */
+function getRegistryStats() {
+  return componentRegistry.getStats();
+}
+
+/**
  * Get system status and statistics
  */
 export function getSystemStatus() {
-  const components = componentRegistry.getComponents();
-  
+  const components = componentRegistry.getAll();
+
   return {
     registry: {
       initialized: true,
@@ -201,7 +215,7 @@ export function createMigrationHelper() {
       console.warn('[ComponentSystem] Legacy schema conversion not yet implemented');
       return legacySchema;
     },
-    
+
     /**
      * Batch register components from old system
      */
@@ -219,66 +233,69 @@ export function createMigrationHelper() {
 /**
  * Development utilities (only available in development)
  */
-export const devUtils = process.env.NODE_ENV === 'development' ? {
-  /**
-   * Log all registered components
-   */
-  logRegisteredComponents(): void {
-    const components = componentRegistry.getAll();
-    console.group('[ComponentRegistry] Registered Components');
-    
-    COMPONENT_CATEGORIES.forEach(category => {
-      const categoryComponents = components.filter(c => c.metadata.category === category);
-      if (categoryComponents.length > 0) {
-        console.group(`${formatCategoryName(category)} (${categoryComponents.length})`);
-        categoryComponents.forEach(component => {
-          console.log(`• ${component.metadata.name}`, {
-            description: component.metadata.description,
-            version: component.metadata.version,
-            registeredAt: component.registeredAt,
+export const devUtils =
+  process.env.NODE_ENV === 'development'
+    ? {
+        /**
+         * Log all registered components
+         */
+        logRegisteredComponents(): void {
+          const components = componentRegistry.getAll();
+          console.group('[ComponentRegistry] Registered Components');
+
+          COMPONENT_CATEGORIES.forEach(category => {
+            const categoryComponents = components.filter(c => c.metadata.category === category);
+            if (categoryComponents.length > 0) {
+              console.group(`${formatCategoryName(category)} (${categoryComponents.length})`);
+              categoryComponents.forEach(component => {
+                console.log(`• ${component.metadata.name}`, {
+                  description: component.metadata.description,
+                  version: component.metadata.version,
+                  registeredAt: component.registeredAt,
+                });
+              });
+              console.groupEnd();
+            }
           });
-        });
-        console.groupEnd();
+
+          console.groupEnd();
+        },
+
+        /**
+         * Validate all registered components
+         */
+        validateAllComponents(): void {
+          const components = componentRegistry.getAll();
+          console.group('[ComponentRegistry] Component Validation');
+
+          components.forEach(component => {
+            try {
+              component.schema.parse(component.defaultProps);
+              console.log(`✅ ${component.metadata.name}: Valid`);
+            } catch (error) {
+              console.error(`❌ ${component.metadata.name}: Invalid`, error);
+            }
+          });
+
+          console.groupEnd();
+        },
+
+        /**
+         * Export registry state for debugging
+         */
+        exportRegistryState(): any {
+          return {
+            components: componentRegistry.getAll().map(c => ({
+              name: c.metadata.name,
+              category: c.metadata.category,
+              defaultProps: c.defaultProps,
+              customProps: c.customProps,
+              registeredAt: c.registeredAt,
+              updatedAt: c.updatedAt,
+            })),
+            stats: getRegistryStats(),
+            systemStatus: getSystemStatus(),
+          };
+        },
       }
-    });
-    
-    console.groupEnd();
-  },
-  
-  /**
-   * Validate all registered components
-   */
-  validateAllComponents(): void {
-    const components = componentRegistry.getAll();
-    console.group('[ComponentRegistry] Component Validation');
-    
-    components.forEach(component => {
-      try {
-        component.schema.parse(component.defaultProps);
-        console.log(`✅ ${component.metadata.name}: Valid`);
-      } catch (error) {
-        console.error(`❌ ${component.metadata.name}: Invalid`, error);
-      }
-    });
-    
-    console.groupEnd();
-  },
-  
-  /**
-   * Export registry state for debugging
-   */
-  exportRegistryState(): any {
-    return {
-      components: componentRegistry.getAll().map(c => ({
-        name: c.metadata.name,
-        category: c.metadata.category,
-        defaultProps: c.defaultProps,
-        customProps: c.customProps,
-        registeredAt: c.registeredAt,
-        updatedAt: c.updatedAt,
-      })),
-      stats: getRegistryStats(),
-      systemStatus: getSystemStatus(),
-    };
-  },
-} : {};
+    : {};

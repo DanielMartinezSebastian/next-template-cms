@@ -5,4 +5,5 @@
 
 export { ScrollbarDemo } from './ScrollbarDemo';
 export { StoresExample } from './StoresExample';
-export { default as VisualEditorDemo } from './VisualEditorDemo';
+// Temporarily disabled due to import issues
+// export { default as VisualEditorDemo } from './VisualEditorDemo';

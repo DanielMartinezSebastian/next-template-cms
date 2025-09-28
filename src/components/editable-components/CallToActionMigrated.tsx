@@ -2,24 +2,34 @@
  * Migrated Call to Action Component with withEditable
  */
 
-import React from 'react';
 import { Button } from '@/components/ui/button';
-import { withEditable } from '@/lib/component-registry';
+import { withEditableSSR } from '@/lib/component-registry';
+import React from 'react';
 import { z } from 'zod';
 
-// Zod schema for runtime validation
+// Zod schema for runtime validation with defaults
 const CallToActionSchema = z.object({
   title: z.string().min(1, 'Title is required').default('Ready to get started?'),
   description: z.string().optional().default('Join thousands of satisfied customers today'),
   buttonText: z.string().min(1, 'Button text is required').default('Get Started'),
-  buttonLink: z.string().url('Must be a valid URL').default('#'),
-  buttonVariant: z.enum(['default', 'destructive', 'outline', 'secondary', 'ghost', 'link']).default('default'),
+  buttonLink: z.string().url('Must be a valid URL').default('https://example.com'),
+  buttonVariant: z
+    .enum(['default', 'destructive', 'outline', 'secondary', 'ghost', 'link'])
+    .default('default'),
   backgroundColor: z.string().default('bg-primary'),
   textColor: z.string().default('text-primary-foreground'),
-  centerAlign: z.boolean().default(true)
+  centerAlign: z.boolean().default(true),
 });
 
-export interface CallToActionProps extends z.infer<typeof CallToActionSchema> {
+export interface CallToActionProps {
+  title?: string;
+  description?: string;
+  buttonText?: string;
+  buttonLink?: string;
+  buttonVariant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
+  backgroundColor?: string;
+  textColor?: string;
+  centerAlign?: boolean;
   locale?: string;
   editMode?: boolean;
   componentId?: string;
@@ -29,12 +39,11 @@ const CallToActionComponent: React.FC<CallToActionProps> = ({
   title = 'Ready to get started?',
   description = 'Join thousands of satisfied customers today',
   buttonText = 'Get Started',
-  buttonLink = '#',
+  buttonLink = 'https://example.com',
   buttonVariant = 'default',
   backgroundColor = 'bg-primary',
   textColor = 'text-primary-foreground',
   centerAlign = true,
-  locale = 'en',
   editMode = false,
   componentId,
 }) => {
@@ -57,24 +66,24 @@ const CallToActionComponent: React.FC<CallToActionProps> = ({
   );
 };
 
-// Export with withEditable HOC for auto-registration
-export default withEditable(CallToActionComponent, {
+// Export with withEditableSSR HOC for auto-registration
+export default withEditableSSR(CallToActionComponent, {
   metadata: {
     category: 'marketing',
     description: 'Call to action section with title, description and button',
     icon: '📢',
-    tags: ['cta', 'marketing', 'button', 'conversion']
+    tags: ['cta', 'marketing', 'button', 'conversion'],
   },
   schema: CallToActionSchema,
   defaultProps: {
     title: 'Ready to get started?',
     description: 'Join thousands of satisfied customers today',
     buttonText: 'Get Started',
-    buttonLink: '#',
+    buttonLink: 'https://example.com',
     buttonVariant: 'default',
     backgroundColor: 'bg-primary',
     textColor: 'text-primary-foreground',
-    centerAlign: true
+    centerAlign: true,
   },
-  validateInDev: true
+  validateInDev: true,
 });

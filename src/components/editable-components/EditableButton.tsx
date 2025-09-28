@@ -3,12 +3,12 @@
  * This demonstrates the new auto-registration pattern with Zod schemas
  */
 
-import React from 'react';
-import { z } from 'zod';
-import { withEditable } from '@/lib/component-registry';
 import { Button as UIButton } from '@/components/ui/button';
+import { withEditableSSR } from '@/lib/component-registry';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import React from 'react';
+import { z } from 'zod';
 
 // =============================================================================
 // ZOD SCHEMA DEFINITION
@@ -17,7 +17,9 @@ import Link from 'next/link';
 const EditableButtonSchema = z.object({
   text: z.string().min(1, 'Button text is required'),
   href: z.string().optional(),
-  variant: z.enum(['default', 'destructive', 'outline', 'secondary', 'ghost', 'link']).default('default'),
+  variant: z
+    .enum(['default', 'destructive', 'outline', 'secondary', 'ghost', 'link'])
+    .default('default'),
   size: z.enum(['default', 'sm', 'lg', 'icon']).default('default'),
   disabled: z.boolean().default(false),
   fullWidth: z.boolean().default(false),
@@ -73,7 +75,7 @@ const EditableButtonComponent: React.FC<EditableButtonProps> = ({
  * Auto-registered editable button component
  * Uses the new withEditable HOC for automatic schema detection and validation
  */
-const EditableButton = withEditable(EditableButtonComponent, {
+const EditableButton = withEditableSSR(EditableButtonComponent, {
   metadata: {
     category: 'interactive',
     description: 'Interactive button component with customizable appearance and behavior',

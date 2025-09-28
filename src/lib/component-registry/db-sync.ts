@@ -5,8 +5,8 @@
 
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
-import type { RegisteredComponent } from './types';
 import { componentRegistry } from './registry';
+import type { RegisteredComponent } from './types';
 
 // =============================================================================
 // DATABASE TYPES
@@ -44,11 +44,23 @@ interface EnhancedDatabaseComponent extends DatabaseComponent {
 // =============================================================================
 
 export class ComponentDatabaseSync {
-  private prisma: PrismaClient;
+  private prisma: PrismaClient | null;
   private initialized = false;
 
   constructor(prisma?: PrismaClient) {
-    this.prisma = prisma || new PrismaClient();
+    // Don't initialize PrismaClient in browser environment
+    if (typeof window !== 'undefined') {
+      this.prisma = null;
+    } else {
+      this.prisma = prisma || new PrismaClient();
+    }
+  }
+
+  /**
+   * Check if database is available
+   */
+  private isDatabaseAvailable(): boolean {
+    return this.prisma !== null && typeof window === 'undefined';
   }
 
   /**
@@ -57,11 +69,20 @@ export class ComponentDatabaseSync {
   async initialize(): Promise<void> {
     if (this.initialized) return;
 
+    // Skip database initialization in browser environment or if prisma is null
+    if (typeof window !== 'undefined' || !this.prisma) {
+      console.warn(
+        '[ComponentDatabaseSync] Skipping database initialization in browser environment'
+      );
+      this.initialized = true;
+      return;
+    }
+
     try {
       // Test database connection
       await this.prisma.$connect();
       this.initialized = true;
-      console.log('[ComponentDatabaseSync] Initialized successfully');
+      console.warn('[ComponentDatabaseSync] Initialized successfully');
     } catch (error) {
       console.error('[ComponentDatabaseSync] Failed to initialize:', error);
       throw error;
@@ -72,10 +93,18 @@ export class ComponentDatabaseSync {
    * Sync all registered components to database
    */
   async syncToDatabase(): Promise<void> {
+    // Skip database operations in browser environment
+    if (typeof window !== 'undefined') {
+      console.warn('[ComponentDatabaseSync] Skipping database sync in browser environment');
+      return;
+    }
+
     await this.initialize();
 
     const registeredComponents = componentRegistry.getAll();
-    console.log(`[ComponentDatabaseSync] Syncing ${registeredComponents.length} components to database`);
+    console.warn(
+      `[ComponentDatabaseSync] Syncing ${registeredComponents.length} components to database`
+    );
 
     let created = 0;
     let updated = 0;
@@ -84,7 +113,7 @@ export class ComponentDatabaseSync {
     for (const component of registeredComponents) {
       try {
         const exists = await this.componentExists(component.metadata.name);
-        
+
         if (exists) {
           await this.updateComponent(component);
           updated++;
@@ -93,26 +122,38 @@ export class ComponentDatabaseSync {
           created++;
         }
       } catch (error) {
-        console.error(`[ComponentDatabaseSync] Failed to sync component ${component.metadata.name}:`, error);
+        console.error(
+          `[ComponentDatabaseSync] Failed to sync component ${component.metadata.name}:`,
+          error
+        );
         errors++;
       }
     }
 
-    console.log(`[ComponentDatabaseSync] Sync complete: ${created} created, ${updated} updated, ${errors} errors`);
+    console.log(
+      `[ComponentDatabaseSync] Sync complete: ${created} created, ${updated} updated, ${errors} errors`
+    );
   }
 
   /**
    * Load components from database and update registry
    */
   async syncFromDatabase(): Promise<void> {
+    if (!this.isDatabaseAvailable()) {
+      console.warn('[ComponentDatabaseSync] Skipping sync from database - not available');
+      return;
+    }
+
     await this.initialize();
 
     try {
-      const dbComponents = await this.prisma.component.findMany({
+      const dbComponents = await this.prisma!.component.findMany({
         where: { isActive: true },
       });
 
-      console.log(`[ComponentDatabaseSync] Loading ${dbComponents.length} components from database`);
+      console.warn(
+        `[ComponentDatabaseSync] Loading ${dbComponents.length} components from database`
+      );
 
       for (const dbComponent of dbComponents) {
         this.updateRegistryFromDatabase(dbComponent);
@@ -137,7 +178,10 @@ export class ComponentDatabaseSync {
 
       return component?.defaultConfig || {};
     } catch (error) {
-      console.error(`[ComponentDatabaseSync] Failed to get custom props for ${componentName}:`, error);
+      console.error(
+        `[ComponentDatabaseSync] Failed to get custom props for ${componentName}:`,
+        error
+      );
       return {};
     }
   }
@@ -159,11 +203,14 @@ export class ComponentDatabaseSync {
 
       // Update registry as well
       componentRegistry.updateCustomProps(componentName, customProps);
-      
+
       console.log(`[ComponentDatabaseSync] Updated custom props for ${componentName}`);
       return true;
     } catch (error) {
-      console.error(`[ComponentDatabaseSync] Failed to update custom props for ${componentName}:`, error);
+      console.error(
+        `[ComponentDatabaseSync] Failed to update custom props for ${componentName}:`,
+        error
+      );
       return false;
     }
   }
@@ -191,7 +238,7 @@ export class ComponentDatabaseSync {
 
       // Update registry as well
       componentRegistry.resetToDefaults(componentName);
-      
+
       console.log(`[ComponentDatabaseSync] Reset ${componentName} to defaults`);
       return true;
     } catch (error) {
@@ -224,7 +271,7 @@ export class ComponentDatabaseSync {
 
     try {
       const registeredNames = new Set(componentRegistry.getNames());
-      
+
       const result = await this.prisma.component.updateMany({
         where: {
           name: {
@@ -277,7 +324,7 @@ export class ComponentDatabaseSync {
    */
   private async createComponent(component: RegisteredComponent): Promise<void> {
     const data = this.serializeComponent(component);
-    
+
     await this.prisma.component.create({
       data: {
         name: data.name,
@@ -298,7 +345,7 @@ export class ComponentDatabaseSync {
    */
   private async updateComponent(component: RegisteredComponent): Promise<void> {
     const data = this.serializeComponent(component);
-    
+
     await this.prisma.component.update({
       where: { name: component.metadata.name },
       data: {
@@ -448,7 +495,7 @@ export async function syncComponentsFromDatabase(): Promise<void> {
  * Update component custom props
  */
 export async function updateComponentCustomProps(
-  componentName: string, 
+  componentName: string,
   customProps: any
 ): Promise<boolean> {
   return componentDatabaseSync.updateCustomProps(componentName, customProps);

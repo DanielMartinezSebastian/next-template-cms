@@ -3,8 +3,8 @@
  * Dynamic text content component
  */
 
+import { withEditableSSR } from '@/lib/component-registry';
 import React from 'react';
-import { withEditable } from '@/lib/component-registry';
 import { z } from 'zod';
 
 // Zod schema for runtime validation
@@ -20,7 +20,7 @@ const TextBlockSchema = z.object({
   padding: z.enum(['none', 'small', 'medium', 'large']).default('medium'),
   margin: z.enum(['none', 'small', 'medium', 'large']).default('medium'),
   maxWidth: z.enum(['none', 'prose', 'container']).default('prose'),
-  allowHtml: z.boolean().default(false)
+  allowHtml: z.boolean().default(false),
 });
 
 export interface TextBlockProps extends z.infer<typeof TextBlockSchema> {
@@ -161,13 +161,13 @@ const TextBlockComponent: React.FC<TextBlockProps> = ({
   );
 };
 
-// Export with withEditable HOC for auto-registration
-export default withEditable(TextBlockComponent, {
+// Export with withEditableSSR HOC for auto-registration
+export default withEditableSSR(TextBlockComponent, {
   metadata: {
     category: 'content',
     description: 'Text block component with title, subtitle and rich content support',
     icon: '📝',
-    tags: ['text', 'content', 'typography', 'prose']
+    tags: ['text', 'content', 'typography', 'prose'],
   },
   schema: TextBlockSchema,
   defaultProps: {
@@ -182,7 +182,7 @@ export default withEditable(TextBlockComponent, {
     padding: 'medium',
     margin: 'medium',
     maxWidth: 'prose',
-    allowHtml: false
+    allowHtml: false,
   },
-  validateInDev: true
+  validateInDev: true,
 });

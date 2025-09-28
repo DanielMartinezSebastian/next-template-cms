@@ -4,12 +4,12 @@
  */
 'use client';
 
+import { useEditorParams, useFindPageFromParams } from '@/hooks/useEditorParams';
+import { PageConfig, usePageActions, usePages } from '@/stores';
 import { ArrowLeft, ChevronRight, Edit } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
-import { useEditorParams, useFindPageFromParams } from '../../hooks/useEditorParams';
-import { PageConfig, usePageActions, usePages } from '../../stores';
 import { CreatePageModal } from './CreatePageModal';
 import { SimplePageEditor } from './SimplePageEditor';
 import { SimplePagePreview, TailwindBreakpoint } from './SimplePagePreview';
@@ -20,7 +20,7 @@ export function SimplePageManagerNew() {
 
   // Use URL-based navigation instead of store state
   const { create, pageId, navigateToPage, openCreateModal, clearParams } = useEditorParams();
-  const { loadPages, loadPageById, setCurrentPage, updatePage } = usePageActions();
+  const { loadPages, setCurrentPage, updatePage } = usePageActions();
 
   const pages = usePages();
   // Find current page based on URL parameters, not store state

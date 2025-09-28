@@ -56,7 +56,7 @@ export function DynamicPageRenderer({
           .sort((a, b) => a.order - b.order)
           .map((componentConfig, index) => (
             <ComponentErrorBoundary
-              key={componentConfig.id || `component-${index}`}
+              key={`${componentConfig.id}-${componentConfig.type}-${index}`}
               componentConfig={componentConfig}
               editMode={editMode}
             >
@@ -96,7 +96,9 @@ interface DynamicComponentProps {
 }
 
 function DynamicComponent({ config, locale, editMode = false, index }: DynamicComponentProps) {
-  console.warn(`🔍 DynamicComponent rendering: type="${config.type}", id="${config.id}"`);
+  console.warn(
+    `🔍 DynamicComponent rendering: type="${config.type}", id="${config.id}", SSR=${typeof window === 'undefined'}`
+  );
 
   const Component = ComponentFactory.getComponent(config.type);
   console.warn('🔍 ComponentFactory.getComponent result:', Component ? Component.name : 'NULL');
@@ -145,6 +147,7 @@ function DynamicComponent({ config, locale, editMode = false, index }: DynamicCo
       data-component-id={config.id}
       data-component-order={config.order}
       data-component-index={index}
+      suppressHydrationWarning={true}
     >
       {editMode && (
         <div className="component-meta mb-2 rounded bg-gray-100 p-2 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400">
@@ -167,7 +170,7 @@ function DynamicComponent({ config, locale, editMode = false, index }: DynamicCo
             .sort((a, b) => a.order - b.order)
             .map((childConfig, childIndex) => (
               <ComponentErrorBoundary
-                key={childConfig.id || `child-${childIndex}`}
+                key={`${childConfig.id}-${childConfig.type}-child-${childIndex}`}
                 componentConfig={childConfig}
                 editMode={editMode}
               >

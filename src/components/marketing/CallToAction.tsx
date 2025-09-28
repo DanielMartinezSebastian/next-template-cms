@@ -4,12 +4,12 @@
  */
 
 // NO 'use client' directive - Server Component by default
-import React from 'react';
-import { z } from 'zod';
-import { withEditableSSR } from '@/lib/component-registry/with-editable-ssr';
 import { Button } from '@/components/ui/button';
+import { withEditableSSR } from '@/lib/component-registry/with-editable-ssr';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import React from 'react';
+import { z } from 'zod';
 
 // =============================================================================
 // ZOD SCHEMA WITH VALIDATION
@@ -20,9 +20,9 @@ const CallToActionSchema = z.object({
   subtitle: z.string().optional(),
   description: z.string().optional(),
   primaryButtonText: z.string().default('Get Started'),
-  primaryButtonUrl: z.string().url('Must be a valid URL').optional(),
+  primaryButtonUrl: z.string().optional(),
   secondaryButtonText: z.string().optional(),
-  secondaryButtonUrl: z.string().url('Must be a valid URL').optional(),
+  secondaryButtonUrl: z.string().optional(),
   backgroundColor: z.enum(['default', 'primary', 'secondary', 'muted']).default('default'),
   textAlign: z.enum(['left', 'center', 'right']).default('center'),
   size: z.enum(['sm', 'md', 'lg']).default('md'),
@@ -72,64 +72,42 @@ const BaseCallToAction: React.FC<CallToActionProps> = ({
     className
   );
 
-  const titleClasses = cn(
-    'font-bold mb-4',
-    {
-      'text-2xl': size === 'sm',
-      'text-3xl': size === 'md',
-      'text-4xl': size === 'lg',
-    }
-  );
+  const titleClasses = cn('mb-4 font-bold', {
+    'text-2xl': size === 'sm',
+    'text-3xl': size === 'md',
+    'text-4xl': size === 'lg',
+  });
 
-  const subtitleClasses = cn(
-    'font-medium mb-2',
-    {
-      'text-lg': size === 'sm',
-      'text-xl': size === 'md',
-      'text-2xl': size === 'lg',
-    }
-  );
+  const subtitleClasses = cn('mb-2 font-medium', {
+    'text-lg': size === 'sm',
+    'text-xl': size === 'md',
+    'text-2xl': size === 'lg',
+  });
 
-  const descriptionClasses = cn(
-    'mb-6',
-    {
-      'text-sm': size === 'sm',
-      'text-base': size === 'md',
-      'text-lg': size === 'lg',
-    }
-  );
+  const descriptionClasses = cn('mb-6', {
+    'text-sm': size === 'sm',
+    'text-base': size === 'md',
+    'text-lg': size === 'lg',
+  });
 
-  const buttonGroupClasses = cn(
-    'flex gap-4',
-    {
-      'justify-start': textAlign === 'left',
-      'justify-center': textAlign === 'center',
-      'justify-end': textAlign === 'right',
-    }
-  );
+  const buttonGroupClasses = cn('flex gap-4', {
+    'justify-start': textAlign === 'left',
+    'justify-center': textAlign === 'center',
+    'justify-end': textAlign === 'right',
+  });
 
   return (
     <div className={containerClasses}>
-      {subtitle && (
-        <p className={subtitleClasses}>
-          {subtitle}
-        </p>
-      )}
-      
-      <h2 className={titleClasses}>
-        {title}
-      </h2>
-      
-      {description && (
-        <p className={descriptionClasses}>
-          {description}
-        </p>
-      )}
-      
+      {subtitle && <p className={subtitleClasses}>{subtitle}</p>}
+
+      <h2 className={titleClasses}>{title}</h2>
+
+      {description && <p className={descriptionClasses}>{description}</p>}
+
       <div className={buttonGroupClasses}>
         {primaryButtonUrl ? (
           <Link href={primaryButtonUrl}>
-            <Button 
+            <Button
               size={size === 'sm' ? 'sm' : size === 'lg' ? 'lg' : 'default'}
               variant={backgroundColor === 'primary' ? 'secondary' : 'default'}
             >
@@ -137,18 +115,19 @@ const BaseCallToAction: React.FC<CallToActionProps> = ({
             </Button>
           </Link>
         ) : (
-          <Button 
+          <Button
             size={size === 'sm' ? 'sm' : size === 'lg' ? 'lg' : 'default'}
             variant={backgroundColor === 'primary' ? 'secondary' : 'default'}
           >
             {primaryButtonText}
           </Button>
         )}
-        
-        {showSecondaryButton && secondaryButtonText && (
-          secondaryButtonUrl ? (
+
+        {showSecondaryButton &&
+          secondaryButtonText &&
+          (secondaryButtonUrl ? (
             <Link href={secondaryButtonUrl}>
-              <Button 
+              <Button
                 variant="outline"
                 size={size === 'sm' ? 'sm' : size === 'lg' ? 'lg' : 'default'}
               >
@@ -156,14 +135,13 @@ const BaseCallToAction: React.FC<CallToActionProps> = ({
               </Button>
             </Link>
           ) : (
-            <Button 
+            <Button
               variant="outline"
               size={size === 'sm' ? 'sm' : size === 'lg' ? 'lg' : 'default'}
             >
               {secondaryButtonText}
             </Button>
-          )
-        )}
+          ))}
       </div>
     </div>
   );
@@ -197,7 +175,7 @@ const CallToAction = withEditableSSR(BaseCallToAction, {
     showSecondaryButton: false,
   },
   // Custom validation
-  customValidation: (props) => {
+  customValidation: props => {
     if (props.showSecondaryButton && !props.secondaryButtonText) {
       return 'Secondary button requires text when enabled';
     }

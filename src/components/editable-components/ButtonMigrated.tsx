@@ -3,12 +3,12 @@
  * Shows how to migrate existing components to the new auto-registration pattern
  */
 
-import React from 'react';
-import { z } from 'zod';
-import { withEditable } from '@/lib/component-registry';
 import { Button as UIButton } from '@/components/ui/button';
+import { withEditableSSR } from '@/lib/component-registry';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import React from 'react';
+import { z } from 'zod';
 
 // =============================================================================
 // MIGRATION FROM OLD SYSTEM
@@ -31,7 +31,9 @@ export interface ButtonComponentProps {
 const ButtonSchema = z.object({
   text: z.string().default('Button'),
   href: z.string().optional(),
-  variant: z.enum(['default', 'destructive', 'outline', 'secondary', 'ghost', 'link']).default('default'),
+  variant: z
+    .enum(['default', 'destructive', 'outline', 'secondary', 'ghost', 'link'])
+    .default('default'),
   size: z.enum(['default', 'sm', 'lg', 'icon']).default('default'),
   disabled: z.boolean().default(false),
   fullWidth: z.boolean().default(false),
@@ -88,7 +90,7 @@ const ButtonComponent: React.FC<ButtonProps> = ({
  * Migrated Button component with automatic registration
  * This replaces the old manual configuration system
  */
-const ButtonMigrated = withEditable(ButtonComponent, {
+const ButtonMigrated = withEditableSSR(ButtonComponent, {
   metadata: {
     category: 'interactive',
     description: 'Interactive button component with customizable appearance and navigation',
@@ -106,7 +108,7 @@ const ButtonMigrated = withEditable(ButtonComponent, {
     centerAlign: false,
   },
   // Custom validation (optional)
-  customValidation: (props) => {
+  customValidation: props => {
     if (props.href && props.href.startsWith('javascript:')) {
       return 'JavaScript URLs are not allowed for security reasons';
     }

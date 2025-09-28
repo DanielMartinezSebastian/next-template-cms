@@ -4,16 +4,16 @@
  */
 'use client';
 
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useComponents, type ComponentDefinition } from '@/hooks/useComponents';
+import { generateFormFields, type PropertySchema } from '@/lib/component-schemas';
+import { PageComponent, PageConfig, useCurrentPage, usePageActions } from '@/stores';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { GripVertical, Settings, Trash2, MoveUp, MoveDown } from 'lucide-react';
+import { GripVertical, MoveDown, MoveUp, Settings, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { useComponents } from '../../hooks/useComponents';
-import { getComponentSchema, type PropertySchema } from '../../lib/component-schemas';
-import { PageComponent, PageConfig, useCurrentPage, usePageActions } from '../../stores';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
 
 // Schema para validación de componentes
 const componentSchema = z.object({
@@ -74,14 +74,18 @@ function PropertyField({
     return (
       <select
         value={String(value)}
-        onChange={e => onChange(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange(e.target.value)}
         className="border-border bg-background text-foreground focus:ring-primary w-full min-w-0 rounded-md border px-3 py-2 text-sm transition-colors focus:border-transparent focus:outline-none focus:ring-1"
       >
-        {schema.options.map(option => (
-          <option key={String(option.value)} value={String(option.value)}>
-            {option.label}
-          </option>
-        ))}
+        {schema.options.map((option: string | { value: string; label: string }, index: number) => {
+          const optionValue = typeof option === 'string' ? option : option.value;
+          const optionLabel = typeof option === 'string' ? option : option.label;
+          return (
+            <option key={`${optionValue}_${index}`} value={optionValue}>
+              {optionLabel}
+            </option>
+          );
+        })}
       </select>
     );
   }
@@ -141,7 +145,7 @@ function PropertyField({
       <Input
         type="number"
         value={Number(value)}
-        onChange={e => onChange(Number(e.target.value))}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(Number(e.target.value))}
         placeholder={schema.placeholder}
         min={schema.min}
         max={schema.max}
@@ -162,21 +166,23 @@ function PropertyField({
   );
 }
 
-function ComponentEditor({ 
-  component, 
-  onUpdate, 
-  onDelete, 
-  onMoveUp, 
-  onMoveDown, 
-  canMoveUp = false, 
-  canMoveDown = false 
+function ComponentEditor({
+  component,
+  onUpdate,
+  onDelete,
+  onMoveUp,
+  onMoveDown,
+  canMoveUp = false,
+  canMoveDown = false,
 }: ComponentEditorProps) {
   // Auto-expand newly added components for better UX
   const [isExpanded, setIsExpanded] = useState(true);
   const [formData, setFormData] = useState(component.props);
 
-  // Get component schema for structured editing
-  const componentSchema = getComponentSchema(component.type);
+  // Get component definition for display info
+  const { components } = useComponents();
+  const componentDef = components.find((c: ComponentDefinition) => c.type === component.type);
+  const formFields = generateFormFields(component.type);
 
   const handlePropChange = (key: string, value: unknown) => {
     const newProps = { ...formData, [key]: value };
@@ -195,10 +201,10 @@ function ComponentEditor({
           <GripVertical className="text-muted-foreground h-4 w-4 flex-shrink-0" />
           <div className="min-w-0 flex-1">
             <h4 className="text-card-foreground truncate text-sm font-medium">
-              {componentSchema?.name || component.type}
+              {componentDef?.name || component.type}
             </h4>
             <p className="text-muted-foreground truncate text-xs">
-              {componentSchema?.description || `ID: ${component.id}`}
+              {componentDef?.description || `ID: ${component.id}`}
             </p>
           </div>
         </div>
@@ -218,7 +224,7 @@ function ComponentEditor({
               <MoveUp className="h-4 w-4" />
             </Button>
           )}
-          
+
           {/* Move Down Button */}
           {onMoveDown && (
             <Button
@@ -234,7 +240,7 @@ function ComponentEditor({
               <MoveDown className="h-4 w-4" />
             </Button>
           )}
-          
+
           {/* Settings Button */}
           <Button
             variant="ghost"
@@ -247,7 +253,7 @@ function ComponentEditor({
           >
             <Settings className="h-4 w-4" />
           </Button>
-          
+
           {/* Delete Button */}
           <Button
             variant="ghost"
@@ -267,24 +273,24 @@ function ComponentEditor({
       {isExpanded && (
         <div className="border-border min-w-0 border-t p-4">
           <div className="min-w-0 space-y-4">
-            {componentSchema
+            {Object.keys(formFields).length > 0
               ? // Use schema-based rendering
-                Object.entries(componentSchema.properties).map(([key, schema]) => {
-                  const currentValue = formData[key] ?? schema.default;
+                Object.entries(formFields).map(([key, fieldConfig]) => {
+                  const currentValue = formData[key];
                   return (
                     <div key={key} className="min-w-0 space-y-2">
                       <label className="text-card-foreground text-sm font-medium">
-                        {schema.label}
-                        {schema.required && <span className="ml-1 text-red-500">*</span>}
+                        {fieldConfig.label || key}
+                        {fieldConfig.required && <span className="ml-1 text-red-500">*</span>}
                       </label>
-                      {schema.description && (
-                        <p className="text-muted-foreground text-xs">{schema.description}</p>
+                      {fieldConfig.description && (
+                        <p className="text-muted-foreground text-xs">{fieldConfig.description}</p>
                       )}
                       <PropertyField
                         name={key}
-                        schema={schema}
                         value={currentValue}
-                        onChange={value => handlePropChange(key, value)}
+                        onChange={(value: unknown) => handlePropChange(key, value)}
+                        schema={fieldConfig}
                       />
                     </div>
                   );
@@ -364,11 +370,10 @@ export function SimplePageEditor({
 
   const addComponent = useCallback(
     (componentType: string, defaults?: Record<string, unknown>) => {
-      // Try to get defaults from schema first, then from component def
-      const schema = getComponentSchema(componentType);
+      // Try to get defaults from component def
       const componentDef = availableComponents.find(c => c.type === componentType);
 
-      const defaultProps = defaults || componentDef?.defaultConfig || schema?.defaults || {}; // ✅ Prioritize database defaults
+      const defaultProps = defaults || componentDef?.defaultConfig || {}; // ✅ Prioritize database defaults
 
       const newComponent: PageComponent = {
         id: `${componentType}-${Date.now()}`,
@@ -424,17 +429,17 @@ export function SimplePageEditor({
   const moveComponent = useCallback(
     (fromIndex: number, toIndex: number) => {
       if (toIndex < 0 || toIndex >= watchedComponents.length) return;
-      
+
       const updatedComponents = [...watchedComponents];
       const [movedComponent] = updatedComponents.splice(fromIndex, 1);
       updatedComponents.splice(toIndex, 0, movedComponent);
-      
+
       // Update order property for each component
       const reorderedComponents = updatedComponents.map((comp, index) => ({
         ...comp,
-        order: index
+        order: index,
       }));
-      
+
       setValue('components', reorderedComponents);
 
       // Update page store
@@ -587,25 +592,21 @@ export function SimplePageEditor({
               <h4 className="text-card-foreground text-sm font-medium">Add Components</h4>
               <div className="min-w-0 space-y-2">
                 {availableComponents.map(component => {
-                  // Get schema info for enhanced display
-                  const schema = getComponentSchema(component.type);
                   return (
                     <Button
                       key={component.type}
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={() => addComponent(component.type, schema?.defaults)}
+                      onClick={() => addComponent(component.type, component.defaultConfig)}
                       className="w-full min-w-0 justify-start text-left"
                     >
                       <div className="flex min-w-0 items-center space-x-2">
-                        <span className="flex-shrink-0">{schema?.icon || '📄'}</span>
+                        <span className="flex-shrink-0">📄</span>
                         <div className="min-w-0 flex-1">
-                          <div className="truncate text-sm font-medium">
-                            {schema?.name || component.name}
-                          </div>
+                          <div className="truncate text-sm font-medium">{component.name}</div>
                           <div className="text-muted-foreground truncate text-xs">
-                            {schema?.description || `Component type: ${component.type}`}
+                            {component.description || `Component type: ${component.type}`}
                           </div>
                         </div>
                       </div>
@@ -624,7 +625,7 @@ export function SimplePageEditor({
             {/* Current Components */}
             <div className="min-w-0 space-y-3">
               <h4 className="text-card-foreground text-sm font-medium">
-                Current Components 
+                Current Components
                 {watchedComponents.length > 0 && (
                   <span className="text-muted-foreground ml-1 text-xs">
                     ({watchedComponents.length})
@@ -650,10 +651,11 @@ export function SimplePageEditor({
                   <p className="text-xs">Use the buttons above to add components</p>
                 </div>
               )}
-              
+
               {watchedComponents.length > 1 && (
                 <div className="text-muted-foreground rounded-lg bg-blue-50 p-3 text-xs dark:bg-blue-950">
-                  💡 <strong>Tip:</strong> Use the ↑ ↓ buttons to reorder components. Components are displayed in the same order on your published page.
+                  💡 <strong>Tip:</strong> Use the ↑ ↓ buttons to reorder components. Components are
+                  displayed in the same order on your published page.
                 </div>
               )}
             </div>

@@ -4,28 +4,47 @@
  */
 
 import { Button } from '@/components/ui/button';
+import { withEditableSSR } from '@/lib/component-registry';
 import React from 'react';
-import { withEditable } from '@/lib/component-registry';
 import { z } from 'zod';
 
-// Zod schema for runtime validation
+// Zod schema for runtime validation with defaults
 const HeroSectionSchema = z.object({
   title: z.string().min(1, 'Title is required').default('Welcome to Our Website'),
   subtitle: z.string().optional().default(''),
   description: z.string().optional().default('Discover amazing content and services'),
-  backgroundImage: z.string().url('Must be a valid URL').optional().default(''),
+  backgroundImage: z
+    .string()
+    .url('Must be a valid URL')
+    .optional()
+    .default(
+      'https://images.placeholders.dev/1200x600?text=Hero%20Background&bgColor=%234f46e5&textColor=%23ffffff'
+    ),
   backgroundColor: z.string().default('bg-gradient-to-r from-blue-600 to-purple-600'),
   textAlign: z.enum(['left', 'center', 'right']).default('center'),
   ctaText: z.string().optional().default('Get Started'),
-  ctaLink: z.string().url('Must be a valid URL').optional().default('#'),
+  ctaLink: z.string().url('Must be a valid URL').optional().default('https://example.com'),
   ctaType: z.enum(['default', 'secondary', 'outline']).default('default'),
   height: z.enum(['small', 'medium', 'large', 'full']).default('medium'),
   overlay: z.boolean().default(true),
-  overlayOpacity: z.number().min(0).max(1).default(0.5)
+  overlayOpacity: z.number().min(0).max(1).default(0.5),
 });
 
-export interface HeroSectionProps extends z.infer<typeof HeroSectionSchema> {
+export interface HeroSectionProps {
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  backgroundImage?: string;
+  backgroundColor?: string;
+  textAlign?: 'left' | 'center' | 'right';
+  ctaText?: string;
+  ctaLink?: string;
+  ctaType?: 'default' | 'secondary' | 'outline';
+  height?: 'small' | 'medium' | 'large' | 'full';
+  overlay?: boolean;
+  overlayOpacity?: number;
   locale?: string;
+  editMode?: boolean;
   componentId?: string;
 }
 
@@ -33,16 +52,16 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
   title = 'Welcome to Our Website',
   subtitle = '',
   description = 'Discover amazing content and services',
-  backgroundImage = '',
+  backgroundImage = 'https://images.placeholders.dev/1200x600?text=Hero%20Background&bgColor=%234f46e5&textColor=%23ffffff',
   backgroundColor = 'bg-gradient-to-r from-blue-600 to-purple-600',
   textAlign = 'center',
   ctaText = 'Get Started',
-  ctaLink = '#',
+  ctaLink = 'https://example.com',
   ctaType = 'default',
   height = 'medium',
   overlay = true,
   overlayOpacity = 0.5,
-  locale = 'en',
+
   componentId,
 }) => {
   const heightClass = {
@@ -98,28 +117,29 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
   );
 };
 
-// Export with withEditable HOC for auto-registration
-export default withEditable(HeroSectionComponent, {
+// Export with withEditableSSR HOC for auto-registration
+export default withEditableSSR(HeroSectionComponent, {
   metadata: {
     category: 'marketing',
     description: 'Hero section with title, subtitle, description and call-to-action',
     icon: '🎯',
-    tags: ['hero', 'banner', 'marketing', 'landing']
+    tags: ['hero', 'banner', 'marketing', 'landing'],
   },
   schema: HeroSectionSchema,
   defaultProps: {
     title: 'Welcome to Our Website',
     subtitle: '',
     description: 'Discover amazing content and services',
-    backgroundImage: '',
+    backgroundImage:
+      'https://images.placeholders.dev/1200x600?text=Hero%20Background&bgColor=%234f46e5&textColor=%23ffffff',
     backgroundColor: 'bg-gradient-to-r from-blue-600 to-purple-600',
     textAlign: 'center',
     ctaText: 'Get Started',
-    ctaLink: '#',
+    ctaLink: 'https://example.com',
     ctaType: 'default',
     height: 'medium',
     overlay: true,
-    overlayOpacity: 0.5
+    overlayOpacity: 0.5,
   },
-  validateInDev: true
+  validateInDev: true,
 });

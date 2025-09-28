@@ -4,11 +4,11 @@
  */
 'use client';
 
+import { DynamicPageRenderer } from '@/components/dynamic/DynamicPageRenderer';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { PageComponent, PageConfig, usePageActions } from '@/stores';
+import { PageJsonConfig } from '@/types/pages';
 import { useEffect, useState } from 'react';
-import { PageComponent, PageConfig, usePageActions } from '../../stores';
-import { PageJsonConfig } from '../../types/pages';
-import { DynamicPageRenderer } from '../dynamic/DynamicPageRenderer';
-import { ThemeToggle } from '../ui/theme-toggle';
 
 export type TailwindBreakpoint = 'default' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
 
@@ -77,12 +77,13 @@ export function SimplePagePreview({
           id: page.id,
           title: page.title,
           componentsCount: page.components?.length || 0,
-          components: page.components?.map(c => ({
-            id: c.id,
-            type: c.type,
-            props: c.props,
-            order: c.order
-          })) || [],
+          components:
+            page.components?.map(c => ({
+              id: c.id,
+              type: c.type,
+              props: c.props,
+              order: c.order,
+            })) || [],
         },
         pageConfig: {
           id: config.id,
@@ -92,9 +93,9 @@ export function SimplePagePreview({
             type: c.type,
             props: c.props,
             order: c.order,
-            isVisible: c.isVisible
+            isVisible: c.isVisible,
           })),
-        }
+        },
       });
 
       setPageConfig(config);

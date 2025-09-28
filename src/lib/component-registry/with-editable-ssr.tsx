@@ -7,13 +7,9 @@
 // NO 'use client' directive - Server Component by default
 import React, { ComponentType } from 'react';
 import { z } from 'zod';
-import type { 
-  ComponentMetadata, 
-  EditableComponentOptions, 
-  EditableComponent,
-} from './types';
-import { registerComponent, componentRegistry } from './registry';
-import { withConditionalClient, detectEditMode } from './client-wrapper';
+import { detectEditMode } from './client-wrapper';
+import { componentRegistry, registerComponent } from './registry';
+import type { ComponentMetadata, EditableComponent, EditableComponentOptions } from './types';
 
 // =============================================================================
 // HOC OPTIONS INTERFACE
@@ -64,46 +60,46 @@ function createSSREditableComponent<P extends Record<string, any>>(
   } = options;
 
   // Determine component name
-  const componentName = providedName || 
-                       WrappedComponent.displayName || 
-                       WrappedComponent.name || 
-                       'UnnamedComponent';
+  const componentName =
+    providedName || WrappedComponent.displayName || WrappedComponent.name || 'UnnamedComponent';
 
-  // Create the conditional client wrapper
-  const ConditionalComponent = withConditionalClient(WrappedComponent);
+  // Create SSR-compatible conditional component (no client wrapper needed on server)
+  const ConditionalComponent = WrappedComponent;
+
+  // Auto-register component immediately (happens during component creation)
+  const registrationOptions: EditableComponentOptions<P> = {
+    metadata: {
+      ...metadata,
+      name: componentName,
+    },
+    schema,
+    defaultProps,
+    editorConfig,
+    customValidation,
+  };
+
+  // Register component immediately when HOC is called
+  if (!componentRegistry.has(componentName)) {
+    registerComponent(componentName, WrappedComponent, registrationOptions);
+  }
 
   // SSR-compatible editable component
-  const EditableSSRComponent: React.FC<P & { editMode?: boolean }> = (props) => {
+  const EditableSSRComponent: React.FC<P & { editMode?: boolean }> = props => {
     const { editMode, ...componentProps } = props;
-    
-    // Auto-registration (happens on both server and client)
-    if (typeof window !== 'undefined' && !componentRegistry.has(componentName)) {
-      const registrationOptions: EditableComponentOptions<P> = {
-        metadata: {
-          ...metadata,
-          name: componentName,
-        },
-        schema,
-        defaultProps,
-        editorConfig,
-        customValidation,
-      };
-
-      registerComponent(componentName, WrappedComponent, registrationOptions);
-    }
 
     // Determine edit mode
     const isEditMode = editMode ?? (typeof window !== 'undefined' ? detectEditMode() : false);
 
     // Validate props if enabled (only on client-side to avoid SSR issues)
     if (typeof window !== 'undefined') {
-      const shouldValidate = (validateInDev && process.env.NODE_ENV === 'development') ||
-                            (validateInProd && process.env.NODE_ENV === 'production');
+      const shouldValidate =
+        (validateInDev && process.env.NODE_ENV === 'development') ||
+        (validateInProd && process.env.NODE_ENV === 'production');
 
       if (shouldValidate) {
         try {
           schema.parse(componentProps);
-          
+
           if (customValidation) {
             const validationError = customValidation(componentProps as P);
             if (validationError) {
@@ -122,11 +118,10 @@ function createSSREditableComponent<P extends Record<string, any>>(
     }
 
     // Get merged props (defaults + custom + provided)
-    const registeredComponent = typeof window !== 'undefined' 
-      ? componentRegistry.get<P>(componentName)
-      : null;
-      
-    const mergedProps = registeredComponent 
+    const registeredComponent =
+      typeof window !== 'undefined' ? componentRegistry.get<P>(componentName) : null;
+
+    const mergedProps = registeredComponent
       ? {
           ...registeredComponent.defaultProps,
           ...registeredComponent.customProps,
@@ -153,19 +148,11 @@ export function withEditableSSR<P extends Record<string, any>>(
   WrappedComponent: ComponentType<P>,
   options: WithEditableSSROptions<P>
 ): EditableComponent<P> {
-  const {
-    name: providedName,
-    metadata,
-    schema,
-    defaultProps,
-    editorConfig,
-  } = options;
+  const { name: providedName, metadata, schema, defaultProps, editorConfig } = options;
 
   // Determine component name
-  const componentName = providedName || 
-                       WrappedComponent.displayName || 
-                       WrappedComponent.name || 
-                       'UnnamedComponent';
+  const componentName =
+    providedName || WrappedComponent.displayName || WrappedComponent.name || 'UnnamedComponent';
 
   // Create the SSR editable component
   const EditableComponent = createSSREditableComponent(WrappedComponent, options);

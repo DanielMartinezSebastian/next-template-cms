@@ -275,7 +275,7 @@ function transformPrismaPageToApi(page: any, locale: string): PageJsonConfig {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     components: page.components.map((comp: any) => ({
       id: comp.id,
-      type: comp.component.name.toLowerCase().replace(/\s+/g, '-'), // Convert "Hero Section" -> "hero-section"
+      type: comp.component.name, // Use component name as-is to ensure SSR/CSR consistency
       props: {
         ...(comp.component.defaultConfig as Record<string, unknown>),
         ...(comp.config as Record<string, unknown>),
