@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
+import { ComponentFactory } from '@/components/dynamic/ComponentFactory';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -147,8 +148,50 @@ export function ComponentsManager() {
     }
   };
 
-  // Render component preview with current config
+  // Render component preview with current config using ComponentFactory - NEW SYSTEM
   const renderComponentPreview = (config: Record<string, unknown>) => {
+    if (!selectedComponent) return null;
+
+    try {
+      // Use ComponentFactory to create real component
+      const componentElement = ComponentFactory.createComponent(
+        selectedComponent.type,
+        { 
+          ...config, 
+          editMode: false,
+          locale: 'en' // Add required locale prop
+        }
+      );
+
+      if (componentElement) {
+        return (
+          <div className="border border-gray-200 rounded-lg p-6 bg-white">
+            {componentElement}
+          </div>
+        );
+      }
+
+      // Fallback if component not found
+      return (
+        <div className="border border-gray-200 rounded-lg p-6 bg-white">
+          <div className="text-center py-8 text-gray-500">
+            <div className="text-4xl mb-4">🧩</div>
+            <h3 className="font-semibold mb-2">Component: {selectedComponent.type}</h3>
+            <p>Component not found in ComponentFactory</p>
+            <p className="text-xs mt-2">Available: {ComponentFactory.getAvailableTypes().join(', ')}</p>
+          </div>
+        </div>
+      );
+    } catch (error) {
+      console.error('❌ Error rendering component preview:', error);
+      
+      // Legacy fallback system for compatibility
+      return renderLegacyComponentPreview(config);
+    }
+  };
+
+  // Legacy fallback function - keep for compatibility during transition
+  const renderLegacyComponentPreview = (config: Record<string, unknown>) => {
     if (!selectedComponent) return null;
 
     const componentType = selectedComponent.type.toLowerCase();
