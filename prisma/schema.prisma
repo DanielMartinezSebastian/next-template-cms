@@ -158,68 +158,58 @@ model PageContent {
 
 model Component {
   id   String @id @default(cuid())
-  name String @unique // e.g., "Hero", "FeatureGrid", "ContactForm"
-  type String // e.g., "layout", "content", "interactive"
+  name String @unique // Component name: "CallToActionComponent", "ButtonComponent" 
+  type String // Same as name for consistency: "CallToActionComponent"
 
-  // Component definition
-  category    String? // e.g., "marketing", "forms", "navigation"
+  // Component classification
+  category    String // Category: "marketing", "content", "interactive"
   description String?
+  displayName String? // Human-readable: "Call to Action"
 
-  // Configuration schema (JSON Schema) - LEGACY
-  configSchema  Json?
-  defaultConfig Json?
+  // Component configuration
+  defaultConfig Json? // User-customized default configuration
+  propsSchema   Json? // Zod schema serialized to JSON
+  editorConfig  Json? // Auto-generated editor fields configuration
 
-  // NEW: Enhanced schema system for withEditable components
-  propsSchema   Json? // Serialized Zod schema
-  defaultProps  Json? // Default props from component definition
-  customProps   Json? // User-customized props (overrides defaults)
-  editorConfig  Json? // Auto-generated editor configuration
-  version       String @default("1.0.0") // Component version for tracking
-  
-  // Component metadata
-  displayName   String? // Human-readable display name
-  icon          String? // Icon for UI (emoji or icon name)
-  tags          String[] // Tags for search and filtering
-  deprecated    Boolean @default(false) // Mark as deprecated
-
-  isActive Boolean @default(true)
+  // Component metadata  
+  icon       String? // UI icon (emoji or icon name)
+  tags       String[] // Tags for search and filtering
+  version    String   @default("1.0.0")
+  deprecated Boolean  @default(false)
+  isActive   Boolean  @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations
   pageComponents PageComponent[]
-  defaults       ComponentDefault[]
+  configs        ComponentConfig[]
 
   @@map("components")
 }
 
-// NEW: Component defaults tracking for history/versioning
-model ComponentDefault {
+// Component configuration history (simplified)
+model ComponentConfig {
   id          String @id @default(cuid())
   componentId String
-  
-  // Props tracking
-  originalProps Json  // Original default props from code
-  currentProps  Json  // Current props (may be customized)
-  
-  // Versioning
-  version     Int     @default(1)
-  description String? // Change description
-  
-  // Metadata
-  createdBy   String? // User who made the change
-  reason      String? // Reason for change
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 
-  // Relations
+  // Configuration data
+  config      Json // Configuration changes
+  description String? // Change description
+  version     Int     @default(1)
+
+  // Metadata
+  createdBy String? // User who made the change
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations  
   component Component @relation(fields: [componentId], references: [id], onDelete: Cascade)
 
   // Indexes
   @@index([componentId, version])
-  @@map("component_defaults")
+  @@map("component_configs")
 }
 
 model PageComponent {

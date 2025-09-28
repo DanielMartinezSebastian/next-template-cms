@@ -331,13 +331,14 @@ export class ComponentDatabaseSync {
         type: data.type,
         category: data.category,
         description: data.description,
-        configSchema: data.configSchema,
+        displayName: data.displayName,
+        propsSchema: data.propsSchema,
         defaultConfig: data.defaultConfig,
         isActive: true,
       },
     });
 
-    console.log(`[ComponentDatabaseSync] Created component: ${component.metadata.name}`);
+    console.warn(`[ComponentDatabaseSync] Created component: ${component.metadata.name}`);
   }
 
   /**
@@ -346,20 +347,21 @@ export class ComponentDatabaseSync {
   private async updateComponent(component: RegisteredComponent): Promise<void> {
     const data = this.serializeComponent(component);
 
-    await this.prisma.component.update({
+    await this.prisma!.component.update({
       where: { name: component.metadata.name },
       data: {
         type: data.type,
         category: data.category,
         description: data.description,
-        configSchema: data.configSchema,
+        displayName: data.displayName,
+        propsSchema: data.propsSchema,
         defaultConfig: data.defaultConfig,
         isActive: true,
         updatedAt: new Date(),
       },
     });
 
-    console.log(`[ComponentDatabaseSync] Updated component: ${component.metadata.name}`);
+    console.warn(`[ComponentDatabaseSync] Updated component: ${component.metadata.name}`);
   }
 
   /**
@@ -384,15 +386,17 @@ export class ComponentDatabaseSync {
     type: string;
     category: string;
     description: string;
-    configSchema: any;
+    displayName: string;
+    propsSchema: any;
     defaultConfig: any;
   } {
     return {
-      name: component.metadata.name,
-      type: component.metadata.category,
-      category: component.metadata.category,
+      name: component.metadata.name, // "CallToActionComponent"
+      type: component.metadata.name, // Same as name for consistency
+      category: component.metadata.category, // "marketing"
       description: component.metadata.description || '',
-      configSchema: this.serializeSchema(component.schema),
+      displayName: component.metadata.displayName || component.metadata.name,
+      propsSchema: this.serializeSchema(component.schema),
       defaultConfig: component.defaultProps,
     };
   }
