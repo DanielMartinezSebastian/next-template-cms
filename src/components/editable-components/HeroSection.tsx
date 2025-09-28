@@ -40,7 +40,6 @@ interface HeroSectionProps {
   centered: boolean;
   size: 'small' | 'medium' | 'large';
   locale?: string;
-  editMode?: boolean;
   componentId?: string;
 }
 
@@ -58,7 +57,6 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
   centered,
   size,
   componentId,
-  editMode,
 }) => {
   const sizeClasses = {
     small: 'py-16 px-6',
@@ -117,12 +115,6 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
           </div>
         )}
       </div>
-
-      {editMode && (
-        <div className="absolute left-4 top-4 rounded bg-blue-600 px-2 py-1 text-xs text-white">
-          Hero Section
-        </div>
-      )}
     </section>
   );
 };

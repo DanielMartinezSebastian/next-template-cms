@@ -35,7 +35,6 @@ interface CardProps {
   variant: 'default' | 'bordered' | 'elevated';
   textAlign: 'left' | 'center';
   locale?: string;
-  editMode?: boolean;
   componentId?: string;
 }
 
@@ -50,7 +49,6 @@ const CardComponent: React.FC<CardProps> = ({
   variant,
   textAlign,
   componentId,
-  editMode,
 }) => {
   const variantClasses = {
     default: 'bg-white shadow-sm',
@@ -131,12 +129,6 @@ const CardComponent: React.FC<CardProps> = ({
           {renderImage()}
           {renderContent()}
         </>
-      )}
-
-      {editMode && (
-        <div className="absolute right-2 top-2 rounded bg-orange-600 px-2 py-1 text-xs text-white">
-          Card
-        </div>
       )}
     </div>
   );

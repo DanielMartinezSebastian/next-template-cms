@@ -6,7 +6,8 @@
 export { ComponentErrorBoundary, withErrorBoundary } from './ComponentErrorBoundary';
 export { ComponentFactory } from './ComponentFactory';
 export { DynamicPageRenderer, renderDynamicPageSSR } from './DynamicPageRenderer';
-export { getLoadingComponent, LoadingComponent } from './LoadingComponent';
+export { LoadingComponent, getLoadingComponent } from './LoadingComponent';
+export { default as SSRPageRenderer } from './SSRPageRenderer';
 
 // Editable Components with withEditable HOC (New System)
 export * from '../editable-components';

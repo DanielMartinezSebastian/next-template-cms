@@ -120,8 +120,8 @@ export class ComponentFactory {
       return createElement(UnknownComponent, { type, ...props });
     }
 
-    // Auto-detect edit mode
-    const editMode = detectEditMode();
+    // Auto-detect edit mode (only on client-side)
+    const editMode = typeof window !== 'undefined' ? detectEditMode() : false;
 
     // All components use NEW SYSTEM, include editMode
     return createElement(Component, { ...props, editMode });

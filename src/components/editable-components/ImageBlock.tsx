@@ -31,7 +31,6 @@ interface ImageBlockProps {
   variant: 'default' | 'rounded' | 'circle';
   showCaption: boolean;
   locale?: string;
-  editMode?: boolean;
   componentId?: string;
 }
 
@@ -45,7 +44,6 @@ const ImageBlockComponent: React.FC<ImageBlockProps> = ({
   variant,
   showCaption,
   componentId,
-  editMode,
 }) => {
   const alignmentClasses = {
     left: 'justify-start text-left',
@@ -85,12 +83,6 @@ const ImageBlockComponent: React.FC<ImageBlockProps> = ({
       </div>
 
       {showCaption && caption && <div className="mt-3 text-sm italic text-gray-600">{caption}</div>}
-
-      {editMode && (
-        <div className="absolute left-2 top-2 rounded bg-indigo-600 px-2 py-1 text-xs text-white">
-          Image Block
-        </div>
-      )}
     </div>
   );
 };

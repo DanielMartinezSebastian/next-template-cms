@@ -305,7 +305,7 @@ export function SimplePagePreview({
                 <DynamicPageRenderer
                   pageConfig={pageConfig}
                   locale={locale}
-                  editMode={false}
+                  editMode={true}
                   className="dynamic-page-content min-h-full"
                 />
               ) : (

@@ -30,7 +30,6 @@ interface ButtonProps {
   fullWidth: boolean;
   alignment: 'left' | 'center' | 'right';
   locale?: string;
-  editMode?: boolean;
   componentId?: string;
 }
 
@@ -43,7 +42,6 @@ const ButtonComponent: React.FC<ButtonProps> = ({
   fullWidth,
   alignment,
   componentId,
-  editMode,
 }) => {
   const alignmentClasses = {
     left: 'justify-start',
@@ -80,12 +78,6 @@ const ButtonComponent: React.FC<ButtonProps> = ({
       data-component-id={componentId}
     >
       {content}
-
-      {editMode && (
-        <div className="absolute -top-6 left-0 rounded bg-purple-600 px-2 py-1 text-xs text-white">
-          Button
-        </div>
-      )}
     </div>
   );
 };

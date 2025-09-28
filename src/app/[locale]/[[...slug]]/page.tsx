@@ -1,4 +1,4 @@
-import { DynamicPageRenderer } from '@/components/dynamic';
+import { SSRPageRenderer } from '@/components/dynamic';
 import { HomePage, generateStaticParamsForHome } from '@/components/pages';
 import { isPagesTableAvailable, prisma } from '@/lib/db';
 import { PageJsonConfig } from '@/types/pages';
@@ -232,12 +232,7 @@ export default async function GlobalCatchAllPage({ params }: Props) {
 
     return (
       <div className="dynamic-page min-h-screen">
-        <DynamicPageRenderer
-          pageConfig={pageConfig}
-          locale={locale}
-          editMode={false}
-          className="dynamic-page-content"
-        />
+        <SSRPageRenderer pageConfig={pageConfig} locale={locale} className="dynamic-page-content" />
       </div>
     );
   } catch (error) {

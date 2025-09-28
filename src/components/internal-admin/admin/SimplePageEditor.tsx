@@ -191,7 +191,10 @@ function ComponentEditor({
   };
 
   return (
-    <div className="bg-card border-border min-w-0 rounded-lg border">
+    <div
+      className="bg-card border-border min-w-0 rounded-lg border"
+      data-properties-component-id={component.id}
+    >
       {/* Component Header */}
       <div
         className="flex min-w-0 cursor-pointer items-center justify-between p-4"

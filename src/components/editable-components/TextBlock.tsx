@@ -110,12 +110,6 @@ const TextBlockComponent: React.FC<TextBlockProps> = ({
           <div className="text-sm">Agrega contenido para mostrar aquí</div>
         </div>
       )}
-
-      {editMode && (
-        <div className="absolute left-2 top-2 rounded bg-green-600 px-2 py-1 text-xs text-white">
-          Text Block
-        </div>
-      )}
     </div>
   );
 };

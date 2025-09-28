@@ -90,12 +90,6 @@ const CallToActionComponent: React.FC<CallToActionProps> = ({
           </Button>
         </div>
       </div>
-
-      {editMode && (
-        <div className="absolute right-4 top-4 rounded bg-red-600 px-2 py-1 text-xs text-white">
-          Call To Action
-        </div>
-      )}
     </section>
   );
 };

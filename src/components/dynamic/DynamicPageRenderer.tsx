@@ -9,6 +9,7 @@ import { ComponentConfig, PageJsonConfig } from '@/types/pages';
 import { Suspense } from 'react';
 import { ComponentErrorBoundary } from './ComponentErrorBoundary';
 import { ComponentFactory } from './ComponentFactory';
+import EditableWrapper from './EditableWrapper';
 import { LoadingComponent } from './LoadingComponent';
 
 interface DynamicPageRendererProps {
@@ -138,6 +139,9 @@ function DynamicComponent({ config, locale, editMode = false, index }: DynamicCo
   // Use ComponentFactory.createComponent for proper sanitization
   const componentElement = ComponentFactory.createComponent(config.type, componentProps);
 
+  // Clean component name for display (remove "Component" suffix)
+  const displayComponentName = config.type.replace(/Component$/, '');
+
   return (
     <div
       className={`dynamic-component ${editMode ? 'edit-mode' : ''} ${
@@ -160,7 +164,14 @@ function DynamicComponent({ config, locale, editMode = false, index }: DynamicCo
         </div>
       )}
 
-      {componentElement}
+      {/* Wrap component with EditableWrapper for centralized edit mode handling */}
+      <EditableWrapper
+        componentId={config.id}
+        componentType={displayComponentName}
+        editMode={editMode}
+      >
+        {componentElement}
+      </EditableWrapper>
 
       {/* Render Children Components */}
       {config.children && config.children.length > 0 && (
