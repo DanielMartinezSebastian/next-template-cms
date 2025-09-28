@@ -39,15 +39,15 @@ interface CallToActionProps {
 }
 
 const CallToActionComponent: React.FC<CallToActionProps> = ({
-  title,
-  description,
-  buttonText,
-  buttonLink,
-  buttonVariant,
-  backgroundColor,
-  textColor,
-  centered,
-  size,
+  title = '¿Listo para comenzar?',
+  description = 'Únete a miles de clientes satisfechos y comienza tu viaje con nosotros hoy mismo.',
+  buttonText = 'Empezar ahora',
+  buttonLink = 'https://nextjs.org/',
+  buttonVariant = 'default',
+  backgroundColor = '#3b82f6',
+  textColor = '#ffffff',
+  centered = true,
+  size = 'medium',
   componentId,
   editMode,
 }) => {
@@ -86,7 +86,7 @@ const CallToActionComponent: React.FC<CallToActionProps> = ({
 
         <div className={cn('flex gap-4', centered ? 'justify-center' : 'justify-start')}>
           <Button variant={buttonVariant} size="lg" asChild>
-            <Link href={buttonLink}>{buttonText}</Link>
+            <Link href={buttonLink || '#'}>{buttonText}</Link>
           </Button>
         </div>
       </div>
